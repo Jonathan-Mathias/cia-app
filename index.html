@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIA App · Versão Beta — Elite Migration</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;
+  --surface:#1a1a27;
+  --border:#2e2e44;
+  --border2:#4a4a68;
+  --text:#f0f0fa;
+  --text2:#b8b8d4;
+  --muted:#8888a8;
+  --accent:#D4AF37;
+  --accent2:#b8920e;
+  --green:#2B5EA7;
+  --green2:#1a3a6b;
+  --orange:#f07a4a;
+  --red:#e85555;
+  --gold:#f0c44a;
+  --r:14px;--r2:10px;
+}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.app{max-width:520px;margin:0 auto;padding:20px 18px 80px}
+
+/* TRILHA */
+.trilha-wrap{text-align:center;padding:36px 0 32px}
+.trilha-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;font-weight:600}
+.trilha-h1{font-family:'DM Serif Display',serif;font-size:clamp(26px,6vw,34px);line-height:1.2;color:var(--text);margin-bottom:12px;letter-spacing:-0.02em}
+.trilha-sub{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.7;max-width:340px;margin-left:auto;margin-right:auto}
+.trilha-context{display:flex;flex-direction:column;gap:8px;margin:0 auto 28px;max-width:400px}
+.trilha-proof{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:#16162280;border:1px solid var(--border);border-radius:var(--r2)}
+.trilha-proof-icon{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:1px}
+.trilha-proof-text{font-size:13px;color:var(--text2);line-height:1.55;text-align:left}
+.trilha-proof-text strong{color:var(--text);font-weight:500}
+.trilha-divider{display:flex;align-items:center;gap:12px;margin:0 auto 18px;max-width:400px}
+.trilha-divider::before,.trilha-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.trilha-divider-txt{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;padding:0 4px}
+.trilha-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:400px;margin:0 auto 16px}
+.trilha-btn{padding:26px 14px 20px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);cursor:pointer;font-family:'Geist',sans-serif;transition:all .25s cubic-bezier(.4,0,.2,1);text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;overflow:hidden}
+.trilha-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.35)}
+.trilha-btn.de:hover,.trilha-btn.de.sel{border-color:#D4AF37;background:#1a1500}
+.trilha-btn.au:hover,.trilha-btn.au.sel{border-color:#2B5EA7;background:#0a1020}
+.trilha-flag{width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));transition:transform .25s}
+.trilha-btn:hover .trilha-flag{transform:scale(1.06)}
+.trilha-nome{font-size:16px;font-weight:600;color:var(--text);letter-spacing:-0.01em}
+.trilha-btn-sub{font-size:11px;color:var(--muted);margin-top:-4px;font-family:'DM Mono',monospace;letter-spacing:0.5px}
+
+/* PROGRESSO */
+.prog-wrap{margin-bottom:28px}
+.prog-meta{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px}
+.prog-bar{height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;transition:width .4s ease}
+.prog-fill.de{background:linear-gradient(90deg,#D4AF37,#b8920e)}
+.prog-fill.au{background:linear-gradient(90deg,#2B5EA7,#1a3a6b)}
+
+/* CARD */
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px 20px;margin-bottom:14px}
+.q-text{font-size:17px;line-height:1.6;color:var(--text);margin-bottom:22px;font-weight:400;letter-spacing:-0.01em}
+.q-hint{font-size:13px;color:var(--muted);margin-top:-14px;margin-bottom:20px;line-height:1.6;padding:10px 14px;background:#111120;border-radius:var(--r2);border-left:2px solid var(--border2)}
+
+/* OPÇÕES */
+.opts{display:grid;gap:9px}
+.opt{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#111120;border:1px solid #30304a;border-radius:var(--r2);cursor:pointer;transition:border-color .15s,background .15s;text-align:left;width:100%;font-family:'Geist',sans-serif}
+.opt-key{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:#1c1c30;border:1px solid #30304a;border-radius:5px;padding:3px 8px;flex-shrink:0;min-width:28px;text-align:center;transition:all .15s;letter-spacing:0.3px}
+.opt-lbl{font-size:15px;color:var(--text2);line-height:1.4}
+.opt:hover{border-color:var(--border2);background:#181828}
+.opt:hover .opt-lbl{color:var(--text)}
+.opt.sel.de{border-color:#D4AF37;background:#1a1500}
+.opt.sel.de .opt-key{background:#D4AF37;color:#0d0d00;border-color:#D4AF37}
+.opt.sel.de .opt-lbl{color:var(--text);font-weight:500}
+.opt.sel.au{border-color:#2B5EA7;background:#0a1020}
+.opt.sel.au .opt-key{background:#2B5EA7;color:#fff;border-color:#2B5EA7}
+.opt.sel.au .opt-lbl{color:var(--text);font-weight:500}
+
+/* FAMÍLIA — só contadores */
+.fam-intro{font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.6;padding:12px 14px;background:#111120;border-radius:var(--r2);border:1px solid var(--border)}
+.fam-grid{display:grid;gap:10px}
+.fam-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#111120;border:1px solid #30304a;border-radius:var(--r2)}
+.fam-lbl{font-size:14px;color:var(--text);font-weight:500}
+.fam-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.fam-ctrl{display:flex;align-items:center;gap:14px}
+.fam-btn{width:34px;height:34px;border-radius:50%;border:1px solid #30304a;background:#1c1c30;color:var(--text2);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1;flex-shrink:0}
+.fam-btn:hover{border-color:var(--accent);color:var(--accent);background:#0d1a30}
+.fam-val{font-family:'DM Mono',monospace;font-size:20px;min-width:24px;text-align:center;color:var(--accent);font-weight:500}
+.fam-total{font-size:13px;color:var(--muted);text-align:center;margin-top:12px;font-family:'DM Mono',monospace}
+
+/* NAV */
+.nav{display:flex;gap:10px;margin-top:4px}
+.btn-next{flex:1;padding:15px 20px;border-radius:var(--r2);font-size:15px;font-weight:500;cursor:pointer;border:none;font-family:'Geist',sans-serif;color:#fff;transition:opacity .15s,background .15s}
+.btn-next.de{background:#D4AF37;color:#0d0d00}
+.btn-next.au{background:#2B5EA7;color:#fff}
+.btn-next:disabled{background:#252538;color:#4a4a68;cursor:not-allowed}
+.btn-back{width:48px;flex-shrink:0;padding:14px;border-radius:var(--r2);font-size:18px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Geist',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.btn-back:hover{border-color:var(--border2);color:var(--text)}
+
+/* RESULTADOS */
+.res{animation:fadeUp .6s cubic-bezier(.4,0,.2,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.trilha-wrap{animation:fadeUp .5s ease both}
+.q-card{animation:fadeUp .3s ease both}
+
+.score-hero{text-align:center;padding:28px 0 20px}
+.score-ring-wrap{position:relative;display:inline-block;margin-bottom:16px}
+.score-ring-wrap svg{display:block}
+.score-num-wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-big{font-family:'DM Serif Display',serif;font-size:52px;line-height:1;color:var(--text)}
+.score-of{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:5px}
+.score-band{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:500}
+.score-desc{font-size:14px;color:var(--text2);max-width:320px;margin:0 auto;line-height:1.7}
+
+/* DIMENSÕES */
+.dims{display:grid;gap:10px;margin:16px 0 24px}
+.dim-bar-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px}
+.dim-bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.dim-bar-name{font-size:13px;color:var(--text2);font-weight:500}
+.dim-bar-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.dim-bar-score{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:500}
+.dim-bar-track{height:5px;background:#1e1e30;border-radius:3px;overflow:hidden}
+.dim-bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+
+/* BANDAS */
+.bands{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:16px 0 24px}
+.band{padding:10px 6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);text-align:center;transition:all .2s}
+.band.act{border-width:2px;transform:translateY(-2px)}
+.band-name{font-size:11px;font-weight:500;margin-bottom:3px;line-height:1.2}
+.band-range{font-family:'DM Mono',monospace;font-size:9px;opacity:0.5}
+
+/* ALERTAS */
+.alert-wrap{display:grid;gap:9px;margin-bottom:20px}
+.alert-card{padding:14px 16px;border-radius:var(--r2);border:1px solid;display:flex;gap:12px;align-items:flex-start}
+.alert-card.warn{border-color:#f0c44a50;background:#f0c44a0d}
+.alert-card.danger{border-color:#e8555550;background:#e855550d}
+.alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.alert-card.warn .alert-dot{background:var(--gold)}
+.alert-card.danger .alert-dot{background:var(--red)}
+.alert-text{font-size:13px;color:var(--text2);line-height:1.6}
+.alert-text strong{color:var(--text);font-weight:500}
+
+/* SEÇÃO */
+.sec-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;margin-top:28px;display:flex;align-items:center;gap:10px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec-label-main{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;margin-top:28px;display:flex;align-items:center;gap:10px;font-weight:500}
+.sec-label-main::after{content:'';flex:1;height:1px;background:var(--border)}
+.collapse-toggle{background:transparent;border:1px solid var(--border);border-radius:var(--r2);color:var(--muted);font-size:12px;padding:7px 14px;cursor:pointer;font-family:'Geist',sans-serif;margin-bottom:8px;width:100%;text-align:center;transition:all .15s}
+.collapse-toggle:hover{border-color:var(--border2);color:var(--text)}
+
+/* INSIGHTS */
+.ins-card{background:var(--surface);border:1px solid var(--border);border-left-width:3px;border-radius:0 var(--r2) var(--r2) 0;padding:16px 18px;margin-bottom:8px}
+.ins-card.collapsed .ins-text{display:none}
+.ins-card.collapsed{cursor:pointer}
+.ins-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;letter-spacing:-0.01em;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.ins-title-chevron{font-size:9px;color:var(--border2);flex-shrink:0;margin-top:3px;transition:transform .2s,color .15s;opacity:0.6}
+.ins-card:hover .ins-title-chevron{color:var(--muted);opacity:1}
+.ins-card.collapsed .ins-title-chevron{transform:rotate(-90deg);opacity:1;color:var(--muted)}
+.ins-text{font-size:13px;color:var(--text2);line-height:1.7}
+.ins-text strong{color:var(--text);font-weight:600}
+.ins-text a{color:var(--accent);text-decoration:none}
+.ins-text a:hover{text-decoration:underline}
+
+/* PASSOS */
+.steps{display:grid;gap:8px;margin-bottom:20px}
+.step{display:flex;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);align-items:flex-start}
+.step-n{font-family:'DM Mono',monospace;font-size:10px;color:#D4AF37;background:#D4AF3715;border:1px solid #D4AF3730;border-radius:4px;padding:2px 7px;flex-shrink:0;margin-top:2px;letter-spacing:0.5px}
+.step-t{font-size:13px;color:var(--text2);line-height:1.6}
+.step-t a{color:var(--accent);text-decoration:none}
+
+/* PROMO */
+.promo{border-radius:var(--r);padding:22px;margin:14px 0}
+.promo.ebook{background:#0c1a12;border:1px solid #3ecf8e40}
+.promo.curso{background:#0f1520;border:1px solid #5b9cf630}
+.promo-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-weight:500}
+.promo.ebook .promo-tag{color:#3ecf8e}
+.promo.curso .promo-tag{color:var(--accent)}
+.promo-title{font-family:'DM Serif Display',serif;font-size:19px;color:var(--text);margin-bottom:7px}
+.promo-sub{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.65}
+.promo-btn{display:inline-flex;padding:10px 20px;border:none;border-radius:var(--r2);font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none}
+.promo.ebook .promo-btn{background:#3ecf8e;color:#071209}
+.promo.curso .promo-btn{background:var(--accent);color:#fff}
+.promo.curso[style*="1a1500"] .promo-btn{background:#D4AF37;color:#0d0d00}
+
+/* SOCIAL */
+.social{padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin:8px 0 16px}
+.social p{font-size:13px;color:var(--text2);line-height:1.65}
+.social a{color:var(--accent);text-decoration:none;font-weight:500}
+
+/* BETA CARD */
+.beta-card{background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:18px 16px;margin:8px 0 16px}
+.beta-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.beta-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.beta-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:5px}
+.beta-sub{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.55}
+.beta-form{display:grid;gap:10px}
+.beta-inp{width:100%;padding:12px 14px;border:1px solid #30304a;border-radius:var(--r2);font-size:14px;color:var(--text);background:#0d0d1a;font-family:'Geist',sans-serif;outline:none;transition:border-color .15s;box-sizing:border-box}
+.beta-inp:focus{border-color:var(--accent)}
+.beta-inp::placeholder{color:#4a4a68}
+.beta-btn{padding:13px;border:none;border-radius:var(--r2);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:background .15s;width:100%}
+.beta-btn.de{background:#D4AF37;color:#0d0d00}
+.beta-btn.au{background:#2B5EA7;color:#fff}
+.beta-ok{font-size:13px;color:#3ecf8e;text-align:center;padding:8px 0;display:none;font-weight:500}
+.beta-err{font-size:12px;color:var(--red);text-align:center;padding:4px 0;display:none}
+.beta-note{font-size:11px;color:var(--muted);text-align:center;line-height:1.5}
+
+/* SHARE */
+.share-wrap{display:grid;gap:9px;margin:8px 0 16px}
+.share-btn-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s;width:100%}
+.share-btn-row:hover{border-color:var(--border2)}
+.share-btn-row.ok{border-color:#3ecf8e}
+.share-lbl{font-size:14px;color:var(--text2);text-align:left}
+.share-lbl.ok{color:#3ecf8e}
+.share-icon{font-size:16px;opacity:0.6}
+.share-beta{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:1px;background:#f0c44a15;border:1px solid #f0c44a30;border-radius:4px;padding:2px 6px}
+
+.restart{text-align:center;padding:8px 0 4px}
+.restart-btn{background:transparent;border:1px solid var(--border2);border-radius:var(--r2);color:var(--text2);font-size:13px;padding:12px 28px;cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s;width:100%}
+.restart-btn:hover{border-color:var(--accent);color:var(--text);background:#5b9cf610}
+
+@media(max-width:400px){
+  .bands{grid-template-columns:repeat(2,1fr)}
+  .trilha-grid{gap:10px}
+  .q-text{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+/* =======================================================
+   COLETA DE DADOS — Google Sheets via Apps Script
+   -------------------------------------------------------
+   CONFIGURAÇÃO (10 min):
+   1. Acesse sheets.google.com e crie uma planilha chamada
+      "CIA App — Dados"
+   2. Crie 3 abas: "Quiz", "Cliques", "Leads"
+   3. Acesse script.google.com e crie um novo projeto
+   4. Cole o código do webhook (disponível na documentação)
+   5. Publique como Web App (Execute as: Me, Access: Anyone)
+   6. Cole a URL gerada em SHEETS_URL abaixo
+   -------------------------------------------------------
+   Enquanto SHEETS_URL estiver vazio, os dados ficam
+   apenas no console do navegador (F12 > Console).
+========================================================= */
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzs484zhRqNListUyj_85eNp0gUhYQdhbfP4AAI0PfnZxm8aQMD3KgHENo0loqxpRey4A/exec';   // cole aqui a URL do Apps Script
+
+async function logEvent(type, data){
+  const payload = {type, ts: new Date().toISOString(), ...data};
+  console.log('[CIA App]', type, payload);
+  if(!SHEETS_URL) return;
+  try {
+    await fetch(SHEETS_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  } catch(e){ console.warn('Sheets error', e); }
+}
+
+/* =======================================================
+   LINKS — substituir quando disponíveis
+========================================================= */
+const EBOOK_URL     = 'https://pay.hotmart.com/S76741696B';
+const CURSO_URL     = 'https://hotmart.com/pt-br/marketplace/produtos/emprego-na-alemanha/S95826105M';
+const CURSO_ALEMAO  = '';
+const SEGURO_URL    = '';
+const APP_CV_URL    = '';
+const APP_CARTA_URL = '';
+const APP_LI_URL    = '';
+
+/* =======================================================
+   PERGUNTAS — 4 dimensões
+========================================================= */
+function getQuestions(t){
+  const de = t === 'de';
+  return [
+    {id:'p1',dim:'d1',dimLbl:'Idioma e Área',
+      q:'Você conseguiria fazer uma entrevista de emprego em inglês hoje?',
+      opts:[
+        {l:'Não, ainda não consigo',v:0},
+        {l:'Consigo, mas precisaria me preparar bastante',v:1},
+        {l:'Sim, com razoável confiança',v:2},
+        {l:'Sim, é meu idioma de trabalho habitual',v:3}]},
+    {id:'p2',dim:'d1',dimLbl:'Idioma e Área',
+      q: de ? 'Qual é o seu nível de Alemão?' : 'Como você avalia seu Inglês em contexto profissional?',
+      hint: de ? 'A1, A2: iniciante. B1: comunicação no dia a dia. B2: trabalha em contextos técnicos. C1 ou mais: idioma principal de trabalho.' : null,
+      opts: de ? [
+        {l:'Não falo Alemão',v:0},
+        {l:'Estou aprendendo: A1 ou A2',v:1},
+        {l:'Consigo me comunicar no dia a dia: B1',v:2},
+        {l:'Trabalho em contextos técnicos: B2',v:3},
+        {l:'É meu idioma principal de trabalho: C1 ou mais',v:4}
+      ] : [
+        {l:'Básico: tenho dificuldade em reuniões',v:0},
+        {l:'Intermediário: me viro, mas cometo erros',v:1},
+        {l:'Avançado: conduzo reuniões e escrevo relatórios',v:2},
+        {l:'Fluente: é meu idioma profissional habitual',v:3}]},
+    {id:'p3',dim:'d1',dimLbl:'Idioma e Área',
+      q:'Qual é a sua área de atuação?',
+      opts:[
+        {l:'Engenharia e manufatura',v:'eng'},
+        {l:'Tecnologia e TI',v:'ti'},
+        {l:'Gestão e negócios',v:'neg'},
+        {l:'Medicina e saúde',v:'saude'},
+        {l:'Comércio Exterior e logística',v:'comex'},
+        {l:'Estudos (mestrado, MBA ou curso)',v:'estudos'},
+        {l:'Outra área',v:'outro'}]},
+    {id:'p4',dim:'d2',dimLbl:'Maturidade da decisão',
+      q: de ? 'Você já pesquisou como validar seu diploma na Alemanha?' : 'Você já pesquisou qual visto permite trabalhar na sua área na Austrália?',
+      opts: de ? [
+        {l:'Não sabia que isso era necessário',v:0},
+        {l:'Sei que preciso, mas ainda não pesquisei',v:1},
+        {l:'Já pesquisei e sei o que preciso fazer',v:2},
+        {l:'Já iniciei o processo de validação',v:3}
+      ] : [
+        {l:'Não sei qual visto precisaria',v:0},
+        {l:'Sei que existe essa exigência, mas não pesquisei',v:1},
+        {l:'Já pesquisei e entendo as opções',v:2},
+        {l:'Já tenho visto ou estou em processo',v:3}]},
+    {id:'p5',dim:'d2',dimLbl:'Maturidade da decisão',
+      q:'Quantas pessoas dependem de você nessa mudança?',
+      familyQ:true,
+      ctrs:[
+        {k:'adultos',l:'Adultos',s:'Cônjuge, parceiro(a)'},
+        {k:'criancas',l:'Crianças de 0 a 6 anos',s:'Precisarão de creche (Kita)'},
+        {k:'jovens',l:'Jovens de 7 a 18 anos',s:'Escola obrigatória na Alemanha'}]},
+    {id:'p5b',dim:'d2',dimLbl:'Maturidade da decisão',
+      q:'As pessoas que vão com você estão alinhadas com essa mudança?',
+      conditional:'p5_notSolo',
+      opts:[
+        {l:'Ainda não conversei sobre isso',v:0},
+        {l:'Conversamos, mas há dúvidas e resistência',v:1},
+        {l:'Estão abertas, mas com dúvidas naturais',v:2},
+        {l:'Estão totalmente alinhadas e envolvidas',v:3}]},
+    {id:'p6',dim:'d2',dimLbl:'Maturidade da decisão',
+      q: de ? 'Você já conversou com brasileiros que trabalham na Alemanha na sua área?' : 'Você já conversou com brasileiros que trabalham na Austrália na sua área?',
+      opts:[
+        {l:'Nunca conversei com ninguém',v:0},
+        {l:'Acompanho conteúdo, mas nunca conversei diretamente',v:1},
+        {l:'Já conversei com uma ou duas pessoas',v:2},
+        {l:'Tenho contatos ativos no destino na minha área',v:3}]},
+    {id:'p7',dim:'d3',dimLbl:'Perfil comportamental',
+      q: de ? 'Você já aplicou para alguma vaga na Alemanha?' : 'Você já aplicou para alguma vaga na Austrália?',
+      opts:[
+        {l:'Nunca tentei',v:0},
+        {l:'Já pesquisei vagas, mas não apliquei',v:1},
+        {l:'Já apliquei, mas não obtive retorno',v:2},
+        {l:'Já tive entrevistas ou retorno de recrutadores',v:3}]},
+    {id:'p8',dim:'d3',dimLbl:'Perfil comportamental',
+      q:'Você tem um prazo definido para fazer essa mudança?',
+      opts:[
+        {l:'Não tenho prazo: é um sonho ainda distante',v:0},
+        {l:'Quero ir, mas sem prazo definido',v:1},
+        {l:'Tenho um prazo flexível: 1 a 2 anos',v:2},
+        {l:'Tenho prazo fixo e estou me preparando ativamente',v:3}]},
+    {id:'p9',dim:'d3',dimLbl:'Perfil comportamental',
+      q:'Você já investiu dinheiro na sua preparação para essa mudança?',
+      opts:[
+        {l:'Não investi nada ainda',v:0},
+        {l:'Já comprei materiais, livros ou cursos de idioma',v:1},
+        {l:'Já paguei por assessoria, mentoria ou consultoria',v:2},
+        {l:'Já investi em viagem de reconhecimento ou visto',v:3}]},
+    {id:'p10',dim:'d4',dimLbl:'Conhecimento do mercado',
+      q: de ? 'O que você sabe sobre o processo seletivo alemão?' : 'O que você sabe sobre o processo seletivo australiano?',
+      opts: de ? [
+        {l:'Não sei nada: imagino que seja parecido com o Brasil',v:0},
+        {l:'Sei que é diferente, mas não conheço os detalhes',v:1},
+        {l:'Conheço as diferenças principais: CV, carta, entrevista',v:2},
+        {l:'Entendo bem o processo e já me preparei para ele',v:3}
+      ] : [
+        {l:'Não sei nada: imagino que seja parecido com o Brasil',v:0},
+        {l:'Sei que é diferente, mas não conheço os detalhes',v:1},
+        {l:'Conheço as diferenças: resume, cover letter, entrevista comportamental',v:2},
+        {l:'Entendo bem o processo e já me preparei para ele',v:3}]},
+    {id:'p11',dim:'d4',dimLbl:'Conhecimento do mercado',
+      q: de ? 'Você já adaptou seu currículo ou LinkedIn para o padrão alemão?' : 'Você já adaptou seu currículo ou LinkedIn para o padrão australiano?',
+      opts: de ? [
+        {l:'Não sabia que existia diferença',v:0},
+        {l:'Sei que precisa adaptar, mas ainda não fiz',v:1},
+        {l:'Já fiz algumas adaptações',v:2},
+        {l:'Meu currículo e LinkedIn já estão no padrão alemão',v:3}
+      ] : [
+        {l:'Não sabia que existia diferença',v:0},
+        {l:'Sei que precisa adaptar, mas ainda não fiz',v:1},
+        {l:'Já fiz algumas adaptações',v:2},
+        {l:'Meu currículo e LinkedIn já estão no padrão australiano',v:3}]}
+  ];
+}
+
+/* BANDAS */
+const BANDS=[
+  {min:0, max:40, lb:'Explorador',          col:'#e85555',desc:'Jornada ainda no início. Há gaps significativos a resolver antes de avançar, e o caminho começa com clareza sobre o que priorizar.'},
+  {min:41,max:65, lb:'Em Rota',              col:'#f0c44a',desc:'Você está na direção certa. A preparação está em andamento e os gaps identificados são específicos e trabalháveis.'},
+  {min:66,max:85, lb:'Pronto para Embarcar', col:'#6e8ef7',desc:'Perfil competitivo. Ajustes pontuais podem acelerar significativamente o resultado no mercado internacional.'},
+  {min:86,max:100,lb:'Elite',                col:'#3ecf8e',desc:'Perfil de alto impacto. Você está pronto para competir no mercado internacional de forma consistente.'}
+];
+const getBand = s => BANDS.find(b => s >= b.min && s <= b.max) || BANDS[0];
+
+/* ESTADO */
+let T='', QS=[], step=0, ANS={}, CTR={adultos:0,criancas:0,jovens:0}, NPS=null, LEAD={nome:'',email:'',waDDI:'55',waNum:''};
+
+/* SCORE */
+function calcScore(){
+  const dims={d1:{pts:0,max:0},d2:{pts:0,max:0},d3:{pts:0,max:0},d4:{pts:0,max:0}};
+  const W={d1:.30,d2:.25,d3:.25,d4:.20};
+  QS.forEach(q=>{
+    if(!q.opts||q.familyQ) return;
+    const rec=ANS[q.id];
+    const v=rec?(typeof rec.v==='number'?rec.v:0):0;
+    const maxV=q.opts.filter(o=>typeof o.v==='number').reduce((m,o)=>Math.max(m,o.v),0);
+    if(maxV>0){dims[q.dim].pts+=v;dims[q.dim].max+=maxV;}
+  });
+  const tf=CTR.adultos+CTR.criancas+CTR.jovens;
+  if(tf>0) dims.d2.pts=Math.max(0,dims.d2.pts-Math.min(tf*1.2,5)*0.4);
+  const dS={};let tot=0;
+  Object.keys(dims).forEach(d=>{
+    const s=dims[d].max>0?Math.round((dims[d].pts/dims[d].max)*100):0;
+    dS[d]=s;tot+=s*W[d];
+  });
+  return{final:Math.round(Math.min(100,Math.max(0,tot))),dims:dS};
+}
+
+/* ALERTAS */
+function getAlerts(){
+  const a=ANS,area=a['p3']?a['p3'].v:'outro',al=a['p2']?a['p2'].v:0;
+  const p5b=a['p5b']?a['p5b'].v:3;
+  const tf=CTR.adultos+CTR.criancas+CTR.jovens;
+  const AL=[];
+  if(T==='de'){
+    if(area==='saude'&&typeof al==='number'&&al<3)
+      AL.push({type:'danger',text:'<strong>Área regulamentada.</strong> Para Medicina e Saúde na Alemanha, B2 em Alemão é exigência mínima legal para o reconhecimento profissional (Approbation). Sem isso, não há equivalência possível.'});
+    if(typeof al==='number'&&al===0&&area!=='ti')
+      AL.push({type:'warn',text:'<strong>Idioma insuficiente para a maioria das vagas.</strong> Sem Alemão iniciado, sua candidatura fica restrita a poucas multinacionais. O idioma é o filtro primário no mercado alemão.'});
+  } else {
+    if(a['p1']&&typeof a['p1'].v==='number'&&a['p1'].v<=1)
+      AL.push({type:'danger',text:'<strong>Inglês insuficiente para entrevistas.</strong> Na Austrália, o processo seletivo ocorre integralmente em inglês. Desenvolver fluência é o pré-requisito de tudo antes de qualquer candidatura.'});
+    if(area==='saude')
+      AL.push({type:'warn',text:'<strong>Área regulamentada na Austrália.</strong> Profissionais de saúde precisam de registro no AHPRA para exercer a profissão. Pesquise os requisitos específicos antes de avançar.'});
+  }
+  if(tf>0&&typeof p5b==='number'&&p5b<=1)
+    AL.push({type:'warn',text:'<strong>Família não alinhada: fator de risco alto.</strong> Mudanças internacionais com dependentes sem alinhamento real têm taxa de desistência muito maior. Essa conversa precisa acontecer antes de qualquer movimento concreto.'});
+  return AL;
+}
+
+/* INSIGHTS */
+let idiomaJaCitado=false;
+function getInsights(result){
+  idiomaJaCitado=false;
+  const a=ANS,area=a['p3']?a['p3'].v:'outro',al=a['p2']?a['p2'].v:0,en=a['p1']?a['p1'].v:0;
+  const p4=a['p4']?a['p4'].v:0,sc=result.final;
+  const tf=CTR.adultos+CTR.criancas+CTR.jovens;
+  const solo=tf===0;
+  const R=[];const I=(cat,title,text)=>R.push({cat,title,text});
+  const cursol=CURSO_ALEMAO?` <a href="${CURSO_ALEMAO}" target="_blank">Conheça o curso de alemão.</a>`:'';
+
+  // Idioma
+  if(T==='de'){
+    if(area==='saude'){
+      idiomaJaCitado=true;
+      I('d1','Medicina e Saúde: Alemão é requisito legal',`Para profissionais da saúde, <strong>B2 em Alemão é exigência mínima legal</strong> para o reconhecimento profissional (Approbation). Sem isso, não há equivalência possível. Planeje 12 a 18 meses dedicados ao idioma. Esse não é um detalhe: é o pré-requisito de tudo.${cursol}`);
+    } else if(area==='comex'){
+      idiomaJaCitado=true;
+      I('d1','Comércio Exterior: Alemão abre o mercado real',`A Alemanha tem demanda real em <strong>logística internacional, comércio exterior (Außenhandel) e cadeia de suprimentos</strong>. Inglês ajuda na entrada, mas B2 em Alemão é o diferencial para vagas em exportadoras e operadores logísticos. Um mestrado em comércio exterior internacional (Außenwirtschaft) reposicionaria seu perfil em outro nível de mercado.${cursol}`);
+    } else if(area==='ti'||area==='eng'){
+      idiomaJaCitado=true;
+      if(en>=2&&typeof al==='number'&&al===0){
+        I('d1','Idiomas: Inglês abre a porta, Alemão te mantém dentro',`Na TI alemã, <strong>Inglês fluente garante entrevistas</strong> em multinacionais e startups. Sem ao menos B1 em Alemão, você fica excluído de 60 a 70% das vagas. O A1 já muda a percepção dos recrutadores. Comece agora.${cursol}`);
+      } else if(typeof al==='number'&&al>=3){
+        I('d1','Idiomas: combinação de alto impacto',`Profissionais de TI com B2+ em Alemão e Inglês avançado recebem propostas <strong>20 a 30% mais competitivas</strong> e têm acesso a pequenas e médias empresas (PMEs) alemãs, segmento com alta demanda e menor concorrência internacional.`);
+      } else {
+        I('d1','Idiomas: o Alemão complementa o que o Inglês já abriu',`Você já tem base em Inglês, o que garante acesso a multinacionais. O próximo passo é desenvolver o Alemão para alcançar PMEs (pequenas e médias empresas) e empresas alemãs tradicionais. <strong>B2 em ambas as línguas é o diferencial que separa perfis medianos dos mais competitivos.</strong>${cursol}`);
+      }
+    } else {
+      if(typeof al==='number'&&al<2){
+        idiomaJaCitado=true;
+        I('d1','Idiomas: Alemão é a prioridade número um',`Na sua área, <strong>o mercado alemão exige B2 ou C1</strong> para posições qualificadas. Contratos, negociações e progressão de carreira acontecem em Alemão. 12 meses para B2 é alcançável com uma hora de estudo diário.${cursol}`);
+      }
+    }
+  } else {
+    idiomaJaCitado=true;
+    if(en<=1){
+      I('d1','Inglês: o pré-requisito de tudo na Austrália',`Na Austrália, o processo seletivo ocorre integralmente em inglês. <strong>Sem fluência funcional, nenhuma outra preparação resolve.</strong> Esse é o investimento de maior retorno no seu perfil agora.`);
+    } else if(en>=3){
+      // Montar elogio real baseado no que a pessoa respondeu
+      const pontosPositivos=[];
+      if(en>=3) pontosPositivos.push('Inglês fluente: passa pelo filtro inicial da maioria dos recrutadores australianos sem fricção');
+      if(typeof al==='number'&&al>=2) pontosPositivos.push('Alemão intermediário ou superior: diferencial raro no mercado australiano, especialmente em empresas com operações na Europa');
+      if(result.dims.d3>=60) pontosPositivos.push('Perfil comportamental ativo: você já demonstrou ações concretas na preparação, o que diferencia candidatos sérios dos que apenas pesquisam');
+      const elogioTxt=pontosPositivos.length>0
+        ?`<strong>Pontos que já trabalham a seu favor:</strong><ul style="margin:8px 0 0 4px;padding-left:16px;display:grid;gap:5px">${pontosPositivos.map(p=>`<li style="font-size:13px;color:var(--text2);line-height:1.5">${p}</li>`).join('')}</ul>`
+        :'';
+      I('d1','Inglês: você está bem posicionado no idioma',`Sua fluência em inglês é um ativo real e coloca você à frente de boa parte dos profissionais brasileiros que tentam o mercado australiano. O próximo passo é garantir que seu perfil no LinkedIn e seu currículo comuniquem esse nível com a mesma clareza que uma entrevista.${elogioTxt?'<br><br>'+elogioTxt:''}`);
+    }
+  }
+
+  const refId=idiomaJaCitado?' Como mencionado, o idioma é parte central dessa preparação.':'';
+
+  // Diploma/visto
+  if(p4<=1){
+    const td=T==='de'?'Reconhecimento de diploma: comece agora':'Visto de trabalho: o caminho depende da sua área';
+    const vistoArea=ANS['p3']?ANS['p3'].v:'outro';
+    const vistoMsg={
+      'ti': 'Para TI e tecnologia, as rotas mais comuns são a <strong>Subclass 482 (patrocínio pelo empregador)</strong> e a Subclass 189/190 (skilled independent). O caminho mais rápido costuma ser pelo patrocínio: encontrar um empregador disposto a patrocinar é o passo mais crítico do processo.',
+      'eng': 'Para engenheiros, o <strong>reconhecimento pelo Engineers Australia</strong> é o primeiro passo antes de qualquer visto de habilidades. Esse processo pode levar de 3 a 6 meses e precisa ser iniciado antes da candidatura ao visto.',
+      'saude': 'Para profissionais de saúde, o <strong>registro no AHPRA</strong> é obrigatório para exercer a profissão. Sem ele, nenhum empregador pode te contratar na área. Inicie esse processo antes de qualquer movimentação. Informações em <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.',
+      'neg': 'Para gestão e negócios, a rota mais comum é via <strong>Subclass 482 (patrocínio)</strong>. Profissionais seniores com histórico documentado têm boas chances, mas o processo exige um empregador australiano como patrocinador. Saiba mais: <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.',
+      'comex': 'Para logística e comércio exterior, a demanda é real em portos e operadores logísticos australianos. A rota mais comum é via <strong>Subclass 482</strong>, com patrocínio do empregador. Verifique se sua ocupação está na lista MLTSSL ou STSOL em <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.',
+      'outro': 'O tipo de visto depende da sua ocupação específica. Verifique se ela consta na lista de ocupações prioritárias e consulte um agente MARA registrado: <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.'
+    }[vistoArea]||'O tipo de visto depende da sua ocupação. Verifique as opções em <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.';
+    const tx=T==='de'
+      ?`Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a>. Diplomas sem reconhecimento automático exigem o processo de <strong>consultoria de reconhecimento (Anerkennungsberatung)</strong>, que pode levar de 6 a 18 meses. É o gargalo mais subestimado da migração qualificada.`
+      :vistoMsg;
+    I('d2',td,`<span style="font-size:11px;color:#8888a8;display:block;margin-bottom:8px;line-height:1.5">Orientação geral, não assessoria jurídica ou de imigração. Consulte um profissional habilitado antes de tomar qualquer decisão.</span>`+tx);
+  }
+
+  // Família e reserva
+  const seguro=SEGURO_URL?` Para seguro de saúde, <a href="${SEGURO_URL}" target="_blank">confira nossa parceira recomendada</a>.`:'';
+  if(!solo){
+    if(T==='de'){
+      const aluguelFrio=' O <strong>aluguel frio</strong> é o valor base do imóvel, sem incluir aquecimento, água e condomínio. O valor real pago todo mês é o aluguel quente, sempre maior. A caução equivale a 3 meses do aluguel frio e precisa ser paga antes de entrar no imóvel.';
+      let resDE='A mudança com dependentes exige uma reserva financeira significativamente maior.'+aluguelFrio;
+      if(CTR.criancas>0) resDE+=' A creche (Kita) é paga na Alemanha, com valores que variam de cidade para cidade e de creche para creche: consulte a prefeitura local (Jugendamt).'+seguro;
+      I('d2','Reserva financeira: o seu número real com família',resDE+' Veja como calcular: <a href="'+EBOOK_URL+'" target="_blank">Reserva Estratégica Alemanha</a>.');
+    } else {
+      let resAU='A Austrália é um dos países mais caros para morar com família, e o planejamento financeiro precisa ser detalhado antes de qualquer decisão.<br><br>';
+      resAU+='<strong>Aluguel</strong> é o maior gasto. Em regiões metropolitanas como Sydney, Melbourne, Brisbane e Perth, um apartamento de 2 quartos custa entre AUD 2.800 e AUD 5.000 por mês. A caução exigida na entrada costuma equivaler a 4 semanas de aluguel, pagas antes de receber a chave.<br><br>';
+      if(CTR.criancas>0) resAU+='<strong>Child care (creche)</strong> para crianças de 0 a 5 anos custa em média entre AUD 150 e AUD 250 por dia em Sydney. Quem ainda não tem residência permanente geralmente não tem acesso ao subsídio governamental (CCS) e paga o valor integral, o que representa um dos maiores impactos no orçamento familiar nos primeiros anos.<br><br>';
+      resAU+='<strong>Saúde</strong> é outro ponto crítico. Quem não é cidadão ou residente permanente não tem acesso ao Medicare (sistema público de saúde). Dependendo do tipo de visto, é obrigatório contratar seguro de saúde privado, o que representa um custo mensal real e recorrente'+(SEGURO_URL?' &mdash; <a href="'+SEGURO_URL+'" target="_blank">veja opções recomendadas</a>':'')+'.<br><br>';
+      const areaEstudos=ANS['p3']&&ANS['p3'].v==='estudos';
+      if(areaEstudos) resAU+='Para estudantes, use a calculadora oficial do governo australiano para estimar seus custos reais por cidade: <a href="https://costofliving.studyaustralia.gov.au/" target="_blank">costofliving.studyaustralia.gov.au</a>.';
+      I('d2','Reserva financeira: o custo real de morar na Austrália com família',resAU);
+    }
+  } else {
+    if(T==='de'){
+      const af=' Lembre que o <strong>aluguel frio</strong> é apenas o valor base do imóvel: o valor real inclui aquecimento, água e condomínio (aluguel quente), além de 3 meses de caução antes de entrar no imóvel.';
+      I('d2','Reserva financeira: planejamento antes de qualquer movimento','Mesmo indo sozinho, a transição envolve custos além do óbvio: visto, passagem, instalação e o período até o primeiro salário.'+af+seguro);
+    } else {
+      const areaEstudosSolo=ANS['p3']&&ANS['p3'].v==='estudos';
+      const calcLink=areaEstudosSolo?' Para estudantes, estime seus custos em: <a href="https://costofliving.studyaustralia.gov.au/" target="_blank">costofliving.studyaustralia.gov.au</a>.':'';
+      I('d2','Reserva financeira: planejamento antes de qualquer movimento','Mesmo indo sozinho, a Austrália exige uma reserva sólida. O aluguel em regiões metropolitanas é alto, o Medicare não está disponível para todos os vistos, e o período até o primeiro salário pode se estender mais do que o esperado.'+calcLink);
+    }
+  }
+  if(CTR.criancas>0){
+    if(T==='de') I('familia','Creche (Kita): inscreva-se antes de chegar','A creche na Alemanha tem listas de espera de <strong>6 a 18 meses</strong> em grandes cidades. Inscreva seu filho assim que tiver endereço confirmado. Os valores variam de cidade para cidade: consulte a prefeitura local (Jugendamt).');
+    else I('familia','Child care na Austrália: sem garantia de vaga',`Os custos financeiros foram detalhados acima. Além do aspecto financeiro, <strong>a demanda por vagas em child care é alta</strong> e a espera pode chegar a meses nas grandes cidades. Coloque seu filho na lista de espera assim que tiver um endereço confirmado na Austrália, e se possível ainda antes de chegar. Procure centros próximos ao seu local de trabalho ou residência e cadastre-se em mais de um.`);
+  }
+  if(CTR.jovens>0&&T==='de')   I('familia','Escola obrigatória: a adaptação começa na chegada','A escola é obrigatória na Alemanha e pode iniciar semanas após a chegada. Jovens sem Alemão são encaminhados a <strong>classes de integração (DaZ)</strong> antes de entrar na turma regular.');
+  if(result.dims.d3<50){
+    const inv3=ANS['p9']?ANS['p9'].v:0;
+    let d3txt='Até agora, a preparação está no campo das intenções. <strong>O primeiro investimento concreto muda a qualidade da decisão.</strong> Quem investe, pesquisa diferente. Quem pesquisa diferente, decide melhor.';
+    // Pitch micro-contextual: só aparece se não investiu nada e há produto disponível
+    if((inv3===0||inv3==='0')&&T==='de'){
+      d3txt+=' Uma forma prática de dar esse primeiro passo é o guia <a href="'+EBOOK_URL+'" target="_blank">#partiu_Alemanha</a>, que cobre o processo completo de forma direta e sem romantismo.';
+    }
+    I('d3','Comprometimento: a lacuna entre intenção e ação',d3txt);
+  }
+  if(result.dims.d4<50){
+    const appsLnk=[
+      APP_CV_URL?`<a href="${APP_CV_URL}" target="_blank">currículo</a>`:'currículo',
+      APP_CARTA_URL?`<a href="${APP_CARTA_URL}" target="_blank">carta de apresentação</a>`:'carta de apresentação',
+      APP_LI_URL?`<a href="${APP_LI_URL}" target="_blank">LinkedIn</a>`:'LinkedIn'
+    ].join(', ');
+    const inv4=ANS['p9']?ANS['p9'].v:0;
+    let d4txt=`Entender o processo seletivo ${T==='de'?'alemão':'australiano'} é o que separa candidaturas ignoradas de entrevistas marcadas. O formato de ${appsLnk} tem diferenças reais em relação ao padrão brasileiro: ignorá-las é o erro mais comum de profissionais qualificados.`;
+    // Quando já investiu em algo mas ainda tem gap de mercado: pitch de upgrade
+    if((inv4===1||inv4==='1')&&T==='de'&&result.final>=41){
+      d4txt+=` O curso <a href="${CURSO_URL}" target="_blank">Emprego na Alemanha</a> foi desenvolvido exatamente para fechar esse gap com exemplos reais e validados por recrutadores alemães.`;
+    }
+    I('d4','Posicionamento: a diferença começa antes da candidatura',d4txt);
+  }
+  // DAMA: insight para trilha AU em perfis intermediários com flexibilidade de localização
+  if(T==='au' && sc>=41 && sc<=85 && area!=='saude'){
+    const soloOuCasal=CTR.criancas===0&&CTR.jovens===0;
+    const damaTexto=soloOuCasal
+      ?`Uma rota subestimada por brasileiros são os <strong>DAMAs (Designated Area Migration Agreements)</strong>: acordos entre o governo federal e regiões australianas com escassez de mão de obra qualificada. A vantagem é que algumas ocupações que não estão nas listas nacionais de habilidades podem ser patrocinadas via DAMA, com exigências de inglês e experiência frequentemente menores. A contrapartida é que a pessoa precisa morar e trabalhar na região designada por um período. Para quem tem flexibilidade de localização, pode ser uma porta de entrada mais acessível do que as rotas das grandes capitais. Veja os acordos ativos: <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/regional-migration/designated-area-migration-agreements" target="_blank">immi.homeaffairs.gov.au/dama</a>.`
+      :`Uma rota que vale conhecer são os <strong>DAMAs (Designated Area Migration Agreements)</strong>: acordos entre o governo federal e regiões com escassez de mão de obra, onde algumas ocupações fora das listas nacionais podem ser patrocinadas com critérios mais acessíveis. Para famílias, a condição de residir na região designada precisa ser avaliada com cuidado, mas em regiões como o Northern Territory ou South Australia regional a qualidade de vida pode surpreender positivamente. Veja os acordos ativos: <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/regional-migration/designated-area-migration-agreements" target="_blank">immi.homeaffairs.gov.au/dama</a>.`;
+    I('d2','DAMA: uma rota de imigração subestimada por brasileiros',damaTexto);
+  }
+  if(sc<=40){
+    const inv40=ANS['p9']?ANS['p9'].v:0;
+    let g40=`Sua pontuação indica que uma mudança imediata <strong>aumenta consideravelmente o risco de fracasso</strong>. O problema raramente é falta de talento: é falta de preparação estratégica. Dependendo do seu ponto de partida, 12 a 24 meses de preparação focada é o horizonte realista para uma entrada bem posicionada.${refId}`;
+    if((inv40===0||inv40==='0')&&T==='de'){
+      g40+=' Quem começa com clareza sobre o processo chega mais rápido. O guia <a href="'+EBOOK_URL+'" target="_blank">#partiu_Alemanha</a> é o ponto de partida mais direto para entender o que realmente está à sua frente.';
+    }
+    I('geral','Perspectiva geral: construa a base antes de migrar',g40);
+  }
+  else if(sc>=86) I('geral','Perspectiva geral: você está pronto para agir',`Sua pontuação está <strong>entre as mais competitivas</strong> desta avaliação. Nesse nível, o que separa quem consegue em semanas de quem demora meses não é mais preparação técnica: é visibilidade. Um perfil no LinkedIn otimizado para recrutadores ${T==='de'?'alemães':'australianos'}, uma rede de contatos ativa no destino e candidaturas direcionadas às empresas certas são os três movimentos que restam. Execute um por vez, com intenção.`);
+  else if(sc>=66){
+    const ingBom=T==='au'&&en>=2;
+    const alBom=T==='de'&&typeof al==='number'&&al>=2;
+    const idiomaOk=ingBom||alBom;
+    const gap66=idiomaOk
+      ?'posicionamento e visibilidade no mercado-alvo'
+      :'idioma ou posicionamento';
+    const foco66=idiomaOk
+      ?`Seu idioma já não é o obstáculo. O que vai fazer a diferença agora é <strong>como você aparece para recrutadores antes de candidatar</strong>: LinkedIn otimizado para o mercado ${T==='de'?'alemão':'australiano'}, rede de contatos ativa no destino e um currículo que comunica valor internacional, não apenas experiência local. Escolha um desses três e execute com foco nos próximos 90 dias.`
+      :`Você está na direção certa. Escolha <strong>um único gap para os próximos 90 dias</strong> e execute com foco. Corrija primeiro o ${gap66} e o nível de competitividade sobe de forma significativa.`;
+    I('geral','Perspectiva geral: refine e avance',foco66);
+  }
+  else            I('geral','Perspectiva geral: ajuste fino antes do salto',`Você está na direção certa. <strong>Identifique o principal gap entre as quatro dimensões</strong> e trate como prioridade única. A diferença entre entrar bem ou mal posicionado no mercado ${T==='de'?'alemão':'australiano'} é medida em meses de preparação.`);
+  return R;
+}
+
+/* PRÓXIMOS PASSOS */
+function getSteps(result){
+  const sc=result.final;
+  const en=ANS['p1']?ANS['p1'].v:0;
+  const al=ANS['p2']?ANS['p2'].v:0;
+  const inglesInsuf=T==='au'&&en<=1;
+  const alemaoInsuf=T==='de'&&typeof al==='number'&&al<2;
+  const cursol=CURSO_ALEMAO
+    ?`<a href="${CURSO_ALEMAO}" target="_blank">Invista num curso de alemão estruturado</a> e defina B2 como meta`
+    :'Invista num curso de alemão estruturado e defina B2 como meta';
+  const appsPkg=`${APP_CV_URL?`<a href="${APP_CV_URL}" target="_blank">currículo</a>`:'currículo'}, ${APP_CARTA_URL?`<a href="${APP_CARTA_URL}" target="_blank">carta de apresentação</a>`:'carta de apresentação'} e ${APP_LI_URL?`<a href="${APP_LI_URL}" target="_blank">LinkedIn</a>`:'LinkedIn'} no padrão ${T==='de'?'alemão':'australiano'}`;
+  const liStep=APP_LI_URL
+    ?`Otimize seu perfil no LinkedIn para recrutadores ${T==='de'?'alemães':'australianos'}: <a href="${APP_LI_URL}" target="_blank">ajuste headline, resumo e experiências</a> com palavras-chave do mercado local`
+    :`Otimize seu perfil no LinkedIn para recrutadores ${T==='de'?'alemães':'australianos'}: ajuste headline, resumo e experiências com palavras-chave do mercado local`;
+  const idiomaDE=`Priorize o Alemão antes de qualquer outra ação: ${cursol}. Sem B1 iniciado, a maioria das candidaturas não passa da triagem inicial`;
+  const idiomaAU='Priorize o Inglês antes de qualquer outra ação: fluência é o pré-requisito absoluto na Austrália. Sem isso, currículo, visto e networking têm impacto mínimo';
+
+  // Passos para DE
+  if(T==='de'){
+    if(sc<=40) return[
+      alemaoInsuf?idiomaDE:'Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> e inicie o processo de reconhecimento o quanto antes',
+      alemaoInsuf?'Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> em paralelo com o desenvolvimento do idioma':'Defina uma única prioridade para os próximos 90 dias e execute sem dispersão',
+      'Construa uma rede de contatos com brasileiros que já estão na Alemanha na sua área: essa rede vai encurtar seu caminho mais do que qualquer curso'
+    ];
+    if(sc<=65) return[
+      alemaoInsuf?idiomaDE:'Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> e avance no processo de reconhecimento',
+      `Prepare seu pacote de candidatura: ${appsPkg}`,
+      liStep
+    ];
+    if(sc<=85) return[
+      `Prepare seu pacote de candidatura: ${appsPkg}`,
+      liStep,
+      'Explore vagas em <a href="https://www.make-it-in-germany.com" target="_blank">Make it in Germany</a> e verifique se você se enquadra no Chancenkarte'
+    ];
+    return[
+      'Comece a aplicar agora: seu perfil está entre os mais competitivos no mercado alemão',
+      `Prepare seu pacote de candidatura: ${appsPkg}`,
+      liStep
+    ];
+  }
+
+  // Passos para AU — distintos e sem repetição
+  if(sc<=40) return[
+    inglesInsuf?idiomaAU:`Inicie o processo de visto com um agente de imigração registrado (MARA agent). Em paralelo, pesquise empresas que já têm acordos de patrocínio aprovados: <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">lista de empresas patrocinadoras</a>`,
+    inglesInsuf?`Inicie o processo de visto em paralelo com o Inglês: consulte um agente MARA registrado e pesquise empresas patrocinadoras em <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">immi.homeaffairs.gov.au</a>`:`Construa uma rede de contatos com brasileiros que já estão na Austrália na sua área`,
+    'Construa uma rede de contatos com brasileiros que já estão na Austrália na sua área: essa rede vai encurtar seu caminho mais do que qualquer pesquisa isolada'
+  ];
+  if(sc<=65) return[
+    inglesInsuf?idiomaAU:`Inicie o processo de visto com um agente de imigração registrado (MARA agent). Em paralelo, pesquise empresas que já têm acordos de patrocínio aprovados: <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">lista de empresas patrocinadoras</a>`,
+    `Prepare seu pacote de candidatura: ${appsPkg}`,
+    liStep
+  ];
+  if(sc<=85) return[
+    `Inicie o processo de visto com um agente de imigração registrado (MARA agent). Em paralelo, pesquise empresas que já têm acordos de patrocínio aprovados: <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">lista de empresas patrocinadoras</a>`,
+    `Prepare seu pacote de candidatura: ${appsPkg}`,
+    liStep
+  ];
+  return[
+    'Comece a aplicar agora: seu perfil está entre os mais competitivos para o mercado australiano',
+    `Prepare seu pacote de candidatura: ${appsPkg}`,
+    liStep
+  ];
+}
+
+/* SUMMARY PARA COMPARTILHAR */
+function buildSummary(result,insights,steps){
+  const b=getBand(result.final),a=ANS,tf=CTR.adultos+CTR.criancas+CTR.jovens;
+  const dest=T==='de'?'Alemanha':'Austrália';
+  const lines=[];
+  lines.push('Career Intelligence Assessment — Elite Migration');
+  lines.push('Trilha: '+dest);
+  lines.push('');
+  lines.push('Pontuação: '+result.final+'/100 — '+b.lb);
+  lines.push(b.desc);
+  lines.push('');
+  lines.push('Área: '+(a['p3']?a['p3'].l:'não informado'));
+  lines.push((T==='de'?'Alemão':'Inglês')+': '+(a['p2']?a['p2'].l:'não informado'));
+  lines.push('Prazo: '+(a['p8']?a['p8'].l:'não informado'));
+  if(tf>0) lines.push('Dependentes: '+tf+' pessoa'+(tf!==1?'s':''));
+  lines.push('');
+  lines.push('Pontuação por dimensão:');
+  lines.push('  Idioma e área: '+result.dims.d1+'/100');
+  lines.push('  Maturidade da decisão: '+result.dims.d2+'/100');
+  lines.push('  Perfil comportamental: '+result.dims.d3+'/100');
+  lines.push('  Conhecimento do mercado: '+result.dims.d4+'/100');
+  if(insights&&insights.length){
+    lines.push('');
+    lines.push('Análise:');
+    insights.forEach(i=>{
+      const txt=i.text.replace(/<[^>]+>/g,'').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim();
+      lines.push('• '+i.title);
+      lines.push('  '+txt.substring(0,180)+(txt.length>180?'...':''));
+    });
+  }
+  if(steps&&steps.length){
+    lines.push('');
+    lines.push('Próximos passos:');
+    steps.forEach((s,i)=>{
+      const txt=s.replace(/<[^>]+>/g,'').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim();
+      lines.push((i+1)+'. '+txt);
+    });
+  }
+  lines.push('');
+  // Sem link e sem hashtags no relatório copiado
+  return lines.join('\n');
+}
+
+const INS_COLORS={d1:'#6e8ef7',d2:'#f0c44a',d3:'#3ecf8e',d4:'#a98ef7',familia:'#c870d8',geral:'#e85555'};
+
+/* ===================== RENDER ===================== */
+
+
+
+
+function renderTrilha(){
+  document.getElementById('app').innerHTML=`
+    <div class="trilha-wrap">
+      <div class="trilha-tag">Career Intelligence Assessment <span style="background:#D4AF3722;color:#D4AF37;border:1px solid #D4AF3740;border-radius:4px;padding:1px 7px;font-size:9px;letter-spacing:1px;margin-left:6px;vertical-align:middle">BETA</span></div>
+      <h1 class="trilha-h1">Descubra o seu nível real de prontidão</h1>
+      <p class="trilha-sub">Avaliação estratégica para profissionais brasileiros que querem trabalhar na Alemanha ou na Austrália.</p>
+      <div class="trilha-context">
+        <div class="trilha-proof">
+          <div class="trilha-proof-icon" style="background:#D4AF3720;color:#D4AF37">⏱</div>
+          <div class="trilha-proof-text">Avaliação completa em <strong>5 minutos</strong>. Score 0-100 com análise por dimensão e próximos passos priorizados.</div>
+        </div>
+        <div class="trilha-proof">
+          <div class="trilha-proof-icon" style="background:#2B5EA720;color:#6ea8f7">✦</div>
+          <div class="trilha-proof-text">Criado por quem saiu do Brasil, construiu carreira na Alemanha e na Austrália, e acompanhou mais de <strong>40 profissionais</strong> no mesmo caminho.</div>
+        </div>
+        <div class="trilha-proof">
+          <div class="trilha-proof-icon" style="background:#3ecf8e20;color:#3ecf8e">◎</div>
+          <div class="trilha-proof-text"><strong>Sem respostas certas ou erradas.</strong> O objetivo é medir onde você está hoje, não onde deveria estar.</div>
+        </div>
+      </div>
+      <div class="trilha-divider"><span class="trilha-divider-txt">Escolha seu destino</span></div>
+      <div class="trilha-grid">
+        <button class="trilha-btn de" id="btn-de">
+          <div class="trilha-flag"><svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="28" cy="28" r="28" fill="#fff"/><circle cx="28" cy="28" r="26" fill="#000"/>
+  <clipPath id="cde"><circle cx="28" cy="28" r="25"/></clipPath>
+  <rect x="0" y="0" width="56" height="19" fill="#000" clip-path="url(#cde)"/>
+  <rect x="0" y="19" width="56" height="19" fill="#DD0000" clip-path="url(#cde)"/>
+  <rect x="0" y="37" width="56" height="19" fill="#D4AF37" clip-path="url(#cde)"/>
+</svg></div>
+          <div class="trilha-nome">Alemanha</div>
+          <div class="trilha-btn-sub">Europa · Idioma alemão</div>
+        </button>
+        <button class="trilha-btn au" id="btn-au">
+          <div class="trilha-flag"><svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="28" cy="28" r="28" fill="#fff"/><circle cx="28" cy="28" r="26" fill="#00247D"/>
+  <clipPath id="cau"><circle cx="28" cy="28" r="25"/></clipPath>
+  <g clip-path="url(#cau)">
+    <rect x="0" y="0" width="56" height="28" fill="#00008B"/>
+    <rect x="0" y="28" width="56" height="28" fill="#00008B"/>
+    <!-- Union Jack quadrante superior esquerdo -->
+    <rect x="0" y="0" width="28" height="14" fill="#00247D"/>
+    <!-- Cruz de St George -->
+    <rect x="0" y="6" width="28" height="3" fill="#fff"/>
+    <rect x="0" y="6.5" width="28" height="2" fill="#CC0000"/>
+    <rect x="12" y="0" width="3" height="14" fill="#fff"/>
+    <rect x="12.5" y="0" width="2" height="14" fill="#CC0000"/>
+    <!-- Diagonais brancas -->
+    <line x1="0" y1="0" x2="28" y2="14" stroke="#fff" stroke-width="3"/>
+    <line x1="28" y1="0" x2="0" y2="14" stroke="#fff" stroke-width="3"/>
+    <!-- Diagonais vermelhas -->
+    <line x1="0" y1="0" x2="28" y2="14" stroke="#CC0000" stroke-width="1.5"/>
+    <line x1="28" y1="0" x2="0" y2="14" stroke="#CC0000" stroke-width="1.5"/>
+    <!-- Estrela da Commonwealth (grande, abaixo à esquerda) -->
+    <polygon points="14,36 15.4,40.3 20,40.3 16.3,42.9 17.7,47.2 14,44.6 10.3,47.2 11.7,42.9 8,40.3 12.6,40.3" fill="#fff"/>
+    <!-- Crux (Cruz do Sul) - 4 estrelas à direita -->
+    <polygon points="42,10 42.8,12.5 45.5,12.5 43.4,14 44.2,16.5 42,15 39.8,16.5 40.6,14 38.5,12.5 41.2,12.5" fill="#fff"/>
+    <polygon points="38,22 38.6,24 40.7,24 39.1,25.2 39.7,27.2 38,26 36.3,27.2 36.9,25.2 35.3,24 37.4,24" fill="#fff"/>
+    <polygon points="46,22 46.6,24 48.7,24 47.1,25.2 47.7,27.2 46,26 44.3,27.2 44.9,25.2 43.3,24 45.4,24" fill="#fff"/>
+    <polygon points="42,32 42.6,34 44.7,34 43.1,35.2 43.7,37.2 42,36 40.3,37.2 40.9,35.2 39.3,34 41.4,34" fill="#fff"/>
+  </g>
+</svg></div>
+          <div class="trilha-nome">Austrália</div>
+          <div class="trilha-btn-sub">Oceania · Idioma inglês</div>
+        </button>
+      </div>
+
+    </div>`;
+  document.getElementById('btn-de').addEventListener('click',()=>startTrilha('de'));
+  document.getElementById('btn-au').addEventListener('click',()=>startTrilha('au'));
+}
+
+function startTrilha(t){
+  T=t;QS=getQuestions(t);step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};
+  renderCadastro();
+}
+
+const DDI_PAISES = [
+  {ddi:'55',flag:'🇧🇷',nome:'Brasil'},
+  {ddi:'49',flag:'🇩🇪',nome:'Alemanha'},
+  {ddi:'61',flag:'🇦🇺',nome:'Austrália'},
+  {ddi:'43',flag:'🇦🇹',nome:'Áustria'},
+  {ddi:'41',flag:'🇨🇭',nome:'Suíça'},
+  {ddi:'351',flag:'🇵🇹',nome:'Portugal'},
+  {ddi:'1',flag:'🇺🇸',nome:'EUA'},
+  {ddi:'44',flag:'🇬🇧',nome:'Reino Unido'},
+  {ddi:'31',flag:'🇳🇱',nome:'Holanda'},
+  {ddi:'32',flag:'🇧🇪',nome:'Bélgica'},
+  {ddi:'33',flag:'🇫🇷',nome:'França'},
+  {ddi:'34',flag:'🇪🇸',nome:'Espanha'},
+  {ddi:'39',flag:'🇮🇹',nome:'Itália'},
+  {ddi:'48',flag:'🇵🇱',nome:'Polônia'},
+  {ddi:'46',flag:'🇸🇪',nome:'Suécia'},
+  {ddi:'47',flag:'🇳🇴',nome:'Noruega'},
+  {ddi:'45',flag:'🇩🇰',nome:'Dinamarca'},
+  {ddi:'64',flag:'🇳🇿',nome:'Nova Zelândia'},
+  {ddi:'1',flag:'🇨🇦',nome:'Canadá'},
+  {ddi:'52',flag:'🇲🇽',nome:'México'},
+  {ddi:'54',flag:'🇦🇷',nome:'Argentina'},
+  {ddi:'56',flag:'🇨🇱',nome:'Chile'},
+  {ddi:'57',flag:'🇨🇴',nome:'Colômbia'},
+  {ddi:'81',flag:'🇯🇵',nome:'Japão'},
+  {ddi:'65',flag:'🇸🇬',nome:'Singapura'},
+  {ddi:'971',flag:'🇦🇪',nome:'Emirados Árabes'},
+];
+function renderCadastro(){
+  const app=document.getElementById('app');
+  const cor=T==='de'?'#D4AF37':'#2B5EA7';
+  const corTxt=T==='de'?'#0d0d00':'#fff';
+  const flag=T==='de'?'🇩🇪':'🇦🇺';
+  const pais=T==='de'?'Alemanha':'Austrália';
+
+  // Gerar opções do select DDI (sem emoji — não renderiza em select nativo mobile)
+  const ddiOpts=DDI_PAISES.map(p=>
+    `<option value="${p.ddi}|${p.nome}" ${p.ddi===LEAD.waDDI&&p.nome===(LEAD.waDDIPais||'Brasil')?'selected':''}> +${p.ddi} ${p.nome}</option>`
+  ).join('');
+
+  app.innerHTML=`
+    <div style="text-align:center;padding:28px 0 24px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${cor}">${pais} · Início</div>
+      <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(20px,5vw,26px);color:var(--text);line-height:1.25;margin-bottom:10px;font-weight:400">Para personalizar sua avaliação</h2>
+      <p style="font-size:14px;color:var(--muted);line-height:1.6;max-width:320px;margin:0 auto">Seus dados são armazenados de forma anônima e protegida. Não serão vendidos nem compartilhados.</p>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;margin-bottom:14px">
+      <div style="display:grid;gap:14px">
+
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">Nome completo</label>
+          <input id="cad-nome" type="text" placeholder="Seu nome completo" autocomplete="name"
+            style="width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s"
+            value="${LEAD.nome}">
+        </div>
+
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">E-mail</label>
+          <input id="cad-email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email"
+            style="width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s"
+            value="${LEAD.email}">
+        </div>
+
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">WhatsApp</label>
+          <div style="display:flex;gap:8px;align-items:stretch">
+            <div style="position:relative;flex-shrink:0">
+              <select id="cad-ddi"
+                style="padding:13px 36px 13px 12px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;cursor:pointer;width:130px;transition:border-color .15s;appearance:none;-webkit-appearance:none">
+                ${ddiOpts}
+              </select>
+              <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none;font-size:12px">&#9660;</span>
+            </div>
+            <input id="cad-wa" type="tel" placeholder="Somente números" autocomplete="tel-national" inputmode="numeric"
+              style="flex:1;padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s;min-width:0"
+              value="${LEAD.waNum}">
+          </div>
+        </div>
+
+        <div id="cad-err" style="display:none;font-size:12px;color:#e85555;text-align:center;padding:4px 0">Preencha nome e e-mail para continuar.</div>
+        <button id="cad-btn" style="width:100%;padding:15px;border:none;border-radius:var(--r2);background:${cor};color:${corTxt};font-size:15px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:opacity .15s;letter-spacing:0.01em">Iniciar avaliação</button>
+      </div>
+    </div>`;
+
+  setTimeout(()=>{ const n=document.getElementById('cad-nome'); if(n)n.focus(); },100);
+
+  // Forçar somente números no campo de telefone
+  document.getElementById('cad-wa').addEventListener('input',e=>{
+    e.target.value=e.target.value.replace(/\D/g,'');
+  });
+
+  const validar=()=>{
+    const nm=(document.getElementById('cad-nome').value||'').trim();
+    const em=(document.getElementById('cad-email').value||'').trim();
+    const ddiEl=document.getElementById('cad-ddi');
+    const ddiVal=(ddiEl?ddiEl.value:'55|Brasil').split('|');
+    const ddi=ddiVal[0]||'55';
+    const ddiPais=ddiVal[1]||'Brasil';
+    const wa=(document.getElementById('cad-wa').value||'').trim();
+    LEAD.nome=nm; LEAD.email=em;
+    LEAD.waDDI=ddi; LEAD.waNum=wa; LEAD.waDDIPais=ddiPais;
+    const valid=nm.length>1 && em.includes('@') && em.includes('.');
+    const errEl=document.getElementById('cad-err');
+    if(errEl){
+      if(!nm||nm.length<=1) errEl.textContent='Informe seu nome completo para continuar.';
+      else if(!em.includes('@')||!em.includes('.')) errEl.textContent='Informe um e-mail válido para continuar.';
+      else errEl.textContent='Preencha nome e e-mail para continuar.';
+    }
+    return valid;
+  };
+
+  document.getElementById('cad-btn').addEventListener('click',()=>{
+    if(!validar()){
+      const err=document.getElementById('cad-err');
+      if(err)err.style.display='block';
+      return;
+    }
+    logEvent('lead_inicio',{nome:LEAD.nome,email:LEAD.email,
+      whatsapp:LEAD.waDDI&&LEAD.waNum?`+${LEAD.waDDI}${LEAD.waNum}`:'',
+      trilha:T});
+    renderQ();window.scrollTo(0,0);
+  });
+
+  ['cad-nome','cad-email','cad-wa'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('keydown',e=>{
+      if(e.key==='Enter') document.getElementById('cad-btn').click();
+    });
+  });
+}
+
+function getVisible(){
+  const tf=CTR.adultos+CTR.criancas+CTR.jovens;
+  return QS.filter(q=>{
+    if(q.conditional==='p5_notSolo') return tf>0;
+    return true;
+  });
+}
+
+function renderQ(){
+  const vis=getVisible(),q=vis[step];
+  if(!q){renderResults();return;}
+  const total=vis.length,pct=Math.round((step/total)*100),keys=['A','B','C','D','E','F','G'];
+  const isLast=step===total-1;
+  const app=document.getElementById('app');
+  const wrap=document.createElement('div');
+  wrap.innerHTML=`
+    <div style="text-align:center;padding:20px 0 16px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${T==='de'?'#D4AF37':'#2B5EA7'}">${T==='de'?'Alemanha':'Austrália'} · Pergunta ${step+1} de ${total}</div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-meta"><span style="opacity:0">&nbsp;</span><span>${pct}%</span></div>
+      <div class="prog-bar"><div class="prog-fill ${T}" style="width:${pct}%"></div></div>
+    </div>`;
+
+  const card=document.createElement('div');card.className='q-card';
+  card.innerHTML=`<div class="q-text">${q.q}</div>`;
+  if(q.hint) card.innerHTML+=`<div class="q-hint">${q.hint}</div>`;
+
+  if(q.familyQ){
+    // Só contadores + "Vou sozinho" como ação rápida
+    const intro=document.createElement('div');intro.className='fam-intro';
+    intro.innerHTML=`Informe quantas pessoas vão com você. Se vai sozinho(a), toque em <strong>Continuar sozinho(a)</strong> abaixo.`;
+    card.appendChild(intro);
+
+    const grid=document.createElement('div');grid.className='fam-grid';
+    q.ctrs.forEach(ct=>{
+      const row=document.createElement('div');row.className='fam-row';
+      row.innerHTML=`<div><div class="fam-lbl">${ct.l}</div><div class="fam-sub">${ct.s}</div></div><div class="fam-ctrl"><button class="fam-btn" id="fm-${ct.k}">-</button><div class="fam-val" id="fv-${ct.k}">${CTR[ct.k]}</div><button class="fam-btn" id="fp-${ct.k}">+</button></div>`;
+      grid.appendChild(row);
+    });
+    card.appendChild(grid);
+
+    const totalEl=document.createElement('div');totalEl.className='fam-total';totalEl.id='fam-total';
+    const tf=CTR.adultos+CTR.criancas+CTR.jovens;
+    totalEl.textContent=tf>0?`${tf} dependente${tf>1?'s':''} informado${tf>1?'s':''}`:'';
+    card.appendChild(totalEl);
+  } else {
+    const od=document.createElement('div');od.className='opts';
+    q.opts.forEach((o,i)=>{
+      const b=document.createElement('button');
+      b.className='opt'+(ANS[q.id]&&ANS[q.id].v===o.v?' sel '+T:'');
+      b.innerHTML=`<span class="opt-key">${keys[i]}</span><span class="opt-lbl">${o.l}</span>`;
+      b.addEventListener('click',()=>{
+        ANS[q.id]={v:o.v,l:o.l};
+        od.querySelectorAll('.opt').forEach(x=>{x.className='opt';});
+        b.className='opt sel '+T;
+        if(!isLast){step++;renderQ();window.scrollTo(0,0);}
+        else{const nb=document.getElementById('btn-next');if(nb)nb.disabled=false;}
+      });
+      od.appendChild(b);
+    });
+    card.appendChild(od);
+  }
+  wrap.appendChild(card);
+
+  const nav=document.createElement('div');nav.className='nav';
+  if(step>0){
+    const bk=document.createElement('button');bk.className='btn-back';bk.innerHTML='&#8592;';
+    bk.addEventListener('click',()=>{step=Math.max(0,step-1);renderQ();window.scrollTo(0,0);});
+    nav.appendChild(bk);
+  }
+  if(q.familyQ){
+    // Dois botões: Continuar sozinho e Confirmar com dependentes
+    const btnSolo=document.createElement('button');btnSolo.className=`btn-next ${T}`;
+    btnSolo.style.background='var(--border2)';btnSolo.style.color='var(--text)';
+    btnSolo.textContent='Continuar sozinho(a)';
+    btnSolo.addEventListener('click',()=>{
+      ANS['p5']={v:'solo',l:'Sozinho(a)'};CTR={adultos:0,criancas:0,jovens:0};
+      step++;renderQ();window.scrollTo(0,0);
+    });
+    const btnDep=document.createElement('button');btnDep.className=`btn-next ${T}`;btnDep.id='btn-dep';
+    btnDep.textContent='Confirmar dependentes';
+    const tf2=CTR.adultos+CTR.criancas+CTR.jovens;
+    btnDep.style.display=tf2>0?'block':'none';
+    btnDep.addEventListener('click',()=>{
+      ANS['p5']={v:'familia',l:'Com dependentes'};
+      step++;renderQ();window.scrollTo(0,0);
+    });
+    nav.appendChild(btnSolo);nav.appendChild(btnDep);
+  } else if(isLast){
+    const nx=document.createElement('button');nx.id='btn-next';nx.className=`btn-next ${T}`;
+    nx.textContent='Ver minha pontuação';nx.disabled=!ANS[q.id];
+    nx.addEventListener('click',()=>{if(!ANS[q.id])return;renderResults();window.scrollTo(0,0);});
+    nav.appendChild(nx);
+  }
+  wrap.appendChild(nav);
+  app.innerHTML='';app.appendChild(wrap);
+
+  if(q.familyQ){
+    q.ctrs.forEach(ct=>{
+      const minus=document.getElementById('fm-'+ct.k),plus=document.getElementById('fp-'+ct.k),valEl=document.getElementById('fv-'+ct.k);
+      const update=()=>{
+        if(valEl)valEl.textContent=CTR[ct.k];
+        const tf=CTR.adultos+CTR.criancas+CTR.jovens;
+        const tot=document.getElementById('fam-total');
+        if(tot)tot.textContent=tf>0?`${tf} dependente${tf>1?'s':''} informado${tf>1?'s':''}`:'';
+        const bd=document.getElementById('btn-dep');if(bd)bd.style.display=tf>0?'block':'none';
+      };
+      if(minus)minus.addEventListener('click',()=>{CTR[ct.k]=Math.max(0,CTR[ct.k]-1);update();});
+      if(plus) plus.addEventListener('click',()=>{CTR[ct.k]++;update();});
+    });
+  }
+}
+
+/* RESULTADOS */
+function renderResults(){
+  const result=calcScore(),band=getBand(result.final),alerts=getAlerts(),insights=getInsights(result),steps=getSteps(result);
+
+  // Coleta de dados: quiz completo
+  logEvent('quiz_complete',{
+    trilha:T,score:result.final,banda:band.lb,
+    d1:result.dims.d1,d2:result.dims.d2,d3:result.dims.d3,d4:result.dims.d4,
+    area:ANS['p3']?ANS['p3'].l:'',ingles:ANS['p1']?ANS['p1'].l:'',
+    alemao:ANS['p2']?ANS['p2'].l:'',diploma:ANS['p4']?ANS['p4'].l:'',
+    prazo:ANS['p8']?ANS['p8'].l:'',investimento:ANS['p9']?ANS['p9'].l:'',
+    dependentes:CTR.adultos+CTR.criancas+CTR.jovens,
+    criancas:CTR.criancas,jovens:CTR.jovens,
+  });
+
+  const circ=2*Math.PI*54,off=circ-(result.final/100)*circ;
+  const showE=T==='de'&&result.final>=41,showC=T==='de'&&result.final>=41&&result.final<=85;
+  const wrap=document.createElement('div');wrap.className='res';
+  wrap.innerHTML=`
+    <div style="text-align:center;padding:20px 0 8px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${T==='de'?'#D4AF37':'#2B5EA7'}">${T==='de'?'Alemanha':'Austrália'} · Resultado</div>
+    </div>
+    <div class="score-hero">
+      <div class="score-ring-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="54" fill="none" stroke="#232336" stroke-width="7"/>
+          <circle cx="70" cy="70" r="54" fill="none" stroke="${band.col}" stroke-width="7"
+            stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${circ.toFixed(2)}"
+            stroke-linecap="round" transform="rotate(-90 70 70)" id="score-ring"/>
+        </svg>
+        <div class="score-num-wrap">
+          <div class="score-big" id="score-n">0</div>
+          <div class="score-of">DE 100</div>
+        </div>
+      </div>
+      <div class="score-band" style="color:${band.col}">${band.lb}</div>
+      <div class="score-desc">${band.desc}</div>
+
+    </div>
+    <div class="bands">
+      ${BANDS.map(b=>`<div class="band${b.lb===band.lb?' act':''}" style="color:${b.col}${b.lb===band.lb?';border-color:'+b.col:''}">
+        <div class="band-name">${b.lb}</div><div class="band-range">${b.min}-${b.max}</div>
+      </div>`).join('')}
+    </div>
+    <div class="sec-label-main">Pontuação por dimensão</div>
+    <div class="dims">
+      ${[
+        {k:'d1',l:'Idioma e área',c:'#6e8ef7'},
+        {k:'d2',l:'Maturidade da decisão',c:'#f0c44a'},
+        {k:'d3',l:'Perfil comportamental',c:'#3ecf8e'},
+        {k:'d4',l:'Conhecimento do mercado',c:'#a98ef7'}
+      ].map(d=>`<div class="dim-bar-wrap">
+        <div class="dim-bar-header">
+          <span class="dim-bar-name">${d.l}</span>
+          <span class="dim-bar-score">${result.dims[d.k]}/100</span>
+        </div>
+        <div class="dim-bar-track"><div class="dim-bar-fill" id="bar-${d.k}" style="width:0%;background:${d.c}"></div></div>
+      </div>`).join('')}
+    </div>
+    ${alerts.length?`<div class="sec-label-main">Atenção</div><div class="alert-wrap">${alerts.map(al=>`<div class="alert-card ${al.type}"><div class="alert-dot"></div><div class="alert-text">${al.text}</div></div>`).join('')}</div>`:``}
+    <div style="background:#111120;border:1px solid #2e2e44;border-left:2px solid #f0c44a;border-radius:0 var(--r2) var(--r2) 0;padding:12px 16px;margin:8px 0 20px">
+      <div style="font-size:12px;color:#8888a8;line-height:1.6">As informações abaixo são orientações gerais com base no seu perfil e nas respostas fornecidas. Não constituem assessoria jurídica, de imigração ou financeira. Para decisões sobre visto, diploma ou planejamento financeiro, consulte sempre um profissional habilitado.</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px">
+      <div class="sec-label-main" style="margin:0;flex:1">Análise do seu perfil</div>
+      <button id="toggle-all-insights" style="background:transparent;border:1px solid var(--border2);border-radius:var(--r2);color:var(--text2);font-size:11px;padding:5px 12px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:0.5px;text-transform:uppercase;transition:all .15s;white-space:nowrap;margin-left:12px">Recolher tudo</button>
+    </div>
+    ${(()=>{
+      let html='';
+      let d2count=0;
+      const d2cards=insights.filter(i=>i.cat==='d2'||i.cat==='familia'||i.cat==='financeiro');
+      const manyD2=d2cards.length>2;
+      insights.forEach((i,idx)=>{
+        const isD2type=i.cat==='d2'||i.cat==='familia'||i.cat==='financeiro';
+        if(isD2type) d2count++;
+        // Primeiro card de D2 com muitos: adicionar header de grupo colapsável
+        if(manyD2&&isD2type&&d2count===1){
+          
+        }
+        const collapsed=manyD2&&isD2type&&d2count>1?'collapsed':'';
+        html+=`<div class="ins-card ${collapsed}" style="border-left-color:${INS_COLORS[i.cat]||'#5b9cf6'}" data-idx="${idx}">
+          <div class="ins-title">${i.title}<span class="ins-title-chevron">▼</span></div>
+          <div class="ins-text">${i.text}</div>
+        </div>`;
+      });
+      if(manyD2){
+        html+=`<button class="collapse-toggle" id="expand-all">Ver todos os detalhes de planejamento</button>`;
+      }
+      return html;
+    })()}
+    <div class="sec-label-main" style="margin-top:24px">Próximos passos</div>
+    <div class="steps">${steps.map((s,i)=>`<div class="step"><span class="step-n">0${i+1}</span><div class="step-t">${s}</div></div>`).join('')}</div>
+    ${(()=>{
+      const inv=ANS['p9']?ANS['p9'].v:0;
+      const prazo=ANS['p8']?ANS['p8'].v:0;
+      const areaV=ANS['p3']?ANS['p3'].v:'outro';
+      const primeiroNome=LEAD.nome?LEAD.nome.split(' ')[0]:'';
+      const vocativo=primeiroNome?primeiroNome+', ':'';
+      let html='';
+
+      // ── TRILHA DE e score >= 41: lógica por perfil de investimento ────────
+      if(T==='de'&&result.final>=41){
+
+        // Nunca investiu nada — precisa dar o primeiro passo
+        if(inv===0||inv==='0'){
+          html+=`<div class="promo ebook">
+            <div class="promo-tag">Ponto de partida</div>
+            <div class="promo-title">#partiu_Alemanha</div>
+            <div class="promo-sub">${vocativo}você ainda não investiu em preparação para essa mudança. Isso é comum, mas tem um custo real: profissionais que chegam sem estrutura perdem meses recomeçando do zero. Esse guia foi escrito por quem viveu os dois lados, e cobre tudo do visto ao primeiro salário.</div>
+            <a href="${EBOOK_URL}" target="_blank" class="promo-btn">Começar com o guia</a>
+          </div>`;
+        }
+
+        // Já comprou materiais ou cursos de idioma — próximo nível
+        else if(inv===1||inv==='1'){
+          if(result.final<=65){
+            html+=`<div class="promo curso">
+              <div class="promo-tag">Próximo nível</div>
+              <div class="promo-title">Emprego na Alemanha</div>
+              <div class="promo-sub">${vocativo}você já se moveu. Isso conta muito. O próximo passo é transformar esse movimento em candidaturas reais: currículo no padrão alemão, carta personalizada por vaga e LinkedIn que atrai recrutadores sem precisar candidatar. Esse curso foi desenvolvido por quem entrevistou dos dois lados da mesa.</div>
+              <a href="${CURSO_URL}" target="_blank" class="promo-btn">Ver o curso</a>
+            </div>`;
+          } else {
+            html+=`<div class="promo curso">
+              <div class="promo-tag">Refinamento estratégico</div>
+              <div class="promo-title">Emprego na Alemanha</div>
+              <div class="promo-sub">${vocativo}seu perfil já é competitivo. A diferença entre candidatos no seu nível costuma estar nos detalhes de posicionamento: como o currículo é lido por ATS alemão, como a carta de apresentação demonstra fit cultural, e como o LinkedIn aparece para recrutadores em Munique ou Frankfurt. Esse curso cobre esses detalhes com exemplos reais.</div>
+              <a href="${CURSO_URL}" target="_blank" class="promo-btn">Conhecer o curso</a>
+            </div>`;
+          }
+        }
+
+        // Já pagou por mentoria — respeita o histórico, posiciona a diferença
+        else if(inv===2||inv==='2'){
+          html+=`<div class="promo curso" style="border-color:#D4AF3740;background:#1a1500">
+            <div class="promo-tag" style="color:#D4AF37">Para quem já buscou ajuda</div>
+            <div class="promo-title">Emprego na Alemanha</div>
+            <div class="promo-sub">${vocativo}você já investiu em orientação antes. Isso mostra que você entende o valor de ter alguém que já percorreu esse caminho. Este curso complementa o que você já sabe com foco específico no processo seletivo alemão: os padrões que recrutadores esperam e que quase nenhum material brasileiro cobre.</div>
+            <a href="${CURSO_URL}" target="_blank" class="promo-btn">Conhecer o curso</a>
+          </div>`;
+        }
+
+        // Já investiu em viagem ou visto — está em movimento real, pitch de aceleração
+        else if(inv===3||inv==='3'){
+          html+=`<div class="promo curso" style="border-color:#D4AF3740;background:#1a1500">
+            <div class="promo-tag" style="color:#D4AF37">Você está em movimento</div>
+            <div class="promo-title">Emprego na Alemanha</div>
+            <div class="promo-sub">${vocativo}quem investe em viagem de reconhecimento ou processo de visto está levando isso a sério. Nessa fase, o que mais importa é não perder oportunidades por falhas evitáveis de posicionamento. Este curso foi desenvolvido para que você não cometa os erros mais comuns de profissionais qualificados que chegam desposicionados no mercado alemão.</div>
+            <a href="${CURSO_URL}" target="_blank" class="promo-btn">Ver o curso</a>
+          </div>`;
+        }
+      }
+
+      // ── TRILHA AU: sem produtos próprios por enquanto, mas pitch de conteúdo ─
+      // (placeholder para quando tiver produto AU)
+
+      return html;
+    })()}
+    <div class="social"><p>Conteúdo novo sobre carreira internacional toda semana. Acompanhe no <a href="https://instagram.com/jmnomundo" target="_blank">@jmnomundo</a> no Instagram e conecte-se no <a href="https://linkedin.com/in/jonathan-mathias" target="_blank">LinkedIn</a>.</p></div>
+    <div class="sec-label-main">Compartilhar resultado</div>
+    <div class="share-wrap">
+      <button class="share-btn-row" id="shr-copy"><span class="share-lbl" id="shr-copy-lbl">Copiar relatório completo</span><span style="font-size:10px" id="shr-copy-icon">&#x29c9;</span></button>
+      <button class="share-btn-row" id="shr-mail"><span class="share-lbl">Enviar por e-mail</span><span class="share-beta">em breve</span></button>
+    </div>
+    <div class="beta-card">
+      <div class="beta-tag"><span class="beta-dot"></span>Em fase de testes</div>
+      <div class="beta-title">Acompanhe conteúdo para o seu nível</div>
+      <div class="beta-sub">${LEAD.nome?'Confirme seus dados para receber conteúdo prático sobre carreira internacional selecionado para o seu perfil.':'Deixe seu e-mail para receber conteúdo prático selecionado de acordo com seu perfil e pontuação.'}</div>
+      <div class="beta-form">
+        <input class="beta-inp" type="text" placeholder="Seu nome completo" id="lead-name" value="${LEAD.nome||''}">
+        <input class="beta-inp" type="email" placeholder="Seu melhor e-mail" id="lead-email" value="${LEAD.email||''}">
+        <button class="beta-btn ${T}" id="lead-btn">Quero acompanhar</button>
+        <div id="lead-ok" style="display:none;background:#111120;border:1px solid #2e2e44;border-radius:var(--r2);padding:14px 16px;text-align:center">
+          <div style="font-size:13px;color:#D4AF37;font-weight:500;margin-bottom:4px">Em fase de testes</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.5">Seu interesse foi registrado. As sequências de e-mail estão sendo preparadas e você receberá conteúdo em breve.</div>
+        </div>
+        <div class="beta-err" id="lead-err">Algo deu errado. Tente novamente.</div>
+        <div class="beta-note">Sem spam. Apenas conteúdo sobre carreira internacional.</div>
+      </div>
+    </div>
+    <div class="sec-label-main">Avalie esta experiência</div>
+    <div id="nps-block" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px 20px;margin:8px 0 16px">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">De 0 a 10, qual a probabilidade de você recomendar essa avaliação?</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5">0 = certamente não recomendaria · 10 = recomendaria com certeza<br><span style="font-size:11px;opacity:0.6">Avaliação anônima. Seu nome não será associado a esta resposta.</span></div>
+      <div id="nps-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px"></div>
+      <div id="nps-comment-wrap" style="display:none;margin-top:12px">
+        <textarea id="nps-comment" placeholder="Comentário opcional: o que poderia ser melhor? O que mais gostou?" rows="3"
+          style="width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:13px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;resize:vertical;line-height:1.5"></textarea>
+      </div>
+      <div id="nps-thanks" style="display:none;font-size:13px;color:#3ecf8e;text-align:center;padding:8px 0;font-weight:500">Obrigado pelo feedback!</div>
+    </div>
+    <div class="restart"><button class="restart-btn" id="btn-restart">Refazer a avaliação</button></div>`;
+
+  document.getElementById('app').innerHTML='';
+  document.getElementById('app').appendChild(wrap);
+
+  // Animar
+  requestAnimationFrame(()=>{
+    const ring=document.getElementById('score-ring');
+    if(ring){ring.style.transition='stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)';ring.style.strokeDashoffset=off.toFixed(2);}
+    let cur=0;const el=document.getElementById('score-n'),st=Math.max(1,Math.ceil(result.final/55));
+    const t=setInterval(()=>{cur=Math.min(cur+st,result.final);if(el)el.textContent=cur;if(cur>=result.final)clearInterval(t);},20);
+    setTimeout(()=>{
+      ['d1','d2','d3','d4'].forEach(d=>{
+        const bar=document.getElementById('bar-'+d);
+        if(bar){bar.style.transition='width 1.2s cubic-bezier(.4,0,.2,1)';bar.style.width=result.dims[d]+'%';}
+      });
+    },300);
+  });
+
+  // Compartilhar — registra clique
+  const shareAction=(canal,text)=>{
+    logEvent('share_click',{trilha:T,score:result.final,banda:band.lb,canal});
+    return text;
+  };
+  document.getElementById('shr-copy').addEventListener('click',()=>{
+    const txt=shareAction('copy',buildSummary(result,insights,steps));
+    navigator.clipboard.writeText(txt).then(()=>{
+      const lbl=document.getElementById('shr-copy-lbl');
+      const ic=document.getElementById('shr-copy-icon');
+      document.getElementById('shr-copy').classList.add('ok');
+      if(lbl){lbl.textContent='Copiado com sucesso';lbl.className='share-lbl ok';}
+      if(ic){ic.textContent='✓';}
+      setTimeout(()=>{
+        const b=document.getElementById('shr-copy'),l=document.getElementById('shr-copy-lbl'),i=document.getElementById('shr-copy-icon');
+        if(b)b.classList.remove('ok');
+        if(l){l.textContent='Copiar relatório completo';l.className='share-lbl';}
+        if(i)i.textContent='⊞';
+      },3000);
+    }).catch(()=>{});
+  });
+  document.getElementById('shr-mail').addEventListener('click',()=>{
+    shareAction('email','');
+    // Mostrar mensagem de "em breve" inline
+    const btn=document.getElementById('shr-mail');
+    const orig=btn.innerHTML;
+    btn.innerHTML='<span class="share-lbl">Disponível em breve</span><span style="font-size:10px">🕐</span>';
+    btn.style.opacity='0.6';
+    setTimeout(()=>{btn.innerHTML=orig;btn.style.opacity='1';},2500);
+  });
+
+  // Lead
+  // Registrar clique no campo de lead (interesse, mesmo sem submit)
+  document.getElementById('lead-btn').addEventListener('click',async()=>{
+    const nm=(document.getElementById('lead-name')?document.getElementById('lead-name').value:LEAD.nome||'').trim();
+    const em=(document.getElementById('lead-email')?document.getElementById('lead-email').value:LEAD.email||'').trim();
+    const ok=document.getElementById('lead-ok'),err=document.getElementById('lead-err');
+    if(!nm||!em){document.getElementById(nm?'lead-email':'lead-name').focus();return;}
+    const btn=document.getElementById('lead-btn');
+    logEvent('lead_clique',{trilha:T,score:result.final,banda:band.lb,tem_email:!!em});
+    // Atualizar LEAD com valores editados pelo usuário
+    LEAD.nome=nm;LEAD.email=em;
+    btn.disabled=true;btn.textContent='Registrando...';
+    try{
+      await logEvent('lead',{nome:nm,email:em,whatsapp:LEAD.waDDI&&LEAD.waNum?`+${LEAD.waDDI}${LEAD.waNum}`:'',trilha:T,score:result.final,banda:band.lb,
+        d1:result.dims.d1,d2:result.dims.d2,d3:result.dims.d3,d4:result.dims.d4,
+        area:ANS['p3']?ANS['p3'].l:'',dependentes:CTR.adultos+CTR.criancas+CTR.jovens});
+      btn.style.display='none';
+      if(ok)ok.style.display='block';
+    }catch(e){
+      btn.disabled=false;btn.textContent='Quero acompanhar';
+      if(err)err.style.display='block';
+    }
+  });
+
+
+  // NPS inline no relatório — com botão confirmar
+  const npsGrid = document.getElementById('nps-grid');
+  if(npsGrid){
+    // Adicionar botão confirmar e pular ao DOM do nps-block
+    const npsBlock=document.getElementById('nps-block');
+    const npsConfirm=document.createElement('button');
+    npsConfirm.id='nps-confirm';
+    npsConfirm.textContent='Enviar avaliação';
+    const corTrilha=T==='de'?'#D4AF37':'#2B5EA7';
+    const corTxt=T==='de'?'#0d0d00':'#fff';
+    npsConfirm.style.cssText=`display:none;width:100%;padding:13px;border:none;border-radius:var(--r2);background:${corTrilha};color:${corTxt};font-size:14px;font-weight:500;cursor:pointer;font-family:Geist,sans-serif;margin-top:12px;transition:opacity .15s`;
+    npsConfirm.addEventListener('click',()=>{
+      npsConfirm.style.display='none';
+      npsGrid.querySelectorAll('button').forEach(b=>b.disabled=true);
+      const thanks=document.getElementById('nps-thanks');
+      if(thanks)thanks.style.display='block';
+      const npsCommentEl=document.getElementById('nps-comment');
+      const npsComment=(npsCommentEl?npsCommentEl.value:'').trim();
+      logEvent('nps',{trilha:T,score:result.final,banda:band.lb,nps:NPS,comentario:npsComment||''});
+    });
+
+    const npsPular=document.createElement('button');
+    npsPular.textContent='Pular';
+    npsPular.style.cssText='background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:Geist,sans-serif;display:block;width:100%;text-align:center;padding:6px;margin-top:4px';
+    npsPular.addEventListener('click',()=>{
+      const thanks=document.getElementById('nps-thanks');
+      if(thanks){thanks.textContent='Avaliação ignorada.';thanks.style.display='block';}
+      npsConfirm.style.display='none';npsPular.style.display='none';
+      npsGrid.querySelectorAll('button').forEach(b=>b.disabled=true);
+    });
+
+    if(npsBlock){npsBlock.appendChild(npsConfirm);npsBlock.appendChild(npsPular);}
+
+    for(let i=0;i<=10;i++){
+      const btn=document.createElement('button');
+      btn.textContent=i;
+      btn.style.cssText='padding:13px 0;border-radius:var(--r2);border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:14px;font-family:DM Mono,monospace;font-weight:500;cursor:pointer;transition:all .2s';
+      btn.addEventListener('click',()=>{
+        NPS=i;
+        // Highlight seleção, botões permanecem ativos para trocar nota
+        npsGrid.querySelectorAll('button').forEach(b=>{
+          const v=+b.textContent;
+          const isSel=v===i;
+          const col=v<=6?'#e85555':v<=8?'#f0c44a':'#3ecf8e';
+          b.style.background=isSel?col:'var(--surface)';
+          b.style.color=isSel?'#fff':'var(--text2)';
+          b.style.borderColor=isSel?col:'var(--border)';
+          b.style.transform=isSel?'scale(1.08)':'scale(1)';
+        });
+        npsConfirm.style.display='block';
+        npsPular.style.display='none';
+        const cw=document.getElementById('nps-comment-wrap');
+        if(cw)cw.style.display='block';
+      });
+      npsGrid.appendChild(btn);
+    }
+  }
+
+  // Toggle de todos os insights
+  let allCollapsed=false;
+  const toggleAllBtn=document.getElementById('toggle-all-insights');
+  if(toggleAllBtn){
+    toggleAllBtn.addEventListener('click',()=>{
+      const allCards=document.querySelectorAll('.ins-card');
+      allCollapsed=!allCollapsed;
+      allCards.forEach(c=>{
+        if(allCollapsed) c.classList.add('collapsed');
+        else c.classList.remove('collapsed');
+      });
+      toggleAllBtn.textContent=allCollapsed?'Expandir tudo':'Recolher tudo';
+    });
+  }
+
+  // Colapso individual — só cards com chevron
+  document.querySelectorAll('.ins-card').forEach(card=>{
+    const chevron=card.querySelector('.ins-title-chevron');
+    if(!chevron) return;
+    card.style.cursor='pointer';
+    card.title='Clique para expandir ou recolher';
+    card.addEventListener('click',()=>{
+      card.classList.toggle('collapsed');
+    });
+  });
+
+  // Botão expandir grupo D2
+  const expandBtn=document.getElementById('expand-all');
+  if(expandBtn){
+    expandBtn.addEventListener('click',e=>{
+      e.stopPropagation();
+      document.querySelectorAll('.ins-card.collapsed').forEach(c=>c.classList.remove('collapsed'));
+      expandBtn.style.display='none';
+    });
+  }
+
+  document.getElementById('btn-restart').addEventListener('click',()=>{
+    T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;LEAD={nome:'',email:'',waDDI:'55',waNum:''};
+    renderTrilha();window.scrollTo(0,0);
+  });
+}
+
+renderTrilha();
+</script>
+</body>
+</html>
