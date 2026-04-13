@@ -24,7 +24,10 @@
   --gold:#f0c44a;
   --r:14px;--r2:10px;
 }
-body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body{font-family:'Geist',sans-serif;background:var(--grad-bg);background-color:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,#D4AF3708 0%,transparent 60%)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:200px 200px}
+.app{position:relative;z-index:1}
 .app{max-width:520px;margin:0 auto;padding:20px 18px 80px}
 
 /* TRILHA */
@@ -33,7 +36,7 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
 .trilha-h1{font-family:'DM Serif Display',serif;font-size:clamp(26px,6vw,34px);line-height:1.2;color:var(--text);margin-bottom:12px;letter-spacing:-0.02em}
 .trilha-sub{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.7;max-width:340px;margin-left:auto;margin-right:auto}
 .trilha-context{display:flex;flex-direction:column;gap:8px;margin:0 auto 28px;max-width:400px}
-.trilha-proof{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:#16162280;border:1px solid var(--border);border-radius:var(--r2)}
+.trilha-proof{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:linear-gradient(135deg,#16162280 0%,#12121c80 100%);border:1px solid var(--border);border-radius:var(--r2);backdrop-filter:blur(4px)}
 .trilha-proof-icon{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:1px}
 .trilha-proof-text{font-size:13px;color:var(--text2);line-height:1.55;text-align:left}
 .trilha-proof-text strong{color:var(--text);font-weight:500}
@@ -42,9 +45,13 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
 .trilha-divider-txt{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;padding:0 4px}
 .trilha-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:400px;margin:0 auto 16px}
 .trilha-btn{padding:26px 14px 20px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);cursor:pointer;font-family:'Geist',sans-serif;transition:all .25s cubic-bezier(.4,0,.2,1);text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;overflow:hidden}
+.trilha-btn{animation:trilhaReveal .5s cubic-bezier(.34,1.2,.64,1) both}
+.trilha-btn:nth-child(1){animation-delay:.1s}
+.trilha-btn:nth-child(2){animation-delay:.2s}
+@keyframes trilhaReveal{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .trilha-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.35)}
-.trilha-btn.de:hover,.trilha-btn.de.sel{border-color:#D4AF37;background:#1a1500}
-.trilha-btn.au:hover,.trilha-btn.au.sel{border-color:#2B5EA7;background:#0a1020}
+.trilha-btn.de:hover,.trilha-btn.de.sel{border-color:#D4AF37;background:linear-gradient(160deg,#1a1500 0%,#231a00 100%);box-shadow:0 0 32px #D4AF3715,inset 0 1px 0 #D4AF3720}
+.trilha-btn.au:hover,.trilha-btn.au.sel{border-color:#2B5EA7;background:linear-gradient(160deg,#0a1020 0%,#0d1830 100%);box-shadow:0 0 32px #2B5EA715,inset 0 1px 0 #2B5EA720}
 .trilha-flag{width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));transition:transform .25s}
 .trilha-btn:hover .trilha-flag{transform:scale(1.06)}
 .trilha-nome{font-size:16px;font-weight:600;color:var(--text);letter-spacing:-0.01em}
@@ -55,21 +62,22 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
 .prog-meta{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px}
 .prog-bar{height:2px;background:var(--border);border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;transition:width .4s ease}
-.prog-fill.de{background:linear-gradient(90deg,#D4AF37,#b8920e)}
-.prog-fill.au{background:linear-gradient(90deg,#2B5EA7,#1a3a6b)}
+.prog-fill.de{background:linear-gradient(90deg,#8b6a00,#D4AF37,#f5d060);background-size:200% 100%;animation:shimmer 2s ease infinite}
+.prog-fill.au{background:linear-gradient(90deg,#1a3a6b,#2B5EA7,#5b8ed4);background-size:200% 100%;animation:shimmer 2s ease infinite}
 
 /* CARD */
-.q-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px 20px;margin-bottom:14px}
+.q-card{background:var(--grad-surface);border:1px solid var(--border);border-radius:var(--r);padding:26px 20px;margin-bottom:14px}
 .q-text{font-size:17px;line-height:1.6;color:var(--text);margin-bottom:22px;font-weight:400;letter-spacing:-0.01em}
 .q-hint{font-size:13px;color:var(--muted);margin-top:-14px;margin-bottom:20px;line-height:1.6;padding:10px 14px;background:#111120;border-radius:var(--r2);border-left:2px solid var(--border2)}
 
 /* OPÇÕES */
 .opts{display:grid;gap:9px}
-.opt{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#111120;border:1px solid #30304a;border-radius:var(--r2);cursor:pointer;transition:border-color .15s,background .15s;text-align:left;width:100%;font-family:'Geist',sans-serif}
-.opt-key{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:#1c1c30;border:1px solid #30304a;border-radius:5px;padding:3px 8px;flex-shrink:0;min-width:28px;text-align:center;transition:all .15s;letter-spacing:0.3px}
-.opt-lbl{font-size:15px;color:var(--text2);line-height:1.4}
-.opt:hover{border-color:var(--border2);background:#181828}
+.opt{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#111120;border:1px solid #30304a;border-radius:var(--r2);cursor:pointer;transition:border-color .2s,background .2s,transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;text-align:left;width:100%;font-family:'Geist',sans-serif;transform:translateX(0)}
+.opt-key{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:#1c1c30;border:1px solid #30304a;border-radius:5px;padding:3px 8px;flex-shrink:0;min-width:28px;text-align:center;transition:all .2s;letter-spacing:0.3px}
+.opt-lbl{font-size:15px;color:var(--text2);line-height:1.4;transition:color .15s}
+.opt:hover{border-color:var(--border2);background:#181828;transform:translateX(3px)}
 .opt:hover .opt-lbl{color:var(--text)}
+.opt:active{transform:translateX(3px) scale(0.99)}
 .opt.sel.de{border-color:#D4AF37;background:#1a1500}
 .opt.sel.de .opt-key{background:#D4AF37;color:#0d0d00;border-color:#D4AF37}
 .opt.sel.de .opt-lbl{color:var(--text);font-weight:500}
@@ -101,6 +109,7 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
 /* RESULTADOS */
 .res{animation:fadeUp .6s cubic-bezier(.4,0,.2,1) both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
 .trilha-wrap{animation:fadeUp .5s ease both}
 .q-card{animation:fadeUp .3s ease both}
 
@@ -126,7 +135,7 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
 /* BANDAS */
 .bands{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:16px 0 24px}
 .band{padding:10px 6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);text-align:center;transition:all .2s}
-.band.act{border-width:2px;transform:translateY(-2px)}
+.band.act{border-width:2px;transform:translateY(-2px);background:linear-gradient(135deg,#1c1c2e 0%,#141420 100%)}
 .band-name{font-size:11px;font-weight:500;margin-bottom:3px;line-height:1.2}
 .band-range{font-family:'DM Mono',monospace;font-size:9px;opacity:0.5}
 
@@ -150,7 +159,16 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
 .collapse-toggle:hover{border-color:var(--border2);color:var(--text)}
 
 /* INSIGHTS */
-.ins-card{background:var(--surface);border:1px solid var(--border);border-left-width:3px;border-radius:0 var(--r2) var(--r2) 0;padding:16px 18px;margin-bottom:8px}
+.ins-card{background:var(--grad-surface);border:1px solid var(--border);border-left-width:3px;border-radius:0 var(--r2) var(--r2) 0;padding:16px 18px;margin-bottom:8px;animation:insReveal .4s ease both}
+@keyframes insReveal{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+.ins-card:nth-child(1){animation-delay:.1s}
+.ins-card:nth-child(2){animation-delay:.18s}
+.ins-card:nth-child(3){animation-delay:.26s}
+.ins-card:nth-child(4){animation-delay:.34s}
+.ins-card:nth-child(5){animation-delay:.42s}
+.ins-card:nth-child(6){animation-delay:.5s}
+.ins-card:nth-child(7){animation-delay:.58s}
+.ins-card:nth-child(8){animation-delay:.66s}
 .ins-card.collapsed .ins-text{display:none}
 .ins-card.collapsed{cursor:pointer}
 .ins-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;letter-spacing:-0.01em;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -171,8 +189,8 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
 
 /* PROMO */
 .promo{border-radius:var(--r);padding:22px;margin:14px 0}
-.promo.ebook{background:#0c1a12;border:1px solid #3ecf8e40}
-.promo.curso{background:#0f1520;border:1px solid #5b9cf630}
+.promo.ebook{background:linear-gradient(135deg,#071209 0%,#0c1a12 100%);border:1px solid #3ecf8e40}
+.promo.curso{background:linear-gradient(135deg,#0a0d18 0%,#0f1520 100%);border:1px solid #5b9cf640}
 .promo-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-weight:500}
 .promo.ebook .promo-tag{color:#3ecf8e}
 .promo.curso .promo-tag{color:var(--accent)}
@@ -189,7 +207,7 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
 .social a{color:var(--accent);text-decoration:none;font-weight:500}
 
 /* BETA CARD */
-.beta-card{background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:18px 16px;margin:8px 0 16px}
+.beta-card{background:linear-gradient(145deg,#131324 0%,#0f0f1e 100%);border:1px solid var(--border);border-radius:var(--r2);padding:18px 16px;margin:8px 0 16px}
 .beta-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .beta-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
@@ -251,6 +269,7 @@ async function logEvent(type, data){
   const payload = {type, ts: new Date().toISOString(), ...data};
   console.log('[CIA App]', type, payload);
   if(!SHEETS_URL) return;
+  // Método 1: fetch com no-cors (funciona na maioria dos browsers)
   try {
     await fetch(SHEETS_URL, {
       method:'POST',
@@ -258,7 +277,14 @@ async function logEvent(type, data){
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
-  } catch(e){ console.warn('Sheets error', e); }
+    return;
+  } catch(e){ /* tenta fallback */ }
+  // Método 2: fallback via GET com parâmetros (contorna CORS no iOS Safari)
+  try {
+    const params=encodeURIComponent(JSON.stringify(payload));
+    const img=new Image();
+    img.src=SHEETS_URL+'?data='+params;
+  } catch(e){ console.warn('Sheets fallback error', e); }
 }
 
 /* =======================================================
@@ -275,6 +301,15 @@ const APP_LI_URL    = '';
 /* =======================================================
    PERGUNTAS — 4 dimensões
 ========================================================= */
+// Helper global: detecta se usuário já está no destino
+function isNoDestino(){
+  const p=ANS['p_geo']?ANS['p_geo'].v:'br';
+  return (T==='de'&&p==='de')||(T==='au'&&p==='au');
+}
+function geoTempo(){
+  return ANS['p_geo_tempo']?ANS['p_geo_tempo'].v:'';
+}
+
 function getQuestions(t){
   const de = t === 'de';
   return [
@@ -309,33 +344,93 @@ function getQuestions(t){
         {l:'Comércio Exterior e logística',v:'comex'},
         {l:'Estudos (mestrado, MBA ou curso)',v:'estudos'},
         {l:'Outra área',v:'outro'}]},
+    {id:'p_geo',dim:'d2',dimLbl:'Maturidade da decisão',
+      q:'Onde você está morando atualmente?',
+      selectQ:true,
+      placeholder:'Selecione seu país atual',
+      selectOpts:[
+        {l:'Brasil',v:'br'},
+        {l:'Alemanha',v:'de'},
+        {l:'Austrália',v:'au'},
+        {l:'Portugal',v:'pt'},
+        {l:'Estados Unidos',v:'us'},
+        {l:'Canadá',v:'ca'},
+        {l:'Reino Unido',v:'uk'},
+        {l:'Suíça',v:'ch'},
+        {l:'Áustria',v:'at'},
+        {l:'Holanda',v:'nl'},
+        {l:'França',v:'fr'},
+        {l:'Espanha',v:'es'},
+        {l:'Itália',v:'it'},
+        {l:'Nova Zelândia',v:'nz'},
+        {l:'Japão',v:'jp'},
+        {l:'Singapura',v:'sg'},
+        {l:'Emirados Árabes',v:'ae'},
+        {l:'Outro país',v:'outro'}
+      ]},
+    {id:'p_geo_tempo',dim:'d2',dimLbl:'Maturidade da decisão',
+      q:'Há quanto tempo você está fora do Brasil?',
+      conditional:'p_geo_notBR',
+      selectQ:true,
+      placeholder:'Selecione o período',
+      selectOpts:[
+        {l:'Menos de 6 meses',v:'lt6m'},
+        {l:'Entre 6 meses e 1 ano',v:'6m1y'},
+        {l:'Entre 1 e 2 anos',v:'1y2y'},
+        {l:'Entre 2 e 5 anos',v:'2y5y'},
+        {l:'Mais de 5 anos',v:'gt5y'}
+      ]},
     {id:'p4',dim:'d2',dimLbl:'Maturidade da decisão',
-      q: de ? 'Você já pesquisou como validar seu diploma na Alemanha?' : 'Você já pesquisou qual visto permite trabalhar na sua área na Austrália?',
-      opts: de ? [
-        {l:'Não sabia que isso era necessário',v:0},
-        {l:'Sei que preciso, mas ainda não pesquisei',v:1},
-        {l:'Já pesquisei e sei o que preciso fazer',v:2},
-        {l:'Já iniciei o processo de validação',v:3}
-      ] : [
-        {l:'Não sei qual visto precisaria',v:0},
-        {l:'Sei que existe essa exigência, mas não pesquisei',v:1},
-        {l:'Já pesquisei e entendo as opções',v:2},
-        {l:'Já tenho visto ou estou em processo',v:3}]},
+      q: de
+        ? (isNoDestino()?'Qual é o status do reconhecimento do seu diploma na Alemanha?':'Você já pesquisou como validar seu diploma na Alemanha?')
+        : (isNoDestino()?'Qual é o status do seu visto de trabalho na Austrália?':'Você já pesquisou qual visto permite trabalhar na sua área na Austrália?'),
+      opts: de
+        ? (isNoDestino() ? [
+            {l:'Ainda não iniciei o processo',v:0},
+            {l:'Estou em processo de reconhecimento',v:2},
+            {l:'Diploma já reconhecido e validado',v:4},
+            {l:'Minha área não exige reconhecimento formal',v:3}
+          ] : [
+            {l:'Não sabia que isso era necessário',v:0},
+            {l:'Sei que preciso, mas ainda não pesquisei',v:1},
+            {l:'Já pesquisei e sei o que preciso fazer',v:2},
+            {l:'Já iniciei o processo de validação',v:3},
+            {l:'Diploma já validado',v:4}
+          ])
+        : (isNoDestino() ? [
+            {l:'Tenho visto temporário (ex: 482, estudante)',v:2},
+            {l:'Tenho visto de residência permanente ou cidadania',v:4},
+            {l:'Ainda estou regularizando minha situação',v:1},
+            {l:'Minha área tem caminho específico em andamento',v:3}
+          ] : [
+            {l:'Não sei qual visto precisaria',v:0},
+            {l:'Sei que existe essa exigência, mas não pesquisei',v:1},
+            {l:'Já pesquisei e entendo as opções',v:2},
+            {l:'Já tenho visto ou estou em processo',v:3}
+          ])},
     {id:'p5',dim:'d2',dimLbl:'Maturidade da decisão',
-      q:'Quantas pessoas dependem de você nessa mudança?',
+      get q(){ return isNoDestino()?'Quantas pessoas vieram com você nessa mudança?':'Quantas pessoas dependem de você nessa mudança?'; },
       familyQ:true,
       ctrs:[
         {k:'adultos',l:'Adultos',s:'Cônjuge, parceiro(a)'},
-        {k:'criancas',l:'Crianças de 0 a 6 anos',s:'Precisarão de creche (Kita)'},
-        {k:'jovens',l:'Jovens de 7 a 18 anos',s:'Escola obrigatória na Alemanha'}]},
+        {k:'criancas',l:'Crianças de 0 a 6 anos', get s(){ return isNoDestino()?'Precisam de child care ou creche':'Precisarão de creche (Kita)'; }},
+        {k:'jovens',l:'Jovens de 7 a 18 anos', get s(){ return isNoDestino()?'Escola local — adaptação em curso':'Escola obrigatória na Alemanha'; }}]},
     {id:'p5b',dim:'d2',dimLbl:'Maturidade da decisão',
-      q:'As pessoas que vão com você estão alinhadas com essa mudança?',
+      get q(){ return isNoDestino()?'Como as pessoas que vieram com você estão lidando com a adaptação?':'As pessoas que vão com você estão alinhadas com essa mudança?'; },
       conditional:'p5_notSolo',
-      opts:[
-        {l:'Ainda não conversei sobre isso',v:0},
-        {l:'Conversamos, mas há dúvidas e resistência',v:1},
-        {l:'Estão abertas, mas com dúvidas naturais',v:2},
-        {l:'Estão totalmente alinhadas e envolvidas',v:3}]},
+      get opts(){
+        return isNoDestino() ? [
+          {l:'Estão tendo muita dificuldade, ainda é muito difícil',v:0},
+          {l:'É difícil, mas estamos nos adaptando',v:1},
+          {l:'Estão se adaptando bem no geral',v:2},
+          {l:'Estão adaptadas e integradas na nova rotina',v:3}
+        ] : [
+          {l:'Ainda não conversei sobre isso',v:0},
+          {l:'Conversamos, mas há dúvidas e resistência',v:1},
+          {l:'Estão abertas, mas com dúvidas naturais',v:2},
+          {l:'Estão totalmente alinhadas e envolvidas',v:3}
+        ];
+      }},
     {id:'p6',dim:'d2',dimLbl:'Maturidade da decisão',
       q: de ? 'Você já conversou com brasileiros que trabalham na Alemanha na sua área?' : 'Você já conversou com brasileiros que trabalham na Austrália na sua área?',
       opts:[
@@ -344,26 +439,53 @@ function getQuestions(t){
         {l:'Já conversei com uma ou duas pessoas',v:2},
         {l:'Tenho contatos ativos no destino na minha área',v:3}]},
     {id:'p7',dim:'d3',dimLbl:'Perfil comportamental',
-      q: de ? 'Você já aplicou para alguma vaga na Alemanha?' : 'Você já aplicou para alguma vaga na Austrália?',
-      opts:[
-        {l:'Nunca tentei',v:0},
-        {l:'Já pesquisei vagas, mas não apliquei',v:1},
-        {l:'Já apliquei, mas não obtive retorno',v:2},
-        {l:'Já tive entrevistas ou retorno de recrutadores',v:3}]},
+      get q(){
+        const dest=T==='de'?'na Alemanha':'na Austrália';
+        return isNoDestino()?'Como estão suas candidaturas a vagas aqui?':'Você já aplicou para alguma vaga '+dest+'?';
+      },
+      get opts(){
+        return isNoDestino() ? [
+          {l:'Ainda não comecei a candidatar',v:0},
+          {l:'Já pesquisei vagas, mas não apliquei',v:1},
+          {l:'Já apliquei, mas sem retorno ainda',v:2},
+          {l:'Já tive entrevistas ou estou em processo seletivo',v:3}
+        ] : [
+          {l:'Nunca tentei',v:0},
+          {l:'Já pesquisei vagas, mas não apliquei',v:1},
+          {l:'Já apliquei, mas não obtive retorno',v:2},
+          {l:'Já tive entrevistas ou retorno de recrutadores',v:3}
+        ];
+      }},
     {id:'p8',dim:'d3',dimLbl:'Perfil comportamental',
-      q:'Você tem um prazo definido para fazer essa mudança?',
-      opts:[
-        {l:'Não tenho prazo: é um sonho ainda distante',v:0},
-        {l:'Quero ir, mas sem prazo definido',v:1},
-        {l:'Tenho um prazo flexível: 1 a 2 anos',v:2},
-        {l:'Tenho prazo fixo e estou me preparando ativamente',v:3}]},
+      get q(){ return isNoDestino()?'Qual é o seu principal objetivo profissional agora?':'Você tem um prazo definido para fazer essa mudança?'; },
+      get opts(){
+        return isNoDestino() ? [
+          {l:'Conseguir o primeiro emprego na minha área',v:2},
+          {l:'Mudar de empresa ou evoluir no cargo atual',v:2},
+          {l:'Obter residência permanente ou cidadania',v:3},
+          {l:'Ainda estou definindo minha direção aqui',v:1}
+        ] : [
+          {l:'Não tenho prazo: é um sonho ainda distante',v:0},
+          {l:'Quero ir, mas sem prazo definido',v:1},
+          {l:'Tenho um prazo flexível: 1 a 2 anos',v:2},
+          {l:'Tenho prazo fixo e estou me preparando ativamente',v:3}
+        ];
+      }},
     {id:'p9',dim:'d3',dimLbl:'Perfil comportamental',
-      q:'Você já investiu dinheiro na sua preparação para essa mudança?',
-      opts:[
-        {l:'Não investi nada ainda',v:0},
-        {l:'Já comprei materiais, livros ou cursos de idioma',v:1},
-        {l:'Já paguei por assessoria, mentoria ou consultoria',v:2},
-        {l:'Já investi em viagem de reconhecimento ou visto',v:3}]},
+      get q(){ return isNoDestino()?'Você já investiu em alguma preparação profissional desde que chegou?':'Você já investiu dinheiro na sua preparação para essa mudança?'; },
+      get opts(){
+        return isNoDestino() ? [
+          {l:'Não investi em nada específico ainda',v:0},
+          {l:'Já fiz cursos de idioma ou capacitação local',v:1},
+          {l:'Já paguei por assessoria, mentoria ou consultoria',v:2},
+          {l:'Já investi em reconhecimento de diploma ou visto',v:3}
+        ] : [
+          {l:'Não investi nada ainda',v:0},
+          {l:'Já comprei materiais, livros ou cursos de idioma',v:1},
+          {l:'Já paguei por assessoria, mentoria ou consultoria',v:2},
+          {l:'Já investi em viagem de reconhecimento ou visto',v:3}
+        ];
+      }},
     {id:'p10',dim:'d4',dimLbl:'Conhecimento do mercado',
       q: de ? 'O que você sabe sobre o processo seletivo alemão?' : 'O que você sabe sobre o processo seletivo australiano?',
       opts: de ? [
@@ -401,7 +523,7 @@ const BANDS=[
 const getBand = s => BANDS.find(b => s >= b.min && s <= b.max) || BANDS[0];
 
 /* ESTADO */
-let T='', QS=[], step=0, ANS={}, CTR={adultos:0,criancas:0,jovens:0}, NPS=null, LEAD={nome:'',email:'',waDDI:'55',waNum:''};
+let T='', QS=[], step=0, ANS={}, CTR={adultos:0,criancas:0,jovens:0}, NPS=null, LEAD={nome:'',email:'',waDDI:'55',waNum:''}, GEO={pais:'',tempo:''};
 
 /* SCORE */
 function calcScore(){
@@ -416,6 +538,18 @@ function calcScore(){
   });
   const tf=CTR.adultos+CTR.criancas+CTR.jovens;
   if(tf>0) dims.d2.pts=Math.max(0,dims.d2.pts-Math.min(tf*1.2,5)*0.4);
+  // Bônus D2: quem já está no destino tomou a decisão e executou
+  const geoPais=ANS['p_geo']?ANS['p_geo'].v:'br';
+  const geoTempo=ANS['p_geo_tempo']?ANS['p_geo_tempo'].v:'';
+  const noDestino=(T==='de'&&geoPais==='de')||(T==='au'&&geoPais==='au');
+  if(noDestino){
+    const tempoBonus={lt6m:0.5,  '6m1y':1, '1y2y':1.5, '2y5y':2, gt5y:2.5}[geoTempo]||0;
+    dims.d2.pts=Math.min(dims.d2.max, dims.d2.pts+tempoBonus);
+  }
+  // Bônus menor: já está fora do Brasil mas em outro país (experiência internacional)
+  else if(geoPais!=='br'){
+    dims.d2.pts=Math.min(dims.d2.max, dims.d2.pts+0.3);
+  }
   const dS={};let tot=0;
   Object.keys(dims).forEach(d=>{
     const s=dims[d].max>0?Math.round((dims[d].pts/dims[d].max)*100):0;
@@ -454,6 +588,8 @@ function getInsights(result){
   const p4=a['p4']?a['p4'].v:0,sc=result.final;
   const tf=CTR.adultos+CTR.criancas+CTR.jovens;
   const solo=tf===0;
+  const jaNoDestino=isNoDestino();
+  const tempoFora=geoTempo();
   const R=[];const I=(cat,title,text)=>R.push({cat,title,text});
   const cursol=CURSO_ALEMAO?` <a href="${CURSO_ALEMAO}" target="_blank">Conheça o curso de alemão.</a>`:'';
 
@@ -499,8 +635,17 @@ function getInsights(result){
 
   const refId=idiomaJaCitado?' Como mencionado, o idioma é parte central dessa preparação.':'';
 
-  // Diploma/visto
-  if(p4<=1){
+  // Diploma/visto — lógica diferente para quem já está no destino
+  if(jaNoDestino){
+    // Quem já está no destino: foco em posicionamento local, não em burocracia
+    if(p4===0||p4===1){
+      const tdLocal=T==='de'?'Reconhecimento de diploma: prioridade imediata':'Status do visto: resolva isso primeiro';
+      const txLocal=T==='de'
+        ?'Você está na Alemanha mas ainda sem diploma reconhecido. Isso limita diretamente o acesso às vagas qualificadas. Inicie o processo de reconhecimento em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> e procure orientação no <a href="https://www.make-it-in-germany.com" target="_blank">Make it in Germany</a>.'
+        :'Sua situação de visto precisa estar regularizada antes de qualquer candidatura. Consulte um agente MARA registrado: <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.';
+      I('d2',tdLocal,'<span style="font-size:11px;color:#8888a8;display:block;margin-bottom:8px;line-height:1.5">Orientação geral, não assessoria jurídica ou de imigração. Consulte um profissional habilitado antes de tomar qualquer decisão.</span>'+txLocal);
+    }
+  } else if(p4<=1){
     const td=T==='de'?'Reconhecimento de diploma: comece agora':'Visto de trabalho: o caminho depende da sua área';
     const vistoArea=ANS['p3']?ANS['p3'].v:'outro';
     const vistoMsg={
@@ -521,12 +666,20 @@ function getInsights(result){
   const seguro=SEGURO_URL?` Para seguro de saúde, <a href="${SEGURO_URL}" target="_blank">confira nossa parceira recomendada</a>.`:'';
   if(!solo){
     if(T==='de'){
-      const aluguelFrio=' O <strong>aluguel frio</strong> é o valor base do imóvel, sem incluir aquecimento, água e condomínio. O valor real pago todo mês é o aluguel quente, sempre maior. A caução equivale a 3 meses do aluguel frio e precisa ser paga antes de entrar no imóvel.';
-      let resDE='A mudança com dependentes exige uma reserva financeira significativamente maior.'+aluguelFrio;
-      if(CTR.criancas>0) resDE+=' A creche (Kita) é paga na Alemanha, com valores que variam de cidade para cidade e de creche para creche: consulte a prefeitura local (Jugendamt).'+seguro;
-      I('d2','Reserva financeira: o seu número real com família',resDE+' Veja como calcular: <a href="'+EBOOK_URL+'" target="_blank">Reserva Estratégica Alemanha</a>.');
+      let resDE='';
+      if(jaNoDestino){
+        resDE='Morar na Alemanha com família tem custos que muita gente subestima no dia a dia. ';
+        resDE+='O <strong>aluguel quente</strong> (valor real com aquecimento, água e condomínio) é consideravelmente maior do que o aluguel base anunciado. Alugar um imóvel novo exige caução equivalente a 3 meses do aluguel base, paga na assinatura do contrato. ';
+        if(CTR.criancas>0) resDE+='A <strong>creche (Kita)</strong> é subsidiada, mas os valores variam por cidade e por creche. Consulte a prefeitura local (Jugendamt) para saber os valores e filas de espera na sua região.'+seguro;
+      } else {
+        const aluguelFrio=' O <strong>aluguel frio</strong> é o valor base do imóvel, sem incluir aquecimento, água e condomínio. O valor real pago todo mês é o aluguel quente, sempre maior. A caução equivale a 3 meses do aluguel frio e precisa ser paga antes de entrar no imóvel.';
+        resDE='A mudança com dependentes exige uma reserva financeira significativamente maior.'+aluguelFrio;
+        if(CTR.criancas>0) resDE+=' A creche (Kita) é paga na Alemanha, com valores que variam de cidade para cidade e de creche para creche: consulte a prefeitura local (Jugendamt).'+seguro;
+        resDE+=' Veja como calcular: <a href="'+EBOOK_URL+'" target="_blank">Reserva Estratégica Alemanha</a>.';
+      }
+      I('d2','Reserva financeira: custos reais de viver na Alemanha com família',resDE);
     } else {
-      let resAU='A Austrália é um dos países mais caros para morar com família, e o planejamento financeiro precisa ser detalhado antes de qualquer decisão.<br><br>';
+      let resAU=jaNoDestino?'Você já está aqui, então sabe na prática o que isso significa. Mas alguns custos surpreendem mesmo quem já mora na Austrália.<br><br>':'A Austrália é um dos países mais caros para morar com família, e o planejamento financeiro precisa ser detalhado antes de qualquer decisão.<br><br>';
       resAU+='<strong>Aluguel</strong> é o maior gasto. Em regiões metropolitanas como Sydney, Melbourne, Brisbane e Perth, um apartamento de 2 quartos custa entre AUD 2.800 e AUD 5.000 por mês. A caução exigida na entrada costuma equivaler a 4 semanas de aluguel, pagas antes de receber a chave.<br><br>';
       if(CTR.criancas>0) resAU+='<strong>Child care (creche)</strong> para crianças de 0 a 5 anos custa em média entre AUD 150 e AUD 250 por dia em Sydney. Quem ainda não tem residência permanente geralmente não tem acesso ao subsídio governamental (CCS) e paga o valor integral, o que representa um dos maiores impactos no orçamento familiar nos primeiros anos.<br><br>';
       resAU+='<strong>Saúde</strong> é outro ponto crítico. Quem não é cidadão ou residente permanente não tem acesso ao Medicare (sistema público de saúde). Dependendo do tipo de visto, é obrigatório contratar seguro de saúde privado, o que representa um custo mensal real e recorrente'+(SEGURO_URL?' &mdash; <a href="'+SEGURO_URL+'" target="_blank">veja opções recomendadas</a>':'')+'.<br><br>';
@@ -573,16 +726,28 @@ function getInsights(result){
     I('d4','Posicionamento: a diferença começa antes da candidatura',d4txt);
   }
   // DAMA: insight para trilha AU em perfis intermediários com flexibilidade de localização
-  if(T==='au' && sc>=41 && sc<=85 && area!=='saude'){
+  // DAMA e insight local: só para quem ainda não está no destino
+  if(!jaNoDestino && T==='au' && sc>=41 && sc<=85 && area!=='saude'){
     const soloOuCasal=CTR.criancas===0&&CTR.jovens===0;
     const damaTexto=soloOuCasal
       ?`Uma rota subestimada por brasileiros são os <strong>DAMAs (Designated Area Migration Agreements)</strong>: acordos entre o governo federal e regiões australianas com escassez de mão de obra qualificada. A vantagem é que algumas ocupações que não estão nas listas nacionais de habilidades podem ser patrocinadas via DAMA, com exigências de inglês e experiência frequentemente menores. A contrapartida é que a pessoa precisa morar e trabalhar na região designada por um período. Para quem tem flexibilidade de localização, pode ser uma porta de entrada mais acessível do que as rotas das grandes capitais. Veja os acordos ativos: <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/regional-migration/designated-area-migration-agreements" target="_blank">immi.homeaffairs.gov.au/dama</a>.`
       :`Uma rota que vale conhecer são os <strong>DAMAs (Designated Area Migration Agreements)</strong>: acordos entre o governo federal e regiões com escassez de mão de obra, onde algumas ocupações fora das listas nacionais podem ser patrocinadas com critérios mais acessíveis. Para famílias, a condição de residir na região designada precisa ser avaliada com cuidado, mas em regiões como o Northern Territory ou South Australia regional a qualidade de vida pode surpreender positivamente. Veja os acordos ativos: <a href="https://immi.homeaffairs.gov.au/visas/working-in-australia/regional-migration/designated-area-migration-agreements" target="_blank">immi.homeaffairs.gov.au/dama</a>.`;
     I('d2','DAMA: uma rota de imigração subestimada por brasileiros',damaTexto);
   }
+  // Insight exclusivo para quem já está no destino
+  if(jaNoDestino){
+    const tempoBonusLabel={'lt6m':'menos de 6 meses','6m1y':'entre 6 meses e 1 ano','1y2y':'entre 1 e 2 anos','2y5y':'entre 2 e 5 anos','gt5y':'mais de 5 anos'}[tempoFora]||'algum tempo';
+    const posLocal=T==='de'
+      ?`Você está na Alemanha há ${tempoBonusLabel}. O diferencial agora não é mais se preparar para ir: é <strong>como você aparece para recrutadores locais</strong>. LinkedIn em alemão otimizado para o mercado local, currículo no formato currículo (Lebenslauf) e candidaturas direcionadas às empresas certas são os três movimentos que mudam o resultado de quem já está lá.`
+      :`Você está na Austrália há ${tempoBonusLabel}. O diferencial agora é <strong>visibilidade no mercado local</strong>. Perfil no LinkedIn otimizado para recrutadores australianos, resume no padrão anglo-saxônico e uma rede de contatos ativa localmente são o que separa quem consegue emprego em semanas de quem leva meses.`;
+    I('d2','Você já está lá: foco em posicionamento local',posLocal);
+  }
+
   if(sc<=40){
     const inv40=ANS['p9']?ANS['p9'].v:0;
-    let g40=`Sua pontuação indica que uma mudança imediata <strong>aumenta consideravelmente o risco de fracasso</strong>. O problema raramente é falta de talento: é falta de preparação estratégica. Dependendo do seu ponto de partida, 12 a 24 meses de preparação focada é o horizonte realista para uma entrada bem posicionada.${refId}`;
+    let g40=jaNoDestino
+      ?`Você já deu o passo mais difícil. Mas estar no país não garante emprego na área: a transição profissional exige uma camada adicional de preparação que muitos subestimam. Identifique o principal gap entre as quatro dimensões e trate como prioridade única nos próximos 60 dias.`
+      :`Sua pontuação indica que uma mudança imediata <strong>aumenta consideravelmente o risco de fracasso</strong>. O problema raramente é falta de talento: é falta de preparação estratégica. Dependendo do seu ponto de partida, 12 a 24 meses de preparação focada é o horizonte realista para uma entrada bem posicionada.${refId}`;
     if((inv40===0||inv40==='0')&&T==='de'){
       g40+=' Quem começa com clareza sobre o processo chega mais rápido. O guia <a href="'+EBOOK_URL+'" target="_blank">#partiu_Alemanha</a> é o ponto de partida mais direto para entender o que realmente está à sua frente.';
     }
@@ -601,7 +766,7 @@ function getInsights(result){
       :`Você está na direção certa. Escolha <strong>um único gap para os próximos 90 dias</strong> e execute com foco. Corrija primeiro o ${gap66} e o nível de competitividade sobe de forma significativa.`;
     I('geral','Perspectiva geral: refine e avance',foco66);
   }
-  else            I('geral','Perspectiva geral: ajuste fino antes do salto',`Você está na direção certa. <strong>Identifique o principal gap entre as quatro dimensões</strong> e trate como prioridade única. A diferença entre entrar bem ou mal posicionado no mercado ${T==='de'?'alemão':'australiano'} é medida em meses de preparação.`);
+  else            I('geral','Perspectiva geral: ajuste fino antes do salto',`Você está na direção certa. <strong>Identifique o principal gap entre as quatro dimensões</strong> e trate como prioridade única. ${jaNoDestino?'Quem já está no destino com o perfil certo não precisa de meses: precisa de foco nas ações certas.':'Foco e consistência nos próximos meses separam quem chega posicionado de quem chega recomeçando do zero.'}`);
   return R;
 }
 
@@ -624,6 +789,12 @@ function getSteps(result){
 
   // Passos para DE
   if(T==='de'){
+    // Versão para quem já está na Alemanha
+    if(isNoDestino()) return[
+      alemaoInsuf?idiomaDE:`Otimize seu LinkedIn e currículo alemão (Lebenslauf) para recrutadores alemães: formato, idioma e palavras-chave corretas${APP_CV_URL?' — <a href="'+APP_CV_URL+'" target="_blank">use nosso otimizador de currículo</a>':''}`,
+      `Prepare sua pacote de candidatura (Bewerbungsmappe) completa: ${appsPkg}`,
+      'Explore vagas em <a href="https://www.make-it-in-germany.com" target="_blank">Make it in Germany</a>, <a href="https://www.stepstone.de" target="_blank">StepStone</a> e LinkedIn Alemanha com filtros por cidade e área'
+    ];
     if(sc<=40) return[
       alemaoInsuf?idiomaDE:'Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> e inicie o processo de reconhecimento o quanto antes',
       alemaoInsuf?'Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> em paralelo com o desenvolvimento do idioma':'Defina uma única prioridade para os próximos 90 dias e execute sem dispersão',
@@ -646,7 +817,15 @@ function getSteps(result){
     ];
   }
 
-  // Passos para AU — distintos e sem repetição
+  // Passos para AU
+  // Versão para quem já está na Austrália
+  if(isNoDestino()) return[
+    inglesInsuf?idiomaAU:`Otimize seu perfil no LinkedIn para recrutadores australianos: headline, resumo e experiências com palavras-chave do mercado local${APP_LI_URL?' — <a href="'+APP_LI_URL+'" target="_blank">use nosso otimizador</a>':''}`,
+    `Prepare seu pacote de candidatura no padrão australiano: ${appsPkg}`,
+    'Construa uma rede de contatos ativa localmente: conecte-se com profissionais da sua área na Austrália no LinkedIn e participe de eventos e meetups na sua cidade'
+  ];
+
+  // Passos para AU — quem ainda não está lá
   if(sc<=40) return[
     inglesInsuf?idiomaAU:`Inicie o processo de visto com um agente de imigração registrado (MARA agent). Em paralelo, pesquise empresas que já têm acordos de patrocínio aprovados: <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">lista de empresas patrocinadoras</a>`,
     inglesInsuf?`Inicie o processo de visto em paralelo com o Inglês: consulte um agente MARA registrado e pesquise empresas patrocinadoras em <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">immi.homeaffairs.gov.au</a>`:`Construa uma rede de contatos com brasileiros que já estão na Austrália na sua área`,
@@ -929,8 +1108,10 @@ function renderCadastro(){
 
 function getVisible(){
   const tf=CTR.adultos+CTR.criancas+CTR.jovens;
+  const geoPais=ANS['p_geo']?ANS['p_geo'].v:'br';
   return QS.filter(q=>{
     if(q.conditional==='p5_notSolo') return tf>0;
+    if(q.conditional==='p_geo_notBR') return geoPais!=='br';
     return true;
   });
 }
@@ -958,7 +1139,7 @@ function renderQ(){
   if(q.familyQ){
     // Só contadores + "Vou sozinho" como ação rápida
     const intro=document.createElement('div');intro.className='fam-intro';
-    intro.innerHTML=`Informe quantas pessoas vão com você. Se vai sozinho(a), toque em <strong>Continuar sozinho(a)</strong> abaixo.`;
+    intro.innerHTML=isNoDestino()?`Informe quantas pessoas vieram com você. Se veio sozinho(a), toque em <strong>Continuar sozinho(a)</strong> abaixo.`:`Informe quantas pessoas vão com você. Se vai sozinho(a), toque em <strong>Continuar sozinho(a)</strong> abaixo.`;
     card.appendChild(intro);
 
     const grid=document.createElement('div');grid.className='fam-grid';
@@ -973,6 +1154,42 @@ function renderQ(){
     const tf=CTR.adultos+CTR.criancas+CTR.jovens;
     totalEl.textContent=tf>0?`${tf} dependente${tf>1?'s':''} informado${tf>1?'s':''}`:'';
     card.appendChild(totalEl);
+  } else if(q.selectQ){
+    // Dropdown nativo
+    const wrap=document.createElement('div');wrap.style.cssText='position:relative';
+    const sel=document.createElement('select');
+    sel.id='sel-'+q.id;
+    sel.style.cssText='width:100%;padding:14px 40px 14px 16px;border:1px solid #30304a;border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:Geist,sans-serif;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;transition:border-color .2s';
+    const placeholder=document.createElement('option');
+    placeholder.value='';placeholder.textContent=q.placeholder||'Selecione...';placeholder.disabled=true;
+    const currentVal=ANS[q.id]?ANS[q.id].v:'';
+    placeholder.selected=!currentVal;
+    sel.appendChild(placeholder);
+    q.selectOpts.forEach(o=>{
+      const opt=document.createElement('option');
+      opt.value=o.v;opt.textContent=o.l;
+      if(currentVal===o.v) opt.selected=true;
+      sel.appendChild(opt);
+    });
+    const arrow=document.createElement('span');
+    arrow.style.cssText='position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none;font-size:12px';
+    arrow.textContent='▼';
+    wrap.appendChild(sel);wrap.appendChild(arrow);
+    card.appendChild(wrap);
+    sel.addEventListener('change',()=>{
+      const v=sel.value;
+      const l=q.selectOpts.find(o=>o.v===v)?.l||v;
+      ANS[q.id]={v,l};
+      sel.style.borderColor=T==='de'?'#D4AF37':'#2B5EA7';
+      // Atualizar GEO se for pergunta geográfica
+      if(q.id==='p_geo') GEO.pais=v;
+      if(q.id==='p_geo_tempo') GEO.tempo=v;
+      // Auto-avançar após breve delay para dar feedback visual
+      setTimeout(()=>{
+        if(!isLast){step++;renderQ();window.scrollTo(0,0);}
+        else{const nb=document.getElementById('btn-next');if(nb)nb.disabled=false;}
+      },300);
+    });
   } else {
     const od=document.createElement('div');od.className='opts';
     q.opts.forEach((o,i)=>{
@@ -1046,10 +1263,13 @@ function renderResults(){
   const result=calcScore(),band=getBand(result.final),alerts=getAlerts(),insights=getInsights(result),steps=getSteps(result);
 
   // Coleta de dados: quiz completo
+  // Atualizar GEO com os valores finais
+  GEO.pais=ANS['p_geo']?ANS['p_geo'].l:'Brasil';
+  GEO.tempo=ANS['p_geo_tempo']?ANS['p_geo_tempo'].l:'';
   logEvent('quiz_complete',{
     trilha:T,score:result.final,banda:band.lb,
     d1:result.dims.d1,d2:result.dims.d2,d3:result.dims.d3,d4:result.dims.d4,
-    area:ANS['p3']?ANS['p3'].l:'',ingles:ANS['p1']?ANS['p1'].l:'',
+    pais_atual:GEO.pais,tempo_fora:GEO.tempo,area:ANS['p3']?ANS['p3'].l:'',ingles:ANS['p1']?ANS['p1'].l:'',
     alemao:ANS['p2']?ANS['p2'].l:'',diploma:ANS['p4']?ANS['p4'].l:'',
     prazo:ANS['p8']?ANS['p8'].l:'',investimento:ANS['p9']?ANS['p9'].l:'',
     dependentes:CTR.adultos+CTR.criancas+CTR.jovens,
@@ -1076,8 +1296,8 @@ function renderResults(){
           <div class="score-of">DE 100</div>
         </div>
       </div>
-      <div class="score-band" style="color:${band.col}">${band.lb}</div>
-      <div class="score-desc">${band.desc}</div>
+      <div class="score-band" id="score-band-txt" style="color:${band.col};transition:opacity .4s ease,transform .4s ease">${band.lb}</div>
+      <div class="score-desc" id="score-desc-txt" style="transition:opacity .5s ease">${band.desc}</div>
 
     </div>
     <div class="bands">
@@ -1239,16 +1459,53 @@ function renderResults(){
 
   // Animar
   requestAnimationFrame(()=>{
+    // Definir glow colorido por trilha
+    document.documentElement.style.setProperty('--ring-glow', T==='de'?'#D4AF37':'#2B5EA7');
     const ring=document.getElementById('score-ring');
     if(ring){ring.style.transition='stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)';ring.style.strokeDashoffset=off.toFixed(2);}
+
+    // Número conta até o score final
     let cur=0;const el=document.getElementById('score-n'),st=Math.max(1,Math.ceil(result.final/55));
-    const t=setInterval(()=>{cur=Math.min(cur+st,result.final);if(el)el.textContent=cur;if(cur>=result.final)clearInterval(t);},20);
+    const bandEl=document.getElementById('score-band-txt');
+    if(bandEl){bandEl.style.opacity='0';bandEl.style.transform='translateY(6px)';}
+    const descEl=document.getElementById('score-desc-txt');
+    if(descEl){descEl.style.opacity='0';}
+
+    const t=setInterval(()=>{
+      cur=Math.min(cur+st,result.final);
+      if(el)el.textContent=cur;
+      if(cur>=result.final){
+        clearInterval(t);
+        // Revelar banda com animação de escrita
+        if(bandEl){
+          setTimeout(()=>{
+            bandEl.style.transition='opacity .4s ease,transform .4s cubic-bezier(.34,1.2,.64,1)';
+            bandEl.style.opacity='1';
+            bandEl.style.transform='translateY(0)';
+          },100);
+        }
+        // Revelar descrição um pouco depois
+        if(descEl){
+          setTimeout(()=>{
+            descEl.style.transition='opacity .5s ease';
+            descEl.style.opacity='1';
+          },400);
+        }
+      }
+    },20);
+
+    // Barras de dimensão com stagger
     setTimeout(()=>{
-      ['d1','d2','d3','d4'].forEach(d=>{
+      ['d1','d2','d3','d4'].forEach((d,i)=>{
         const bar=document.getElementById('bar-'+d);
-        if(bar){bar.style.transition='width 1.2s cubic-bezier(.4,0,.2,1)';bar.style.width=result.dims[d]+'%';}
+        if(bar){
+          setTimeout(()=>{
+            bar.style.transition='width 1s cubic-bezier(.4,0,.2,1)';
+            bar.style.width=result.dims[d]+'%';
+          },i*120);
+        }
       });
-    },300);
+    },600);
   });
 
   // Compartilhar — registra clique
@@ -1402,7 +1659,7 @@ function renderResults(){
   }
 
   document.getElementById('btn-restart').addEventListener('click',()=>{
-    T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;LEAD={nome:'',email:'',waDDI:'55',waNum:''};
+    T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;LEAD={nome:'',email:'',waDDI:'55',waNum:''};GEO={pais:'',tempo:''};
     renderTrilha();window.scrollTo(0,0);
   });
 }
