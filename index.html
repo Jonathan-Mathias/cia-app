@@ -67,14 +67,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 
 /* CARD */
 .q-card{background:var(--grad-surface);border:1px solid var(--border);border-radius:var(--r);padding:26px 20px;margin-bottom:14px}
-.q-text{font-size:17px;line-height:1.6;color:var(--text);margin-bottom:22px;font-weight:400;letter-spacing:-0.01em}
+.q-text{font-size:clamp(16px,4.5vw,18px);line-height:1.6;color:var(--text);margin-bottom:22px;font-weight:400;letter-spacing:-0.01em}
 .q-hint{font-size:13px;color:var(--muted);margin-top:-14px;margin-bottom:20px;line-height:1.6;padding:10px 14px;background:#111120;border-radius:var(--r2);border-left:2px solid var(--border2)}
 
 /* OPÇÕES */
 .opts{display:grid;gap:9px}
 .opt{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#111120;border:1px solid #30304a;border-radius:var(--r2);cursor:pointer;transition:border-color .2s,background .2s,transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;text-align:left;width:100%;font-family:'Geist',sans-serif;transform:translateX(0)}
 .opt-key{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:#1c1c30;border:1px solid #30304a;border-radius:5px;padding:3px 8px;flex-shrink:0;min-width:28px;text-align:center;transition:all .2s;letter-spacing:0.3px}
-.opt-lbl{font-size:15px;color:var(--text2);line-height:1.4;transition:color .15s}
+.opt-lbl{font-size:clamp(14px,4vw,15px);color:var(--text);line-height:1.4;transition:color .15s}
 .opt:hover{border-color:var(--border2);background:#181828;transform:translateX(3px)}
 .opt:hover .opt-lbl{color:var(--text)}
 .opt:active{transform:translateX(3px) scale(0.99)}
@@ -175,7 +175,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .ins-title-chevron{font-size:9px;color:var(--border2);flex-shrink:0;margin-top:3px;transition:transform .2s,color .15s;opacity:0.6}
 .ins-card:hover .ins-title-chevron{color:var(--muted);opacity:1}
 .ins-card.collapsed .ins-title-chevron{transform:rotate(-90deg);opacity:1;color:var(--muted)}
-.ins-text{font-size:13px;color:var(--text2);line-height:1.7}
+.ins-text{font-size:clamp(13px,3.5vw,14px);color:var(--text);line-height:1.7;opacity:0.88}
 .ins-text strong{color:var(--text);font-weight:600}
 .ins-text a{color:var(--accent);text-decoration:none}
 .ins-text a:hover{text-decoration:underline}
@@ -303,23 +303,29 @@ const APP_LI_URL    = '';
 ========================================================= */
 // Helper global: detecta se usuário já está no destino
 function isNoDestino(){
-  const p=ANS['p_geo']?ANS['p_geo'].v:'br';
+  const p=GEO.pais||'br';
   return (T==='de'&&p==='de')||(T==='au'&&p==='au');
 }
 function geoTempo(){
-  return ANS['p_geo_tempo']?ANS['p_geo_tempo'].v:'';
+  return GEO.tempo||'';
 }
 
 function getQuestions(t){
   const de = t === 'de';
   return [
     {id:'p1',dim:'d1',dimLbl:'Idioma e Área',
-      q:'Você conseguiria fazer uma entrevista de emprego em inglês hoje?',
-      opts:[
+      get q(){ return de?'Você conseguiria fazer uma entrevista de emprego em inglês hoje?':'Você conseguiria fazer uma entrevista de emprego em inglês hoje?'; },
+      get opts(){ return de?[
         {l:'Não, ainda não consigo',v:0},
         {l:'Consigo, mas precisaria me preparar bastante',v:1},
         {l:'Sim, com razoável confiança',v:2},
-        {l:'Sim, é meu idioma de trabalho habitual',v:3}]},
+        {l:'Sim, é meu idioma de trabalho habitual',v:3}
+      ]:[
+        {l:'Não, tenho muita dificuldade ainda',v:0},
+        {l:'Consigo, mas precisaria me preparar bastante',v:1},
+        {l:'Sim, com razoável confiança',v:2},
+        {l:'Sim, é meu idioma principal de trabalho',v:3}
+      ]; }},
     {id:'p2',dim:'d1',dimLbl:'Idioma e Área',
       q: de ? 'Qual é o seu nível de Alemão?' : 'Como você avalia seu Inglês em contexto profissional?',
       hint: de ? 'A1, A2: iniciante. B1: comunicação no dia a dia. B2: trabalha em contextos técnicos. C1 ou mais: idioma principal de trabalho.' : null,
@@ -344,42 +350,7 @@ function getQuestions(t){
         {l:'Comércio Exterior e logística',v:'comex'},
         {l:'Estudos (mestrado, MBA ou curso)',v:'estudos'},
         {l:'Outra área',v:'outro'}]},
-    {id:'p_geo',dim:'d2',dimLbl:'Maturidade da decisão',
-      q:'Onde você está morando atualmente?',
-      selectQ:true,
-      placeholder:'Selecione seu país atual',
-      selectOpts:[
-        {l:'Brasil',v:'br'},
-        {l:'Alemanha',v:'de'},
-        {l:'Austrália',v:'au'},
-        {l:'Portugal',v:'pt'},
-        {l:'Estados Unidos',v:'us'},
-        {l:'Canadá',v:'ca'},
-        {l:'Reino Unido',v:'uk'},
-        {l:'Suíça',v:'ch'},
-        {l:'Áustria',v:'at'},
-        {l:'Holanda',v:'nl'},
-        {l:'França',v:'fr'},
-        {l:'Espanha',v:'es'},
-        {l:'Itália',v:'it'},
-        {l:'Nova Zelândia',v:'nz'},
-        {l:'Japão',v:'jp'},
-        {l:'Singapura',v:'sg'},
-        {l:'Emirados Árabes',v:'ae'},
-        {l:'Outro país',v:'outro'}
-      ]},
-    {id:'p_geo_tempo',dim:'d2',dimLbl:'Maturidade da decisão',
-      q:'Há quanto tempo você está fora do Brasil?',
-      conditional:'p_geo_notBR',
-      selectQ:true,
-      placeholder:'Selecione o período',
-      selectOpts:[
-        {l:'Menos de 6 meses',v:'lt6m'},
-        {l:'Entre 6 meses e 1 ano',v:'6m1y'},
-        {l:'Entre 1 e 2 anos',v:'1y2y'},
-        {l:'Entre 2 e 5 anos',v:'2y5y'},
-        {l:'Mais de 5 anos',v:'gt5y'}
-      ]},
+    // p_geo e p_geo_tempo movidos para o cadastro inicial
     {id:'p4',dim:'d2',dimLbl:'Maturidade da decisão',
       q: de
         ? (isNoDestino()?'Qual é o status do reconhecimento do seu diploma na Alemanha?':'Você já pesquisou como validar seu diploma na Alemanha?')
@@ -414,7 +385,7 @@ function getQuestions(t){
       ctrs:[
         {k:'adultos',l:'Adultos',s:'Cônjuge, parceiro(a)'},
         {k:'criancas',l:'Crianças de 0 a 6 anos', get s(){ return isNoDestino()?'Precisam de child care ou creche':'Precisarão de creche (Kita)'; }},
-        {k:'jovens',l:'Jovens de 7 a 18 anos', get s(){ return isNoDestino()?'Escola local — adaptação em curso':'Escola obrigatória na Alemanha'; }}]},
+        {k:'jovens',l:'Jovens de 7 a 18 anos', get s(){ return isNoDestino()?'Escola local — adaptação em curso':T==='de'?'Escola obrigatória na Alemanha':'Escola no padrão australiano'; }}]},
     {id:'p5b',dim:'d2',dimLbl:'Maturidade da decisão',
       get q(){ return isNoDestino()?'Como as pessoas que vieram com você estão lidando com a adaptação?':'As pessoas que vão com você estão alinhadas com essa mudança?'; },
       conditional:'p5_notSolo',
@@ -523,7 +494,7 @@ const BANDS=[
 const getBand = s => BANDS.find(b => s >= b.min && s <= b.max) || BANDS[0];
 
 /* ESTADO */
-let T='', QS=[], step=0, ANS={}, CTR={adultos:0,criancas:0,jovens:0}, NPS=null, LEAD={nome:'',email:'',waDDI:'55',waNum:''}, GEO={pais:'',tempo:''};
+let T='', QS=[], step=0, ANS={}, CTR={adultos:0,criancas:0,jovens:0}, NPS=null, LEAD={nome:'',email:'',waDDI:'55',waNum:'',idade:''}, GEO={pais:'',tempo:''};
 
 /* SCORE */
 function calcScore(){
@@ -539,15 +510,15 @@ function calcScore(){
   const tf=CTR.adultos+CTR.criancas+CTR.jovens;
   if(tf>0) dims.d2.pts=Math.max(0,dims.d2.pts-Math.min(tf*1.2,5)*0.4);
   // Bônus D2: quem já está no destino tomou a decisão e executou
-  const geoPais=ANS['p_geo']?ANS['p_geo'].v:'br';
-  const geoTempo=ANS['p_geo_tempo']?ANS['p_geo_tempo'].v:'';
+  const geoPais=GEO.pais||'br';
+  const geoTempoVal=GEO.tempo||'';
   const noDestino=(T==='de'&&geoPais==='de')||(T==='au'&&geoPais==='au');
   if(noDestino){
-    const tempoBonus={lt6m:0.5,  '6m1y':1, '1y2y':1.5, '2y5y':2, gt5y:2.5}[geoTempo]||0;
+    const tempoBonus={lt6m:0.5,'6m1y':1,'1y2y':1.5,'2y5y':2,gt5y:2.5}[geoTempoVal]||0;
     dims.d2.pts=Math.min(dims.d2.max, dims.d2.pts+tempoBonus);
   }
   // Bônus menor: já está fora do Brasil mas em outro país (experiência internacional)
-  else if(geoPais!=='br'){
+  else if(geoPais&&geoPais!=='br'){
     dims.d2.pts=Math.min(dims.d2.max, dims.d2.pts+0.3);
   }
   const dS={};let tot=0;
@@ -606,7 +577,7 @@ function getInsights(result){
       if(en>=2&&typeof al==='number'&&al===0){
         I('d1','Idiomas: Inglês abre a porta, Alemão te mantém dentro',`Na TI alemã, <strong>Inglês fluente garante entrevistas</strong> em multinacionais e startups. Sem ao menos B1 em Alemão, você fica excluído de 60 a 70% das vagas. O A1 já muda a percepção dos recrutadores. Comece agora.${cursol}`);
       } else if(typeof al==='number'&&al>=3){
-        I('d1','Idiomas: combinação de alto impacto',`Profissionais de TI com B2+ em Alemão e Inglês avançado recebem propostas <strong>20 a 30% mais competitivas</strong> e têm acesso a pequenas e médias empresas (PMEs) alemãs, segmento com alta demanda e menor concorrência internacional.`);
+        I('d1','Idiomas: combinação de alto impacto',`Profissionais de TI com B2+ em Alemão e Inglês avançado recebem propostas <strong>20 a 30% mais competitivas</strong> e têm acesso a pequenas e médias empresas (PMEs) alemãs, segmento com alta demanda e menor concorrência internacional. Com esse perfil, você também pode se qualificar para o <strong>EU Blue Card</strong>, que exige salário mínimo de €45.934 por ano em ocupações de escassez como TI — e oferece residência permanente em 21 meses com alemão B1.`);
       } else {
         I('d1','Idiomas: o Alemão complementa o que o Inglês já abriu',`Você já tem base em Inglês, o que garante acesso a multinacionais. O próximo passo é desenvolver o Alemão para alcançar PMEs (pequenas e médias empresas) e empresas alemãs tradicionais. <strong>B2 em ambas as línguas é o diferencial que separa perfis medianos dos mais competitivos.</strong>${cursol}`);
       }
@@ -624,7 +595,7 @@ function getInsights(result){
       // Montar elogio real baseado no que a pessoa respondeu
       const pontosPositivos=[];
       if(en>=3) pontosPositivos.push('Inglês fluente: passa pelo filtro inicial da maioria dos recrutadores australianos sem fricção');
-      if(typeof al==='number'&&al>=2) pontosPositivos.push('Alemão intermediário ou superior: diferencial raro no mercado australiano, especialmente em empresas com operações na Europa');
+      // Alemão como ponto positivo só se trilha DE — em AU p2 é Inglês, não Alemão
       if(result.dims.d3>=60) pontosPositivos.push('Perfil comportamental ativo: você já demonstrou ações concretas na preparação, o que diferencia candidatos sérios dos que apenas pesquisam');
       const elogioTxt=pontosPositivos.length>0
         ?`<strong>Pontos que já trabalham a seu favor:</strong><ul style="margin:8px 0 0 4px;padding-left:16px;display:grid;gap:5px">${pontosPositivos.map(p=>`<li style="font-size:13px;color:var(--text2);line-height:1.5">${p}</li>`).join('')}</ul>`
@@ -633,7 +604,20 @@ function getInsights(result){
     }
   }
 
-  const refId=idiomaJaCitado?' Como mencionado, o idioma é parte central dessa preparação.':'';
+  const refId=idiomaJaCitado?' Como mencionado, o idioma é parte central dessa preparação.'  :'';
+
+  // Insight de idade — apenas quando há impacto real na estratégia
+  const idadeCad=LEAD.idade||'';
+  if(T==='au'){
+    if(idadeCad==='40-44'){
+      I('d2','Atenção ao prazo: a idade impacta sua estratégia de visto',`Você está na faixa dos 40 a 44 anos. Para os vistos independentes por pontos (189 e 190), a idade é calculada na <strong>data do convite</strong>, não da candidatura. Isso significa que se você completar 45 anos antes de receber o convite, fica automaticamente fora dessa rota. A urgência é real: cada mês conta. Maximize sua pontuação agora e considere o visto regional (491) como alternativa — o bônus de 15 pontos por nomeação estadual pode ser decisivo. Consulte um agente MARA registrado para planejar o timing com precisão.`);
+    } else if(idadeCad==='45-54'||idadeCad==='55+'){
+      I('d2','Sua rota de visto é diferente: opções específicas para 45+',`Vistos independentes por pontos (189, 190, 491) exigem ter menos de 45 anos na data do convite. Isso não fecha as portas, mas muda completamente a estratégia. As rotas mais viáveis para o seu perfil são a <strong>Subclass 482 (patrocínio pelo empregador)</strong>, que não tem limite de idade, e o caminho para PR via 186 com isenções específicas, ou os acordos DAMA em regiões com escassez de mão de obra, que permitem concessões de idade até 50 ou 55 anos dependendo da região. Consulte obrigatoriamente um agente MARA registrado para avaliar qual rota se aplica ao seu caso específico.`);
+    }
+  }
+  if(T==='de'&&(idadeCad==='45-54'||idadeCad==='55+')){
+    I('d2','Impacto da idade no processo alemão',`Para profissionais acima de 45 anos, a Alemanha exige comprovação de previdência adequada ou salário mínimo de <strong>€53.130 por ano</strong> para vistos de trabalho qualificado. Além disso, a Chancenkarte (Opportunity Card) pontua menos para faixas etárias mais altas. Isso não inviabiliza a migração, mas exige planejamento financeiro mais detalhado desde o início.`);
+  }
 
   // Diploma/visto — lógica diferente para quem já está no destino
   if(jaNoDestino){
@@ -649,15 +633,15 @@ function getInsights(result){
     const td=T==='de'?'Reconhecimento de diploma: comece agora':'Visto de trabalho: o caminho depende da sua área';
     const vistoArea=ANS['p3']?ANS['p3'].v:'outro';
     const vistoMsg={
-      'ti': 'Para TI e tecnologia, as rotas mais comuns são a <strong>Subclass 482 (patrocínio pelo empregador)</strong> e a Subclass 189/190 (skilled independent). O caminho mais rápido costuma ser pelo patrocínio: encontrar um empregador disposto a patrocinar é o passo mais crítico do processo.',
+      'ti': 'Para TI e tecnologia, as rotas mais comuns são o <strong>Skills in Demand visa (Subclass 482, patrocínio)</strong> e os vistos independentes 189/190 por pontos. Para o 482, o salário mínimo é AUD 79.499 por ano a partir de julho de 2026. Para os vistos por pontos, o mínimo legal é 65 pontos, mas TI é uma área saturada — na prática muitos candidatos precisam de 85 pontos ou mais para receber convite. Consulte um agente MARA: <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.',
       'eng': 'Para engenheiros, o <strong>reconhecimento pelo Engineers Australia</strong> é o primeiro passo antes de qualquer visto de habilidades. Esse processo pode levar de 3 a 6 meses e precisa ser iniciado antes da candidatura ao visto.',
       'saude': 'Para profissionais de saúde, o <strong>registro no AHPRA</strong> é obrigatório para exercer a profissão. Sem ele, nenhum empregador pode te contratar na área. Inicie esse processo antes de qualquer movimentação. Informações em <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.',
-      'neg': 'Para gestão e negócios, a rota mais comum é via <strong>Subclass 482 (patrocínio)</strong>. Profissionais seniores com histórico documentado têm boas chances, mas o processo exige um empregador australiano como patrocinador. Saiba mais: <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.',
+      'neg': 'Para gestão e negócios, a rota mais comum é o <strong>Skills in Demand visa (Subclass 482)</strong> com patrocínio de empregador. O salário mínimo para esse visto é AUD 79.499 por ano a partir de julho de 2026. Profissionais seniores com histórico documentado têm boas chances, mas o processo exige um empregador australiano disposto a patrocinar. Saiba mais: <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.',
       'comex': 'Para logística e comércio exterior, a demanda é real em portos e operadores logísticos australianos. A rota mais comum é via <strong>Subclass 482</strong>, com patrocínio do empregador. Verifique se sua ocupação está na lista MLTSSL ou STSOL em <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.',
       'outro': 'O tipo de visto depende da sua ocupação específica. Verifique se ela consta na lista de ocupações prioritárias e consulte um agente MARA registrado: <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.'
     }[vistoArea]||'O tipo de visto depende da sua ocupação. Verifique as opções em <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>.';
     const tx=T==='de'
-      ?`Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a>. Diplomas sem reconhecimento automático exigem o processo de <strong>consultoria de reconhecimento (Anerkennungsberatung)</strong>, que pode levar de 6 a 18 meses. É o gargalo mais subestimado da migração qualificada.`
+      ?`Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a>. Diplomas sem reconhecimento automático exigem o processo de consultoria de reconhecimento (Anerkennungsberatung), que pode levar de 6 a 18 meses — é o gargalo mais subestimado da migração qualificada. Mais informações oficiais: <a href="https://www.anerkennung-in-deutschland.de" target="_blank">anerkennung-in-deutschland.de</a>.<br><br><strong>Novidade desde 2024:</strong> o Recognition Partnership permite entrar na Alemanha e iniciar o reconhecimento depois da chegada, desde que você e o empregador se comprometam a conduzir o processo. Não é sempre um pré-requisito entrar com diploma já reconhecido.<br><br>Se você ainda não tem oferta de emprego, a <strong>Chancenkarte (Opportunity Card)</strong> é uma rota real: permite morar na Alemanha por até 12 meses para buscar emprego sem oferta prévia. Requisitos: diploma reconhecido no país de origem, ao menos 6 pontos no sistema de pontuação e reserva financeira mínima de €1.091 por mês. Saiba mais: <a href="https://www.make-it-in-germany.com/en/visa-residence/opportunity-card/job-search" target="_blank">make-it-in-germany.com</a>.`
       :vistoMsg;
     I('d2',td,`<span style="font-size:11px;color:#8888a8;display:block;margin-bottom:8px;line-height:1.5">Orientação geral, não assessoria jurídica ou de imigração. Consulte um profissional habilitado antes de tomar qualquer decisão.</span>`+tx);
   }
@@ -675,7 +659,7 @@ function getInsights(result){
         const aluguelFrio=' O <strong>aluguel frio</strong> é o valor base do imóvel, sem incluir aquecimento, água e condomínio. O valor real pago todo mês é o aluguel quente, sempre maior. A caução equivale a 3 meses do aluguel frio e precisa ser paga antes de entrar no imóvel.';
         resDE='A mudança com dependentes exige uma reserva financeira significativamente maior.'+aluguelFrio;
         if(CTR.criancas>0) resDE+=' A creche (Kita) é paga na Alemanha, com valores que variam de cidade para cidade e de creche para creche: consulte a prefeitura local (Jugendamt).'+seguro;
-        resDE+=' Veja como calcular: <a href="'+EBOOK_URL+'" target="_blank">Reserva Estratégica Alemanha</a>.';
+        resDE+=' Veja como calcular: <a href="'+EBOOK_URL+'" target="_blank">Guia de planejamento financeiro para a Alemanha</a>.';
       }
       I('d2','Reserva financeira: custos reais de viver na Alemanha com família',resDE);
     } else {
@@ -698,18 +682,26 @@ function getInsights(result){
     }
   }
   if(CTR.criancas>0){
-    if(T==='de') I('familia','Creche (Kita): inscreva-se antes de chegar','A creche na Alemanha tem listas de espera de <strong>6 a 18 meses</strong> em grandes cidades. Inscreva seu filho assim que tiver endereço confirmado. Os valores variam de cidade para cidade: consulte a prefeitura local (Jugendamt).');
+    if(T==='de') I('familia','Creche (Kita): inscreva-se antes de chegar',`A creche na Alemanha tem listas de espera de <strong>6 a 18 meses</strong> em grandes cidades. Inscreva seu filho assim que tiver endereço confirmado. Os valores variam de cidade para cidade: consulte a prefeitura local (Jugendamt).${sc>=66?' Se você já tem empregador ou está em processo seletivo avançado, vale perguntar diretamente ao RH ou ao seu futuro gestor: muitas empresas alemãs têm parceria com creches próximas ou podem indicar vagas com prioridade para funcionários recém-chegados.':''}`);
     else I('familia','Child care na Austrália: sem garantia de vaga',`Os custos financeiros foram detalhados acima. Além do aspecto financeiro, <strong>a demanda por vagas em child care é alta</strong> e a espera pode chegar a meses nas grandes cidades. Coloque seu filho na lista de espera assim que tiver um endereço confirmado na Austrália, e se possível ainda antes de chegar. Procure centros próximos ao seu local de trabalho ou residência e cadastre-se em mais de um.`);
   }
   if(CTR.jovens>0&&T==='de')   I('familia','Escola obrigatória: a adaptação começa na chegada','A escola é obrigatória na Alemanha e pode iniciar semanas após a chegada. Jovens sem Alemão são encaminhados a <strong>classes de integração (DaZ)</strong> antes de entrar na turma regular.');
   if(result.dims.d3<50){
     const inv3=ANS['p9']?ANS['p9'].v:0;
-    let d3txt='Até agora, a preparação está no campo das intenções. <strong>O primeiro investimento concreto muda a qualidade da decisão.</strong> Quem investe, pesquisa diferente. Quem pesquisa diferente, decide melhor.';
-    // Pitch micro-contextual: só aparece se não investiu nada e há produto disponível
-    if((inv3===0||inv3==='0')&&T==='de'){
-      d3txt+=' Uma forma prática de dar esse primeiro passo é o guia <a href="'+EBOOK_URL+'" target="_blank">#partiu_Alemanha</a>, que cobre o processo completo de forma direta e sem romantismo.';
+    const prazo3=ANS['p8']?ANS['p8'].v:0;
+    let d3titulo='Comprometimento: a preparação ainda está no campo das intenções';
+    let d3txt='';
+    if(prazo3===0){
+      d3txt='A mudança ainda está no horizonte distante. Isso é válido, mas enquanto a decisão não ganhar prazo, ela não ganha estrutura. O primeiro passo não precisa ser grande: pode ser uma conversa com alguém que já fez o processo, uma pesquisa sobre reconhecimento de diploma ou uma estimativa financeira real.';
+    } else if(inv3===0||inv3==='0'){
+      d3txt=`Você tem intenção e prazo, mas ainda não investiu nada na preparação. Quem faz o primeiro investimento concreto, seja num curso de idioma, num material técnico ou numa consultoria, pesquisa de forma diferente. A qualidade da decisão muda.`;
+    } else {
+      d3txt=`Você já se moveu: tem intenção, tem prazo e já investiu na preparação. O que pode estar faltando é consistência. O gap de D3 indica que as ações ainda não estão na frequência necessária para o nível de competitividade que o mercado ${T==='de'?'alemão':'australiano'} exige.`;
     }
-    I('d3','Comprometimento: a lacuna entre intenção e ação',d3txt);
+    if((inv3===0||inv3==='0')&&T==='de'){
+      d3txt+=' Um passo concreto agora: <a href="'+EBOOK_URL+'" target="_blank">Guia de planejamento financeiro para a Alemanha</a> — cobre o processo completo sem romantismo.';
+    }
+    I('d3',d3titulo,d3txt);
   }
   if(result.dims.d4<50){
     const appsLnk=[
@@ -875,7 +867,7 @@ function buildSummary(result,insights,steps){
     insights.forEach(i=>{
       const txt=i.text.replace(/<[^>]+>/g,'').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim();
       lines.push('• '+i.title);
-      lines.push('  '+txt.substring(0,180)+(txt.length>180?'...':''));
+      lines.push('  '+txt);
     });
   }
   if(steps&&steps.length){
@@ -887,7 +879,8 @@ function buildSummary(result,insights,steps){
     });
   }
   lines.push('');
-  // Sem link e sem hashtags no relatório copiado
+  lines.push('---');
+  lines.push('AVISO: Este relatório é exclusivamente informativo e educacional. Não constitui assessoria jurídica, de imigração, financeira ou profissional. '+(T==='au'?'Consulte um agente de imigração registrado (MARA agent) antes de tomar qualquer decisão.':'Consulte uma consultoria de imigração credenciada antes de tomar qualquer decisão.')+' Elite Migration não se responsabiliza por decisões tomadas com base exclusivamente neste conteúdo.');
   return lines.join('\n');
 }
 
@@ -907,7 +900,7 @@ function renderTrilha(){
       <div class="trilha-context">
         <div class="trilha-proof">
           <div class="trilha-proof-icon" style="background:#D4AF3720;color:#D4AF37">⏱</div>
-          <div class="trilha-proof-text">Avaliação completa em <strong>5 minutos</strong>. Score 0-100 com análise por dimensão e próximos passos priorizados.</div>
+          <div class="trilha-proof-text">Avaliação completa em <strong>5 minutos</strong>. Pontuação 0-100 com análise por dimensão e próximos passos priorizados.</div>
         </div>
         <div class="trilha-proof">
           <div class="trilha-proof-icon" style="background:#2B5EA720;color:#6ea8f7">✦</div>
@@ -929,7 +922,7 @@ function renderTrilha(){
   <rect x="0" y="37" width="56" height="19" fill="#D4AF37" clip-path="url(#cde)"/>
 </svg></div>
           <div class="trilha-nome">Alemanha</div>
-          <div class="trilha-btn-sub">Europa · Idioma alemão</div>
+
         </button>
         <button class="trilha-btn au" id="btn-au">
           <div class="trilha-flag"><svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
@@ -961,7 +954,7 @@ function renderTrilha(){
   </g>
 </svg></div>
           <div class="trilha-nome">Austrália</div>
-          <div class="trilha-btn-sub">Oceania · Idioma inglês</div>
+
         </button>
       </div>
 
@@ -1015,6 +1008,19 @@ function renderCadastro(){
     `<option value="${p.ddi}|${p.nome}" ${p.ddi===LEAD.waDDI&&p.nome===(LEAD.waDDIPais||'Brasil')?'selected':''}> +${p.ddi} ${p.nome}</option>`
   ).join('');
 
+  // Gerar opções do dropdown de país atual
+  const PAISES_CADASTRO=[
+    {v:'br',l:'Brasil'},{v:'de',l:'Alemanha'},{v:'au',l:'Austrália'},
+    {v:'pt',l:'Portugal'},{v:'us',l:'Estados Unidos'},{v:'ca',l:'Canadá'},
+    {v:'uk',l:'Reino Unido'},{v:'ch',l:'Suíça'},{v:'at',l:'Áustria'},
+    {v:'nl',l:'Holanda'},{v:'fr',l:'França'},{v:'es',l:'Espanha'},
+    {v:'it',l:'Itália'},{v:'be',l:'Bélgica'},{v:'nz',l:'Nova Zelândia'},
+    {v:'jp',l:'Japão'},{v:'sg',l:'Singapura'},{v:'ae',l:'Emirados Árabes'},
+    {v:'outro',l:'Outro país'}
+  ];
+  const paisOpts='<option value="">Selecione seu país atual</option>'+
+    PAISES_CADASTRO.map(p=>`<option value="${p.v}" ${GEO.pais===p.v?'selected':''}>${p.l}</option>`).join('');
+
   app.innerHTML=`
     <div style="text-align:center;padding:28px 0 24px">
       <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${cor}">${pais} · Início</div>
@@ -1054,6 +1060,51 @@ function renderCadastro(){
           </div>
         </div>
 
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">Faixa etária</label>
+          <div style="position:relative">
+            <select id="cad-idade"
+              style="width:100%;padding:13px 36px 13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;cursor:pointer;transition:border-color .15s;appearance:none;-webkit-appearance:none;box-sizing:border-box">
+              <option value="">Selecione sua faixa etária</option>
+              <option value="<18" ${LEAD.idade==='<18'?'selected':''}>Menos de 18 anos</option>
+              <option value="18-24" ${LEAD.idade==='18-24'?'selected':''}>18 a 24 anos</option>
+              <option value="25-32" ${LEAD.idade==='25-32'?'selected':''}>25 a 32 anos</option>
+              <option value="33-39" ${LEAD.idade==='33-39'?'selected':''}>33 a 39 anos</option>
+              <option value="40-44" ${LEAD.idade==='40-44'?'selected':''}>40 a 44 anos</option>
+              <option value="45-54" ${LEAD.idade==='45-54'?'selected':''}>45 a 54 anos</option>
+              <option value="55+" ${LEAD.idade==='55+'?'selected':''}>55 anos ou mais</option>
+            </select>
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none;font-size:12px">&#9660;</span>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">País atual</label>
+          <div style="position:relative">
+            <select id="cad-pais"
+              style="width:100%;padding:13px 36px 13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;cursor:pointer;transition:border-color .15s;appearance:none;-webkit-appearance:none;box-sizing:border-box">
+              ${paisOpts}
+            </select>
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none;font-size:12px">&#9660;</span>
+          </div>
+        </div>
+
+        <div id="cad-tempo-wrap" style="display:${GEO.pais&&GEO.pais!=='br'?'block':'none'}">
+          <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">Há quanto tempo está fora do Brasil?</label>
+          <div style="position:relative">
+            <select id="cad-tempo"
+              style="width:100%;padding:13px 36px 13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;cursor:pointer;transition:border-color .15s;appearance:none;-webkit-appearance:none;box-sizing:border-box">
+              <option value="">Selecione o período</option>
+              <option value="lt6m" ${GEO.tempo==='lt6m'?'selected':''}>Menos de 6 meses</option>
+              <option value="6m1y" ${GEO.tempo==='6m1y'?'selected':''}>Entre 6 meses e 1 ano</option>
+              <option value="1y2y" ${GEO.tempo==='1y2y'?'selected':''}>Entre 1 e 2 anos</option>
+              <option value="2y5y" ${GEO.tempo==='2y5y'?'selected':''}>Entre 2 e 5 anos</option>
+              <option value="gt5y" ${GEO.tempo==='gt5y'?'selected':''}>Mais de 5 anos</option>
+            </select>
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none;font-size:12px">&#9660;</span>
+          </div>
+        </div>
+
         <div id="cad-err" style="display:none;font-size:12px;color:#e85555;text-align:center;padding:4px 0">Preencha nome e e-mail para continuar.</div>
         <button id="cad-btn" style="width:100%;padding:15px;border:none;border-radius:var(--r2);background:${cor};color:${corTxt};font-size:15px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:opacity .15s;letter-spacing:0.01em">Iniciar avaliação</button>
       </div>
@@ -1066,6 +1117,30 @@ function renderCadastro(){
     e.target.value=e.target.value.replace(/\D/g,'');
   });
 
+  // País: mostrar campo de tempo quando não for Brasil
+  const cadPais=document.getElementById('cad-pais');
+  const cadTempoWrap=document.getElementById('cad-tempo-wrap');
+  if(cadPais){
+    cadPais.addEventListener('change',()=>{
+      const v=cadPais.value;
+      GEO.pais=v;
+      const label=PAISES_CADASTRO.find(p=>p.v===v);
+      GEO.paisLabel=label?label.l:'';
+      if(cadTempoWrap) cadTempoWrap.style.display=v&&v!=='br'?'block':'none';
+      if(v==='br'){GEO.tempo='';const ct=document.getElementById('cad-tempo');if(ct)ct.value='';}
+      cadPais.style.borderColor=v?'var(--border2)':'var(--border)';
+    });
+  }
+  const cadTempo=document.getElementById('cad-tempo');
+  if(cadTempo){
+    cadTempo.addEventListener('change',()=>{
+      GEO.tempo=cadTempo.value;
+      const tempoLabels={'lt6m':'Menos de 6 meses','6m1y':'Entre 6 meses e 1 ano',
+        '1y2y':'Entre 1 e 2 anos','2y5y':'Entre 2 e 5 anos','gt5y':'Mais de 5 anos'};
+      GEO.tempoLabel=tempoLabels[cadTempo.value]||'';
+    });
+  }
+
   const validar=()=>{
     const nm=(document.getElementById('cad-nome').value||'').trim();
     const em=(document.getElementById('cad-email').value||'').trim();
@@ -1074,6 +1149,17 @@ function renderCadastro(){
     const ddi=ddiVal[0]||'55';
     const ddiPais=ddiVal[1]||'Brasil';
     const wa=(document.getElementById('cad-wa').value||'').trim();
+    // Capturar país e tempo do cadastro
+    const paisEl=document.getElementById('cad-pais');
+    const tempoEl=document.getElementById('cad-tempo');
+    const idadeEl=document.getElementById('cad-idade');
+    if(idadeEl&&idadeEl.value) LEAD.idade=idadeEl.value;
+    if(paisEl&&paisEl.value){
+      GEO.pais=paisEl.value;
+      const label=PAISES_CADASTRO.find(p=>p.v===paisEl.value);
+      GEO.paisLabel=label?label.l:'';
+    }
+    if(tempoEl&&tempoEl.value) GEO.tempo=tempoEl.value;
     LEAD.nome=nm; LEAD.email=em;
     LEAD.waDDI=ddi; LEAD.waNum=wa; LEAD.waDDIPais=ddiPais;
     const valid=nm.length>1 && em.includes('@') && em.includes('.');
@@ -1094,7 +1180,7 @@ function renderCadastro(){
     }
     logEvent('lead_inicio',{nome:LEAD.nome,email:LEAD.email,
       whatsapp:LEAD.waDDI&&LEAD.waNum?`+${LEAD.waDDI}${LEAD.waNum}`:'',
-      trilha:T});
+      idade:LEAD.idade,trilha:T});
     renderQ();window.scrollTo(0,0);
   });
 
@@ -1108,10 +1194,8 @@ function renderCadastro(){
 
 function getVisible(){
   const tf=CTR.adultos+CTR.criancas+CTR.jovens;
-  const geoPais=ANS['p_geo']?ANS['p_geo'].v:'br';
   return QS.filter(q=>{
     if(q.conditional==='p5_notSolo') return tf>0;
-    if(q.conditional==='p_geo_notBR') return geoPais!=='br';
     return true;
   });
 }
@@ -1269,7 +1353,7 @@ function renderResults(){
   logEvent('quiz_complete',{
     trilha:T,score:result.final,banda:band.lb,
     d1:result.dims.d1,d2:result.dims.d2,d3:result.dims.d3,d4:result.dims.d4,
-    pais_atual:GEO.pais,tempo_fora:GEO.tempo,area:ANS['p3']?ANS['p3'].l:'',ingles:ANS['p1']?ANS['p1'].l:'',
+    pais_atual:GEO.paisLabel||GEO.pais||'Brasil',tempo_fora:GEO.tempoLabel||GEO.tempo||'',area:ANS['p3']?ANS['p3'].l:'',ingles:ANS['p1']?ANS['p1'].l:'',
     alemao:ANS['p2']?ANS['p2'].l:'',diploma:ANS['p4']?ANS['p4'].l:'',
     prazo:ANS['p8']?ANS['p8'].l:'',investimento:ANS['p9']?ANS['p9'].l:'',
     dependentes:CTR.adultos+CTR.criancas+CTR.jovens,
@@ -1320,10 +1404,15 @@ function renderResults(){
         <div class="dim-bar-track"><div class="dim-bar-fill" id="bar-${d.k}" style="width:0%;background:${d.c}"></div></div>
       </div>`).join('')}
     </div>
-    ${alerts.length?`<div class="sec-label-main">Atenção</div><div class="alert-wrap">${alerts.map(al=>`<div class="alert-card ${al.type}"><div class="alert-dot"></div><div class="alert-text">${al.text}</div></div>`).join('')}</div>`:``}
-    <div style="background:#111120;border:1px solid #2e2e44;border-left:2px solid #f0c44a;border-radius:0 var(--r2) var(--r2) 0;padding:12px 16px;margin:8px 0 20px">
-      <div style="font-size:12px;color:#8888a8;line-height:1.6">As informações abaixo são orientações gerais com base no seu perfil e nas respostas fornecidas. Não constituem assessoria jurídica, de imigração ou financeira. Para decisões sobre visto, diploma ou planejamento financeiro, consulte sempre um profissional habilitado.</div>
+    <div style="background:linear-gradient(135deg,#1a1200 0%,#0d0d14 100%);border:1px solid #D4AF3750;border-radius:var(--r2);padding:14px 18px;margin:16px 0 8px;display:flex;align-items:flex-start;gap:12px">
+      <div style="font-size:18px;flex-shrink:0;margin-top:1px">⚠</div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#D4AF37;letter-spacing:0.5px;margin-bottom:5px;text-transform:uppercase">Aviso importante</div>
+        <div style="font-size:12px;color:#a8a8c0;line-height:1.65">Este relatório é exclusivamente informativo e educacional. Não constitui assessoria jurídica, de imigração, financeira ou profissional. ${T==='au'?'Consulte um agente de imigração registrado (MARA agent) antes de tomar qualquer decisão.':'Consulte uma consultoria de imigração credenciada antes de tomar qualquer decisão.'} A Elite Migration não se responsabiliza por decisões tomadas com base exclusivamente neste conteúdo.</div>
+      </div>
     </div>
+    ${alerts.length?`<div class="sec-label-main">Atenção</div><div class="alert-wrap">${alerts.map(al=>`<div class="alert-card ${al.type}"><div class="alert-dot"></div><div class="alert-text">${al.text}</div></div>`).join('')}</div>`:``}
+
     <div style="display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px">
       <div class="sec-label-main" style="margin:0;flex:1">Análise do seu perfil</div>
       <button id="toggle-all-insights" style="background:transparent;border:1px solid var(--border2);border-radius:var(--r2);color:var(--text2);font-size:11px;padding:5px 12px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:0.5px;text-transform:uppercase;transition:all .15s;white-space:nowrap;margin-left:12px">Recolher tudo</button>
@@ -1659,7 +1748,7 @@ function renderResults(){
   }
 
   document.getElementById('btn-restart').addEventListener('click',()=>{
-    T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;LEAD={nome:'',email:'',waDDI:'55',waNum:''};GEO={pais:'',tempo:''};
+    T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;LEAD={nome:'',email:'',waDDI:'55',waNum:'',idade:''};GEO={pais:'',tempo:''};
     renderTrilha();window.scrollTo(0,0);
   });
 }
