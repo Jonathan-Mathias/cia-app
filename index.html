@@ -8,16 +8,16 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d0d14;
-  --surface:#1a1a27;
-  --border:#2e2e44;
-  --border2:#4a4a68;
-  --text:#f0f0fa;
-  --text2:#b8b8d4;
+  --bg:#141412;
+  --surface:#1e1e1b;
+  --border:#2e2e28;
+  --border2:#4a4a40;
+  --text:#f2f0eb;
+  --text2:#c0c0d8;
   --muted:#8888a8;
   --accent:#D4AF37;
   --accent2:#b8920e;
-  --green:#2B5EA7;
+  --green:#4a8fd4;
   --green2:#1a3a6b;
   --orange:#f07a4a;
   --red:#e85555;
@@ -25,37 +25,40 @@
   --r:14px;--r2:10px;
 }
 body{font-family:'Geist',sans-serif;background:var(--grad-bg);background-color:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,#D4AF3708 0%,transparent 60%)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 70% 50% at 50% -5%,#D4AF3706 0%,transparent 55%)}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:200px 200px}
 .app{position:relative;z-index:1}
 .app{max-width:520px;margin:0 auto;padding:20px 18px 80px}
 
 /* TRILHA */
-.trilha-wrap{text-align:center;padding:36px 0 32px}
-.trilha-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;font-weight:600}
-.trilha-h1{font-family:'DM Serif Display',serif;font-size:clamp(26px,6vw,34px);line-height:1.2;color:var(--text);margin-bottom:12px;letter-spacing:-0.02em}
-.trilha-sub{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.7;max-width:340px;margin-left:auto;margin-right:auto}
-.trilha-context{display:flex;flex-direction:column;gap:8px;margin:0 auto 28px;max-width:400px}
-.trilha-proof{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:linear-gradient(135deg,#16162280 0%,#12121c80 100%);border:1px solid var(--border);border-radius:var(--r2);backdrop-filter:blur(4px)}
-.trilha-proof-icon{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:1px}
-.trilha-proof-text{font-size:13px;color:var(--text2);line-height:1.55;text-align:left}
+.trilha-wrap{text-align:center;padding:52px 0 36px}
+.trilha-brand{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:4px;text-transform:uppercase;margin-bottom:32px;font-weight:400;opacity:0.9}
+.trilha-h1{font-family:'DM Serif Display',serif;font-size:clamp(28px,7vw,40px);line-height:1.15;color:var(--text);margin-bottom:16px;letter-spacing:-0.01em;font-weight:400}
+.trilha-h1 em{font-style:italic;color:var(--accent)}
+.trilha-sub{font-size:15px;color:#999990;margin-bottom:0;line-height:1.7;max-width:320px;margin-left:auto;margin-right:auto}
+.trilha-divider-line{width:48px;height:1px;background:linear-gradient(90deg,transparent,#D4AF3780,transparent);margin:28px auto 32px}
+.trilha-context{display:flex;flex-direction:column;gap:6px;margin:0 auto 32px;max-width:380px}
+.trilha-proof{display:flex;align-items:flex-start;gap:12px;padding:11px 15px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:var(--r2)}
+.trilha-proof-icon{width:28px;height:28px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;margin-top:1px}
+.trilha-proof-text{font-size:13px;color:#aaaaaa;line-height:1.55;text-align:left}
 .trilha-proof-text strong{color:var(--text);font-weight:500}
-.trilha-divider{display:flex;align-items:center;gap:12px;margin:0 auto 18px;max-width:400px}
-.trilha-divider::before,.trilha-divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.trilha-divider-txt{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;padding:0 4px}
-.trilha-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:400px;margin:0 auto 16px}
-.trilha-btn{padding:26px 14px 20px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);cursor:pointer;font-family:'Geist',sans-serif;transition:all .25s cubic-bezier(.4,0,.2,1);text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;overflow:hidden}
-.trilha-btn{animation:trilhaReveal .5s cubic-bezier(.34,1.2,.64,1) both}
-.trilha-btn:nth-child(1){animation-delay:.1s}
-.trilha-btn:nth-child(2){animation-delay:.2s}
-@keyframes trilhaReveal{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-.trilha-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.35)}
-.trilha-btn.de:hover,.trilha-btn.de.sel{border-color:#D4AF37;background:linear-gradient(160deg,#1a1500 0%,#231a00 100%);box-shadow:0 0 32px #D4AF3715,inset 0 1px 0 #D4AF3720}
-.trilha-btn.au:hover,.trilha-btn.au.sel{border-color:#2B5EA7;background:linear-gradient(160deg,#0a1020 0%,#0d1830 100%);box-shadow:0 0 32px #2B5EA715,inset 0 1px 0 #2B5EA720}
-.trilha-flag{width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));transition:transform .25s}
-.trilha-btn:hover .trilha-flag{transform:scale(1.06)}
-.trilha-nome{font-size:16px;font-weight:600;color:var(--text);letter-spacing:-0.01em}
+.trilha-divider{display:flex;align-items:center;gap:12px;margin:0 auto 18px;max-width:380px}
+.trilha-divider::before,.trilha-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.trilha-divider-txt{font-family:'DM Mono',monospace;font-size:9px;color:#666660;letter-spacing:2.5px;text-transform:uppercase;white-space:nowrap;padding:0 4px}
+.trilha-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:380px;margin:0 auto 16px}
+.trilha-btn{padding:28px 14px 22px;border-radius:var(--r);border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);cursor:pointer;font-family:'Geist',sans-serif;transition:all .3s cubic-bezier(.4,0,.2,1);text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;overflow:hidden}
+.trilha-btn{animation:trilhaReveal .6s cubic-bezier(.34,1.2,.64,1) both}
+.trilha-btn:nth-child(1){animation-delay:.15s}
+.trilha-btn:nth-child(2){animation-delay:.3s}
+@keyframes trilhaReveal{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.trilha-btn:hover{transform:translateY(-3px)}
+.trilha-btn.de:hover,.trilha-btn.de.sel{border-color:#D4AF3760;background:linear-gradient(160deg,#1c1600 0%,#1a1400 100%);box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 0 1px #D4AF3720}
+.trilha-btn.au:hover,.trilha-btn.au.sel{border-color:#4a8fd460;background:linear-gradient(160deg,#0c1420 0%,#0a1018 100%);box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 0 1px #4a8fd420}
+.trilha-flag{width:60px;height:60px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.trilha-btn:hover .trilha-flag{transform:scale(1.08) translateY(-2px)}
+.trilha-nome{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;color:var(--text);letter-spacing:0.02em}
 .trilha-btn-sub{font-size:11px;color:var(--muted);margin-top:-4px;font-family:'DM Mono',monospace;letter-spacing:0.5px}
+.trilha-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;font-weight:600}
 
 /* PROGRESSO */
 .prog-wrap{margin-bottom:28px}
@@ -285,6 +288,402 @@ async function logEvent(type, data){
     const img=new Image();
     img.src=SHEETS_URL+'?data='+params;
   } catch(e){ console.warn('Sheets fallback error', e); }
+}
+
+/* =======================================================
+   BREVO — Sistema de email automático
+   Email 1 dispara imediatamente ao capturar lead.
+   Emails 2 e 3 disparam via automação Brevo (3 e 10 dias).
+========================================================= */
+const BREVO_KEY = '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';
+const BREVO_LIST = 5;
+
+// Estilos compartilhados dos emails
+const _eStyles = `
+  body{font-family:Georgia,serif;background-color:#f5f0e8;margin:0;padding:20px;color:#333}
+  .c{max-width:600px;margin:0 auto;background:#fff;border-left:4px solid #D4AF37}
+  .hd{background:#0D1B3E;padding:40px 30px;text-align:center}
+  .hd h1{color:#D4AF37;font-size:24px;margin:0;font-weight:normal}
+  .hd p{color:rgba(255,255,255,0.5);font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:8px 0 0 0}
+  .bd{padding:40px 30px;line-height:1.8;font-size:16px}
+  .bd p{margin:0 0 18px 0}
+  .bd h2{color:#0D1B3E;font-size:19px;font-weight:normal;margin:0 0 22px 0}
+  .qt{border-left:3px solid #D4AF37;padding:4px 0 4px 20px;margin:28px 0;font-style:italic;color:#555;font-size:15px;line-height:1.7}
+  .hl{background:#f5f0e8;padding:16px 20px;margin:24px 0;border-left:3px solid #D4AF37;font-size:15px;line-height:1.7}
+  .hl strong{color:#0D1B3E}
+  .sb{background:#f5f0e8;padding:24px 20px;margin:24px 0;text-align:center}
+  .sn{font-size:52px;color:#D4AF37;font-weight:bold;margin:8px 0;font-family:Arial,sans-serif}
+  .sl{font-family:Arial,sans-serif;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:2px}
+  .sm{color:#0D1B3E;font-weight:bold;font-size:15px;font-family:Arial,sans-serif;letter-spacing:1px;margin-top:6px}
+  .gi{padding:14px 18px;border-left:3px solid #D4AF37;background:#faf8f3;margin-bottom:10px;font-size:14px;line-height:1.7}
+  .gl{font-family:Arial,sans-serif;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px}
+  .gt{color:#333}
+  .gt strong{color:#0D1B3E}
+  .ct{background:#0D1B3E;color:#fff;padding:30px;text-align:center;margin-top:28px}
+  .ct p{margin:0 0 18px 0;font-size:15px;color:rgba(255,255,255,0.85);line-height:1.7}
+  .cb{display:inline-block;background:#D4AF37;color:#0D1B3E;padding:14px 40px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:14px}
+  .dv{width:60px;height:1px;background:#D4AF37;margin:28px auto;opacity:0.4}
+  .ft{background:#f5f0e8;padding:18px 30px;font-size:11px;color:#aaa;text-align:center;border-top:1px solid #e8e2d6;font-family:Arial,sans-serif}
+  .lbl{font-family:Arial,sans-serif;font-size:10px;color:#B8902A;text-transform:uppercase;letter-spacing:2.5px;margin-bottom:14px}
+`;
+
+const _eWrap = (h1, sub, body) => `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${_eStyles}</style></head><body><div class="c"><div class="hd"><h1>${h1}</h1>${sub?`<p>${sub}</p>`:''}</div><div class="bd">${body}</div><div class="ft">Elite Migration &nbsp;|&nbsp; Carreira Internacional com Estratégia</div></div></body></html>`;
+
+// Mapeamentos
+const _AREA = {eng:'Engenharia e manufatura',ti:'Tecnologia e TI',neg:'Gestão e negócios',saude:'Medicina e saúde',comex:'Comércio Exterior e logística',estudos:'Estudos',outro:'sua área'};
+const _ALEMAO = {0:'não fala alemão',1:'A1 ou A2',2:'B1',3:'B2',4:'C1 ou mais'};
+const _DIPLOMA = {0:'não sabia que precisava validar',1:'sabe que precisa, mas ainda não pesquisou',2:'já pesquisou',3:'já iniciou o processo',4:'diploma validado'};
+
+// Identifica gargalos por prioridade baseado nas respostas reais
+function _gargalos(ans, area, ctr) {
+  const g = [];
+  const al = ans.p2?.v ?? 0;
+  const di = ans.p4?.v ?? 0;
+  const re = ans.p6?.v ?? 0;
+  const pr = ans.p8?.v ?? 0;
+  const in_ = ans.p9?.v ?? 0;
+  const me = ans.p10?.v ?? 0;
+  const cu = ans.p11?.v ?? 0;
+  const fam = (ctr.adultos||0)+(ctr.criancas||0)+(ctr.jovens||0);
+  const fa = ans.p5b?.v ?? 3;
+  const p7 = ans.p7?.v ?? 0;
+
+  if (area==='saude' && di<=1)
+    g.push({p:1,label:'Área regulamentada sem reconhecimento iniciado',text:`Para profissionais de saúde na Alemanha, o reconhecimento do diploma (Approbation) é exigência legal antes de qualquer contratação. Esse processo leva de 12 a 24 meses e exige B2 em alemão. Você ainda está no estágio "${_DIPLOMA[di]}". Sem iniciar esse processo agora, qualquer outra preparação fica em segundo plano.`,cta:'approbation'});
+
+  if (al<=1 && pr>=2)
+    g.push({p:2,label:'Timing e idioma em conflito',text:`Você tem prazo definido para ir, mas seu alemão ainda está em ${_ALEMAO[al]}. Fora de TI, o mercado alemão exige no mínimo B1 para a maioria das candidaturas. Com o prazo que você quer, o idioma precisa ser prioridade imediata, não paralela a outras ações.`,cta:'alemao'});
+
+  if (al>=3 && cu<=1)
+    g.push({p:3,label:'Idioma avançado, posicionamento ainda no padrão brasileiro',text:`Você tem ${_ALEMAO[al]} em alemão, o que já te coloca acima de 70% dos candidatos brasileiros. Mas seu currículo ainda não está no padrão alemão. O recrutador vê idioma forte e um documento que parece de outro país. Esse gap é o que está travando o retorno das candidaturas.`,cta:'curriculo'});
+
+  if (area!=='saude' && di<=1)
+    g.push({p:4,label:'Reconhecimento do diploma ainda não pesquisado',text:`Você ainda está no estágio "${_DIPLOMA[di]}" sobre a validação do seu diploma. Na Alemanha, dependendo da área e do estado (Bundesland), esse processo pode levar entre 6 e 18 meses. Começar cedo faz toda a diferença no timing da entrada.`,cta:'diploma'});
+
+  if (re===0 && in_===0)
+    g.push({p:5,label:'Isolamento estratégico: sem rede e sem investimento concreto',text:`Você ainda não conversou com ninguém que trabalha na Alemanha na sua área e ainda não fez nenhum investimento concreto na preparação. Esses dois fatores juntos são o perfil de quem está pensando em migrar, mas ainda não começou de verdade. A decisão existe. A execução ainda não.`,cta:'comunidade'});
+
+  if (re>=2 && cu<=1 && me>=2)
+    g.push({p:6,label:'Você entende o mercado, mas ainda não se posicionou para ele',text:`Você já tem contatos no destino e conhece o processo seletivo alemão. Mas seu currículo ainda não está adaptado. Esse é um gap de execução, não de conhecimento. Você sabe o que precisa ser feito. Ainda não fez.`,cta:'curriculo'});
+
+  if (fam>0 && fa<=1)
+    g.push({p:7,label:'Decisão com dependentes sem alinhamento real',text:`Você tem dependentes nessa mudança, mas o alinhamento familiar ainda não está consolidado. Mudanças internacionais com família sem alinhamento têm taxa de desistência muito maior, não por falta de capacidade, mas por pressão emocional durante o processo. Esse alinhamento não é um detalhe. É infraestrutura da decisão.`,cta:'comunidade'});
+
+  if (me>=2 && p7<=1 && pr>=2)
+    g.push({p:8,label:'Conhecimento sem execução',text:`Você conhece o processo seletivo alemão e tem prazo definido, mas ainda não aplicou para nenhuma vaga. O próximo passo não é estudar mais: é construir o material de candidatura e começar a aplicar com estratégia.`,cta:'curriculo'});
+
+  if (g.length===0)
+    g.push({p:9,label:'Preparação em andamento, foco ainda disperso',text:`Seu perfil está em movimento, mas ainda sem um foco claro de prioridade. Para Exploradores, o erro mais comum é trabalhar em tudo ao mesmo tempo: idioma, currículo, visto, networking. Escolha um único gap e trabalhe nele por 60 dias.`,cta:'comunidade'});
+
+  g.sort((a,b)=>a.p-b.p);
+  return g.slice(0,3);
+}
+
+// CTAs automáticos por tipo de gargalo — sem pergunta aberta, escalável
+const _CTA = {
+  approbation:{txt:'O primeiro passo é entender o que a Approbation exige na sua especialidade. Estou preparando um guia direto sobre isso.',btn:'Entrar no grupo e tirar dúvidas',url:'https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY'},
+  alemao:{txt:'O caminho mais eficiente para B1 em 6 meses começa com método, não com força de vontade. No grupo compartilho o que funcionou na minha própria experiência.',btn:'Entrar no grupo',url:'https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY'},
+  curriculo:{txt:'Adaptei um app específico para transformar o currículo brasileiro no padrão que recrutadores alemães reconhecem. É o próximo passo direto para o seu perfil.',btn:'Adaptar meu currículo agora',url:'https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY'},
+  diploma:{txt:'O processo de reconhecimento de diploma tem detalhes que dependem da área e do estado alemão. No grupo discutimos esses caminhos com quem já passou por isso.',btn:'Entrar no grupo',url:'https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY'},
+  comunidade:{txt:'O WhatsApp do Elite Migration é onde profissionais que estão nessa mesma fase trocam experiência real. É o atalho mais direto para sair do isolamento estratégico.',btn:'Entrar no grupo',url:'https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY'}
+};
+
+// EMAIL 1 — Dia 0: diagnóstico + score + CTA WhatsApp
+function _renderE1(nome, score) {
+  const n = nome.split(' ')[0];
+  return _eWrap('Seu resultado está pronto','Career Intelligence Assessment',`
+    <h2>Olá ${n},</h2>
+    <p>Você completou o CIA App, o Career Intelligence Assessment. Aqui está o que sua análise revela.</p>
+    <div class="sb"><div class="sl">Sua pontuação</div><div class="sn">${score}</div><div class="sm">Explorador</div></div>
+    <p>Esse resultado não é um julgamento. É um diagnóstico.</p>
+    <p>Significa que você tem vontade clara de trabalhar na Alemanha, mas ainda faltam elementos estratégicos para aumentar suas chances de ser reconhecido no mercado alemão. É normal. É exatamente o ponto onde muita gente começa.</p>
+    <div class="qt">"Ser bom não basta. O mercado precisa perceber seu valor. E pra isso, você precisa se posicionar corretamente."</div>
+    <p>Durante minha trajetória na Alemanha, descobri algo que ninguém me explicou antes: competência sozinha não garante reconhecimento. Você pode ser excelente na sua área, mas se o mercado não consegue enxergar isso, se você não sabe comunicar seu valor no idioma dele, se não entende como o recrutador alemão pensa, se não tem estrutura, você fica invisível.</p>
+    <p>Foi vivendo isso que criei o Elite Migration: para ajudar profissionais como você a não desperdiçarem potencial por falta de direção estratégica.</p>
+    <p>O que você viu no CIA App é só o começo. Próximos passos reais estão chegando.</p>
+    <div class="ct"><p>Junte-se ao grupo de profissionais que estão construindo carreira internacional com inteligência</p><a href="https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY" class="cb">Entrar no WhatsApp</a></div>
+    <p style="margin-top:28px;font-size:13px;color:#888;text-align:center;font-family:Arial,sans-serif">Próximo email em 3 dias. Vamos falar sobre o que realmente está travando sua entrada no mercado alemão.</p>
+  `);
+}
+
+// EMAIL 2A — Dia 3: idioma como barreira (alemão 0, 1 ou 2)
+function _renderE2A(nome) {
+  const n = nome.split(' ')[0];
+  return _eWrap('Sobre o primeiro travamento','Alemanha · Explorador',`
+    <h2>${n}, vamos falar sobre idioma</h2>
+    <p>Seu diagnóstico apontou algo que você provavelmente já sente: alemão é uma barreira real. Não é o único fator, mas é o mais visível, e é o que mais aparece como desculpa para adiar.</p>
+    <p>A tentação agora é pensar: "Vou fazer um curso intensivo de 6 meses e depois sim começo." Faz sentido? Faz. Mas há um problema concreto nessa estratégia.</p>
+    <div class="qt">A maioria das pessoas trata idioma como algo que você "termina" antes de agir. Como se precisasse estar fluente para começar. Não é assim.</div>
+    <p>Quando cheguei em Berlim, meu alemão era A1. Aquele nível de iniciante que você mal consegue pedir água. Mas eu não esperei ficar fluente para construir presença, ganhar visibilidade ou começar a me posicionar como profissional.</p>
+    <p>O que fiz foi diferente: aprendi o suficiente para comunicar competência. Frases prontas para reuniões. Vocabulário técnico da minha área. Como aparecer no LinkedIn alemão. Como mostrar que eu sabia trabalhar, mesmo que meu alemão não fosse perfeito.</p>
+    <div class="hl"><strong>O insight prático:</strong> Você não precisa ser fluente em alemão pra aumentar suas chances agora. Você precisa ser estratégico com o idioma que você tem. São coisas muito diferentes.</div>
+    <p>A diferença entre esperar 6 meses de curso e começar hoje é enorme. Enquanto você estuda, pode estar construindo presença online, entendendo o mercado, conectando com profissionais alemães, mostrando expertise na sua área.</p>
+    <p>Idioma é um fator. Mas não é o único fator. E certamente não é o motivo para esperar.</p>
+    <p style="margin-top:28px;font-size:13px;color:#888;text-align:center;font-family:Arial,sans-serif">Em 7 dias, envio sua análise de perfil completa baseada nas suas respostas do CIA App.</p>
+  `);
+}
+
+// EMAIL 2B — Dia 3: idioma não é o problema (alemão B2 ou C1+)
+function _renderE2B(nome) {
+  const n = nome.split(' ')[0];
+  return _eWrap('Seu gargalo não é o idioma','Alemanha · Explorador',`
+    <h2>${n}, você passou da primeira barreira</h2>
+    <p>Seu nível de alemão já está em um ponto onde o idioma não é o que vai travar sua entrada no mercado. Isso é uma vantagem real, e significa que podemos falar de outra coisa.</p>
+    <p>Mas essa vantagem esconde uma armadilha que vejo repetidamente em profissionais com B2 e C1: achar que, porque o idioma está resolvido, a vaga vem naturalmente. E aí ficam meses aplicando, sem retorno, sem entender o que falta.</p>
+    <div class="qt">O mercado alemão não recompensa quem fala bem. Ele recompensa quem comunica valor de forma clara, dentro da cultura certa. São duas coisas diferentes.</div>
+    <p>Fluência e comunicação profissional calibrada para o mercado alemão não são a mesma coisa. Você pode ter C1 e ainda assim não saber como um recrutador alemão lê um currículo em 30 segundos, o que ele procura, por que perfis tecnicamente fortes são ignorados sistematicamente.</p>
+    <p>Na Alemanha aprendi que o filtro real não é linguístico. É cultural e estratégico. O mercado valoriza precisão, estrutura e evidência de entrega. Não potencial. Não intenção. Entrega concreta, descrita da forma que ele reconhece.</p>
+    <div class="hl"><strong>O que muda agora:</strong> O foco sai do idioma e vai para posicionamento. Currículo no padrão alemão, LinkedIn otimizado para recrutadores alemães, e candidaturas direcionadas para as empresas certas na sua área. Nessa ordem.</div>
+    <p>É exatamente isso que vamos trabalhar a partir daqui.</p>
+    <p style="margin-top:28px;font-size:13px;color:#888;text-align:center;font-family:Arial,sans-serif">Em 7 dias, envio sua análise de perfil completa baseada nas suas respostas do CIA App.</p>
+  `);
+}
+
+// EMAIL 3 — Dia 10: análise de perfil personalizada com CTA automático
+function _renderE3(nome, score, ans, area, ctr) {
+  const n = nome.split(' ')[0];
+  const areaLbl = _AREA[area] || 'sua área';
+  const alemaoLbl = _ALEMAO[ans.p2?.v ?? 0];
+  const gargalos = _gargalos(ans, area, ctr);
+  const ctaTipo = gargalos[0].cta;
+  const cta = _CTA[ctaTipo];
+
+  const gHtml = gargalos.map((g,i)=>`
+    <div class="gi">
+      <div class="gl">Gargalo ${i+1}</div>
+      <div class="gt"><strong>${g.label}</strong><br>${g.text}</div>
+    </div>`).join('');
+
+  return _eWrap('Sua análise de perfil','Alemanha · Elite Migration',`
+    <h2>${n},</h2>
+    <p>Disse que estava preparando algo específico para você. Aqui está.</p>
+    <p>Com base nas suas respostas do CIA App, fiz uma leitura do que está acontecendo no seu perfil. Não é uma análise genérica de banda. São os pontos que, na prática, mais travam quem está na sua situação.</p>
+    <div class="sb"><div class="sl">Trilha Alemanha</div><div class="sn">${score}</div><div class="sm">Explorador &nbsp;·&nbsp; ${areaLbl}</div></div>
+    <p style="font-size:13px;color:#999;font-family:Arial,sans-serif;text-align:center;margin-top:-10px">Alemão declarado: ${alemaoLbl}</p>
+    <div class="dv"></div>
+    <div class="lbl">O que identifiquei no seu perfil</div>
+    ${gHtml}
+    <div class="dv"></div>
+    <div class="lbl">Por onde começar</div>
+    <p>Não estou dizendo para resolver tudo ao mesmo tempo. Estou dizendo: resolva o gargalo 1 primeiro. O resto vem depois, na ordem certa.</p>
+    <div class="hl">${cta.txt}</div>
+    <div class="ct"><a href="${cta.url}" class="cb">${cta.btn}</a></div>
+  `);
+}
+
+// Adicionar contato ao Brevo com atributos + disparar Email 1
+async function addToBrevo(nome, email, score, ans, area, ctr) {
+  const al = ans.p2?.v ?? 0;
+  const primeiroNome = nome.split(' ')[0];
+
+  // 1. Adicionar contato na lista com atributos
+  try {
+    await fetch('https://api.brevo.com/v3/contacts', {
+      method:'POST',
+      headers:{'accept':'application/json','api-key':BREVO_KEY,'content-type':'application/json'},
+      body: JSON.stringify({
+        email,
+        attributes:{
+          FIRSTNAME: primeiroNome,
+          SCORE: score,
+          BANDA: 'Explorador',
+          TRILHA: 'DE',
+          ALEMAO_NIVEL: al,
+          AREA: area
+        },
+        listIds:[BREVO_LIST],
+        updateEnabled:true
+      })
+    });
+  } catch(e){ console.warn('[Brevo] Contato:', e); }
+
+  // 2. Email 1 imediato
+  const html1 = _renderE1(nome, score);
+  await _sendBrevo(email, primeiroNome, 'Seu resultado no CIA App: o que ele realmente diz sobre você', html1);
+
+  // 3. Email 2 via transactional com delay de 3 dias (259200 segundos)
+  const html2 = al >= 3 ? _renderE2B(nome) : _renderE2A(nome);
+  const subj2 = al >= 3 ? 'Seu gargalo não é o idioma' : 'O primeiro travamento de quem quer trabalhar na Alemanha';
+  await _sendBrevoScheduled(email, primeiroNome, subj2, html2, _TEST_DELAY_E2);
+
+  // 4. Email 3 via transactional com delay de 10 dias (864000 segundos)
+  const html3 = _renderE3(nome, score, ans, area, ctr);
+  await _sendBrevoScheduled(email, primeiroNome, `${primeiroNome}, sua análise de perfil está pronta`, html3, _TEST_DELAY_E3);
+}
+
+// ============================================================
+// MODO TESTE — delays curtos para validar fluxo
+// PRODUCAO: _TEST_DELAY_E2 = 3, _TEST_DELAY_E3 = 10
+// ============================================================
+const _TEST_DELAY_E2 = 2 / 1440;
+const _TEST_DELAY_E3 = 5 / 1440;
+
+// Envio imediato
+async function _sendBrevo(email, nome, subject, html) {
+  try {
+    const r = await fetch('https://api.brevo.com/v3/smtp/email',{
+      method:'POST',
+      headers:{'accept':'application/json','api-key':BREVO_KEY,'content-type':'application/json'},
+      body: JSON.stringify({
+        to:[{email, name:nome}],
+        subject,
+        htmlContent: html,
+        sender:{name:'Jonathan Mathias',email:'no-reply@brevo.com'} // TESTE
+      })
+    });
+    if(!r.ok) console.warn('[Brevo] Email erro:', await r.text());
+    else console.log('[Brevo] Email enviado:', subject);
+  } catch(e){ console.warn('[Brevo] Email exceção:', e); }
+}
+
+// Envio agendado (scheduledAt = agora + dias)
+async function _sendBrevoScheduled(email, nome, subject, html, dias) {
+  try {
+    const scheduledAt = new Date(Date.now() + dias * 86400000).toISOString();
+    const r = await fetch('https://api.brevo.com/v3/smtp/email',{
+      method:'POST',
+      headers:{'accept':'application/json','api-key':BREVO_KEY,'content-type':'application/json'},
+      body: JSON.stringify({
+        to:[{email, name:nome}],
+        subject,
+        htmlContent: html,
+        sender:{name:'Jonathan Mathias',email:'no-reply@brevo.com'}, // TESTE — trocar em producao
+        scheduledAt
+      })
+    });
+    if(!r.ok) console.warn('[Brevo] Agendado erro:', await r.text());
+    else console.log('[Brevo] Email agendado dia +' + dias + ':', subject);
+  } catch(e){ console.warn('[Brevo] Agendado exceção:', e); }
+}
+
+// ============================================================
+// RENDERS AU — Email 1, 2A, 2B, 3 + addToBrevoAU
+// ============================================================
+
+function _renderE1AU(nome, score) {
+  const n = nome.split(' ')[0];
+  return _eWrap('Seu resultado está pronto','Career Intelligence Assessment',`
+    <h2>Olá ${n},</h2>
+    <p>Você completou o CIA App, o Career Intelligence Assessment. Aqui está o que sua análise revela.</p>
+    <div class="sb"><div class="sl">Sua pontuação</div><div class="sn">${score}</div><div class="sm">Explorador</div></div>
+    <p>Esse resultado não é um julgamento. É um diagnóstico.</p>
+    <p>Significa que você tem interesse real em construir uma carreira na Austrália, mas ainda faltam elementos estratégicos para aumentar suas chances de ser reconhecido no mercado australiano. É normal. É exatamente o ponto onde muita gente começa.</p>
+    <div class="qt">"Ser bom não basta. O mercado precisa perceber seu valor. E pra isso, você precisa se posicionar corretamente."</div>
+    <p>Quando fui para a Alemanha pela primeira vez, aprendi isso da forma mais dura: competência sozinha não garante reconhecimento. Depois de 18 anos lá, quando decidi vir para a Austrália, apliquei tudo que aprendi. Minha transição para a Austrália após 18 anos na Alemanha passou longe de ser uma tentativa de ver no que dava. Foquei estrategicamente no nicho onde meu perfil era mais valioso, empresas alemãs em Sydney precisando de profissionais trilíngues e experientes em customer service, e deu certo, provando que o sucesso dessa movimentação foi fruto de planejamento, e não de sorte.</p>
+    <p>Foi esse processo que me ensinou o que hoje é a base do meu trabalho: profissionais qualificados não fracassam fora do Brasil por falta de capacidade. Fracassam por falta de posicionamento.</p>
+    <p>O que você viu no CIA App é só o começo. Próximos passos reais estão chegando.</p>
+    <div class="ct"><p>Junte-se ao grupo de profissionais que estão construindo carreira internacional com inteligência</p><a href="https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY" class="cb">Entrar no WhatsApp</a></div>
+    <p style="margin-top:28px;font-size:13px;color:#888;text-align:center;font-family:Arial,sans-serif">Próximo email em 3 dias. Vamos falar sobre o que realmente está travando sua entrada no mercado australiano.</p>
+  `);
+}
+
+function _renderE2AAU(nome) {
+  const n = nome.split(' ')[0];
+  return _eWrap('O primeiro travamento','Austrália · Explorador',`
+    <h2>${n}, vamos falar sobre inglês</h2>
+    <p>Seu diagnóstico apontou algo que você provavelmente já sente: inglês é uma barreira real para onde você quer chegar. Não é o único fator, mas na Austrália é o pré-requisito de tudo. O processo seletivo acontece integralmente em inglês, a negociação de salário acontece em inglês, a construção de reputação profissional acontece em inglês.</p>
+    <p>A tentação agora é pensar: "Vou fazer um curso intensivo e depois sim começo a me preparar de verdade." O problema concreto dessa estratégia é que você trata o idioma como uma fase que precisa terminar antes de agir, e enquanto você espera terminar, o mercado continua.</p>
+    <div class="qt">Idioma não é um pré-requisito que você "termina". É uma habilidade que você desenvolve em paralelo com tudo mais.</div>
+    <p>O que aprendi nas minhas próprias transições de carreira é que esperar fluência para começar a se posicionar é um erro estratégico. Você pode estar construindo presença online, entendendo como o mercado australiano funciona, conectando com profissionais brasileiros que já estão lá, e desenvolvendo o idioma ao mesmo tempo.</p>
+    <div class="hl"><strong>O insight prático:</strong> O mercado australiano não exige perfeição. Exige clareza, confiança e capacidade de comunicar valor. Inglês funcional com posicionamento correto abre mais portas do que inglês perfeito sem direção.</div>
+    <p>Para quem está nessa fase, tenho um parceiro que recomendo: Verbalize Now, de Thalita Simon, especializado em inglês para contexto profissional. Não é curso genérico, é preparação para o inglês que o mercado australiano cobra na prática.</p>
+    <div class="ct"><p>Conheça a Verbalize Now</p><a href="https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY" class="cb">Saber mais</a></div>
+    <p style="margin-top:28px;font-size:13px;color:#888;text-align:center;font-family:Arial,sans-serif">Em 7 dias, envio sua análise de perfil completa baseada nas suas respostas do CIA App.</p>
+  `);
+}
+
+function _renderE2BAU(nome) {
+  const n = nome.split(' ')[0];
+  return _eWrap('Inglês não é o seu problema','Austrália · Explorador',`
+    <h2>${n}, você já passou da primeira barreira</h2>
+    <p>Seu nível de inglês já está num ponto onde o idioma não é o que vai travar sua entrada no mercado australiano. Isso é uma vantagem real, e significa que podemos falar de outra coisa.</p>
+    <p>Mas essa vantagem esconde uma armadilha que vejo repetidamente em profissionais com inglês avançado: achar que, porque o idioma está resolvido, o mercado vai reconhecê-los naturalmente, e aí ficam meses sem clareza sobre por onde começar, sem entender por que o progresso não vem.</p>
+    <div class="qt">Inglês abre a porta. O que te faz entrar e ficar é posicionamento.</div>
+    <p>O mercado australiano é competitivo e tem suas próprias regras. Os recrutadores leem currículos de forma diferente do Brasil, usam plataformas específicas como o Seek, valorizam experiências descritas de um jeito preciso e esperam que você saiba exatamente o que quer e o que oferece.</p>
+    <p>Minha transição para a Austrália após 18 anos na Alemanha passou longe de ser uma tentativa de ver no que dava. Foquei estrategicamente no nicho onde meu perfil era mais valioso, empresas alemãs em Sydney precisando de profissionais trilíngues e experientes em customer service, e deu certo, provando que o sucesso dessa movimentação foi fruto de planejamento, e não de sorte.</p>
+    <div class="hl"><strong>O que muda agora:</strong> O foco sai do idioma e vai para clareza de posicionamento. Qual é o seu diferencial real no mercado australiano? Para quais empresas e setores você é a escolha óbvia? Sem responder isso primeiro, o currículo, o LinkedIn e as candidaturas ficam genéricos, e genérico não converte.</div>
+    <p style="margin-top:28px;font-size:13px;color:#888;text-align:center;font-family:Arial,sans-serif">Em 7 dias, envio sua análise de perfil completa baseada nas suas respostas do CIA App.</p>
+  `);
+}
+
+function _renderE3AU(nome, score, ans, area, ctr) {
+  const n = nome.split(' ')[0];
+  const areaLbl = _AREA[area] || 'sua área';
+  const p1v = ans.p1 ? (ans.p1.v !== undefined ? ans.p1.v : 0) : 0;
+  const inglesLbl = {0:'não fala inglês',1:'básico ou intermediário',2:'avançado',3:'fluente'}[p1v] || 'básico';
+  const p4 = ans.p4 ? (ans.p4.v !== undefined ? ans.p4.v : 0) : 0;
+  const p8 = ans.p8 ? (ans.p8.v !== undefined ? ans.p8.v : 0) : 0;
+  const p9 = ans.p9 ? (ans.p9.v !== undefined ? ans.p9.v : 0) : 0;
+  const p10 = ans.p10 ? (ans.p10.v !== undefined ? ans.p10.v : 0) : 0;
+  const p11 = ans.p11 ? (ans.p11.v !== undefined ? ans.p11.v : 0) : 0;
+  const p5b = ans.p5b ? (ans.p5b.v !== undefined ? ans.p5b.v : 3) : 3;
+  const fam = (ctr.adultos||0)+(ctr.criancas||0)+(ctr.jovens||0);
+  const gargalos = [];
+
+  if(area==='saude' && p4<=1)
+    gargalos.push({label:'Área regulamentada sem registro iniciado (AHPRA)',text:'Você atua em saúde e ainda não pesquisou o processo de registro junto à AHPRA. Na Austrália, sem esse registro não é possível exercer a profissão na área, independente da sua qualificação ou experiência. O processo envolve validação de competências, prova de proficiência em inglês (OET ou IELTS) e, na maioria dos casos, um período de prática supervisionada antes do registro definitivo. Para questões sobre visto e elegibilidade, recomendo consultar um agente migratório registrado (MARA).',cta:'ahpra'});
+
+  if(area==='eng' && p4<=1)
+    gargalos.push({label:'Skills Assessment não iniciado',text:'Para engenheiros que querem trabalhar ou imigrar para a Austrália, o Skills Assessment realizado pela Engineers Australia é a trava central. O processo inclui a elaboração de um Competency Demonstration Report (CDR), exaustivo e específico para cada especialidade. Sem isso, candidaturas em grandes empresas ficam fora do radar. Para entender como o visto se encaixa nesse processo, recomendo conversar com um agente migratório registrado (MARA).',cta:'comunidade'});
+
+  if(p8<=1 && p9===0)
+    gargalos.push({label:'A Austrália ainda é um plano, não uma decisão',text:'Você ainda não tem prazo definido e ainda não fez nenhum investimento concreto na sua preparação. Esse dado não é uma crítica, é um diagnóstico, e o que ele revela é que a Austrália ainda ocupa o espaço de um plano, não de uma decisão tomada. Existe uma diferença grande entre querer ir e ter decidido ir, e enquanto essa clareza não existe internamente, as ações externas como currículo, visto e inglês ficam dispersas e sem tração real.',cta:'comunidade'});
+
+  if(p4===0 && p8<=1)
+    gargalos.push({label:'Visto não pesquisado, prazo indefinido',text:'Você ainda não sabe qual visto precisaria para trabalhar na Austrália na sua área e ainda não tem prazo definido. O sistema de vistos australiano é complexo e altamente dependente da área de atuação, do estado de destino e do perfil do empregador, e entender esse sistema não é o último passo da preparação, é um dos primeiros, porque ele define o que é possível e em quanto tempo. Para esse tipo de orientação específica, a recomendação é consultar um agente migratório registrado (MARA).',cta:'comunidade'});
+
+  if(p1v<=1 && p8<=1)
+    gargalos.push({label:'Inglês e prazo criando um ciclo de adiamento',text:'Seu inglês ainda está num nível que torna o processo seletivo australiano inacessível na prática, e você ainda não tem prazo definido para essa mudança. Esses dois fatores juntos constroem um ciclo de adiamento que se retroalimenta: sem prazo não há urgência para investir no idioma, e sem idioma o prazo parece sempre distante demais para ser real. Quebrar esse ciclo começa por uma das duas pontas, e a mais acessível e imediata agora é o inglês.',cta:'ingles'});
+
+  if(fam>0 && p5b<=1)
+    gargalos.push({label:'Decisão com dependentes sem alinhamento real',text:'Você tem dependentes nessa mudança, mas o alinhamento familiar ainda não está consolidado. Mudanças internacionais com família sem alinhamento têm taxa de desistência muito maior, não por falta de capacidade profissional, mas por pressão emocional acumulada durante o processo, e esse alinhamento não é um detalhe logístico, é a base sobre a qual todo o resto precisa ser construído.',cta:'comunidade'});
+
+  if(p10===0 && p11===0)
+    gargalos.push({label:'Mercado australiano ainda desconhecido',text:'Seu diagnóstico mostra que você ainda não pesquisou como o mercado de trabalho australiano funciona. Isso inclui como os recrutadores leem currículos aqui, quais plataformas usam (o Seek é a principal para busca de vagas), como funcionam as entrevistas comportamentais e o que diferencia um candidato internacional que converte de um que não converte. Esse conhecimento não é opcional porque é ele que determina se toda a preparação vai na direção certa desde o início.',cta:'comunidade'});
+
+  if(p1v>=2 && p10>=2 && p11<=1)
+    gargalos.push({label:'Inglês avançado, currículo ainda no padrão brasileiro',text:'Você tem inglês avançado, o que já te coloca em vantagem real no mercado australiano. Mas com base na sua resposta, seu currículo ainda não está adaptado para o padrão australiano. O recrutador vê inglês forte e um documento que parece de outro país, e esse gap específico é o que está travando o retorno das candidaturas.',cta:'curriculo'});
+
+  if(gargalos.length===0)
+    gargalos.push({label:'Preparação em andamento, foco ainda disperso',text:'Seu perfil está em movimento, mas ainda sem um foco claro de prioridade. Para Exploradores, o erro mais comum é trabalhar em tudo ao mesmo tempo: inglês, currículo, visto, networking. O resultado é progresso lento em todas as frentes. Escolha um único gap e trabalhe nele com consistência por 60 dias antes de abrir outra frente.',cta:'comunidade'});
+
+  const top3 = gargalos.slice(0,3);
+  const ctaMap = {
+    ahpra:{txt:'O ponto de partida é entender o que o seu tipo de registro exige especificamente. O site da AHPRA tem os requisitos por profissão. Para questões de visto, um agente MARA pode orientar com base no seu perfil.',btn:'Verificar requisitos da AHPRA',url:'https://www.ahpra.gov.au'},
+    ingles:{txt:'Para quem está nessa fase com o inglês, o método importa mais do que o esforço. Tenho um parceiro que recomendo para inglês em contexto profissional: Verbalize Now, de Thalita Simon.',btn:'Conhecer a Verbalize Now',url:'https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY'},
+    curriculo:{txt:'Com seu nível de inglês e conhecimento do processo, o próximo passo direto é adaptar o currículo para o padrão australiano.',btn:'Adaptar meu currículo agora',url:'https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY'},
+    comunidade:{txt:'No grupo há brasileiros que já passaram por esse processo e pelo labirinto do sistema de vistos australiano. Não substitui um agente MARA, mas é o lugar certo para entender como outras pessoas navegaram por isso antes de você.',btn:'Entrar na comunidade',url:'https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY'}
+  };
+  const cta = ctaMap[top3[0].cta];
+  const gHtml = top3.map((g,i)=>`<div class="gi"><div class="gl">Gargalo ${i+1}</div><div class="gt"><strong>${g.label}</strong><br>${g.text}</div></div>`).join('');
+  return _eWrap('Sua análise de perfil','Austrália · Elite Migration',`
+    <h2>${n},</h2>
+    <p>Disse que estava preparando algo específico para você. Aqui está.</p>
+    <p>Com base nas suas respostas do CIA App, fiz uma leitura do que está acontecendo no seu perfil. Não é uma análise genérica de banda, são os pontos que, na prática, mais travam quem está na sua situação.</p>
+    <div class="sb"><div class="sl">Trilha Austrália</div><div class="sn">${score}</div><div class="sm">Explorador &nbsp;·&nbsp; ${areaLbl}</div></div>
+    <p style="font-size:13px;color:#999;font-family:Arial,sans-serif;text-align:center;margin-top:-10px">Inglês declarado: ${inglesLbl}</p>
+    <div class="dv"></div>
+    <div class="lbl">O que identifiquei no seu perfil</div>
+    ${gHtml}
+    <div class="dv"></div>
+    <div class="lbl">Por onde começar</div>
+    <p>Não estou dizendo para resolver tudo ao mesmo tempo. Estou dizendo: resolva o gargalo 1 primeiro. O resto vem depois, na ordem certa.</p>
+    <div class="hl">${cta.txt}</div>
+    <div class="ct"><a href="${cta.url}" class="cb">${cta.btn}</a></div>
+  `);
+}
+
+async function addToBrevoAU(nome, email, score, ans, area, ctr) {
+  const p1v = ans.p1 ? (ans.p1.v !== undefined ? ans.p1.v : 0) : 0;
+  const primeiroNome = nome.split(' ')[0];
+  try {
+    await fetch('https://api.brevo.com/v3/contacts',{method:'POST',headers:{'accept':'application/json','api-key':BREVO_KEY,'content-type':'application/json'},body:JSON.stringify({email,attributes:{FIRSTNAME:primeiroNome,SCORE:score,BANDA:'Explorador',TRILHA:'AU',INGLES_NIVEL:p1v,AREA:area},listIds:[BREVO_LIST],updateEnabled:true})});
+  } catch(e){ console.warn('[Brevo AU] Contato:', e); }
+  await _sendBrevo(email, primeiroNome, 'Seu resultado no CIA App: o que ele realmente diz sobre você', _renderE1AU(nome, score));
+  const html2 = p1v >= 2 ? _renderE2BAU(nome) : _renderE2AAU(nome);
+  const subj2 = p1v >= 2 ? 'Inglês não é o seu problema. Mas tem um que é.' : 'O que ninguém te conta sobre inglês no mercado australiano';
+  await _sendBrevoScheduled(email, primeiroNome, subj2, html2, _TEST_DELAY_E2);
+  await _sendBrevoScheduled(email, primeiroNome, `${primeiroNome}, sua análise de perfil está pronta`, _renderE3AU(nome, score, ans, area, ctr), _TEST_DELAY_E3);
 }
 
 /* =======================================================
@@ -767,77 +1166,84 @@ function getSteps(result){
   const sc=result.final;
   const en=ANS['p1']?ANS['p1'].v:0;
   const al=ANS['p2']?ANS['p2'].v:0;
+  const inv4=ANS['p11']?ANS['p11'].v:0; // 0=não sabe, 1=sabe precisar, 2=fez adaptações, 3=já no padrão
+  const diploma=ANS['p4']?ANS['p4'].v:0; // 0=não sabia, 1=sei que precisa, 2=pesquisei, 3=em processo, 4=validado
+  const prazo=ANS['p8']?ANS['p8'].v:0;
+
   const inglesInsuf=T==='au'&&en<=1;
   const alemaoInsuf=T==='de'&&typeof al==='number'&&al<2;
+  const jaTemPacote=inv4>=3; // já tem currículo e LI no padrão
+  const jaTemLI=inv4>=2;     // já fez adaptações
+  const diplomaOk=diploma>=3; // em processo ou validado
+
   const cursol=CURSO_ALEMAO
     ?`<a href="${CURSO_ALEMAO}" target="_blank">Invista num curso de alemão estruturado</a> e defina B2 como meta`
     :'Invista num curso de alemão estruturado e defina B2 como meta';
-  const appsPkg=`${APP_CV_URL?`<a href="${APP_CV_URL}" target="_blank">currículo</a>`:'currículo'}, ${APP_CARTA_URL?`<a href="${APP_CARTA_URL}" target="_blank">carta de apresentação</a>`:'carta de apresentação'} e ${APP_LI_URL?`<a href="${APP_LI_URL}" target="_blank">LinkedIn</a>`:'LinkedIn'} no padrão ${T==='de'?'alemão':'australiano'}`;
-  const liStep=APP_LI_URL
-    ?`Otimize seu perfil no LinkedIn para recrutadores ${T==='de'?'alemães':'australianos'}: <a href="${APP_LI_URL}" target="_blank">ajuste headline, resumo e experiências</a> com palavras-chave do mercado local`
-    :`Otimize seu perfil no LinkedIn para recrutadores ${T==='de'?'alemães':'australianos'}: ajuste headline, resumo e experiências com palavras-chave do mercado local`;
+
+  const cvLink=APP_CV_URL?`<a href="${APP_CV_URL}" target="_blank">currículo</a>`:'currículo';
+  const cartaLink=APP_CARTA_URL?`<a href="${APP_CARTA_URL}" target="_blank">carta de apresentação</a>`:'carta de apresentação';
+  const liLink=APP_LI_URL?`<a href="${APP_LI_URL}" target="_blank">LinkedIn</a>`:'LinkedIn';
+  const dest=T==='de'?'alemão':'australiano';
+
   const idiomaDE=`Priorize o Alemão antes de qualquer outra ação: ${cursol}. Sem B1 iniciado, a maioria das candidaturas não passa da triagem inicial`;
   const idiomaAU='Priorize o Inglês antes de qualquer outra ação: fluência é o pré-requisito absoluto na Austrália. Sem isso, currículo, visto e networking têm impacto mínimo';
+  const vistoAU=`Inicie o processo de visto com um agente de imigração registrado (MARA agent). Em paralelo, pesquise empresas com patrocínio aprovado: <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">lista de empresas patrocinadoras</a>`;
+  const cvStep=`Prepare seu ${cvLink} e ${cartaLink} no padrão ${dest}`;
+  const liStep=`Otimize seu ${liLink} para recrutadores ${T==='de'?'alemães':'australianos'}: ajuste headline, resumo e experiências com palavras-chave do mercado local`;
+  const pkgStep=`Prepare seu pacote completo: ${cvLink}, ${cartaLink} e ${liLink} no padrão ${dest}`;
+  const diplomaStep=`Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> e inicie o processo de reconhecimento — pode levar até 18 meses`;
+  const redeDE='Conecte-se com profissionais brasileiros que já estão na Alemanha na sua área: <a href="https://www.linkedin.com" target="_blank">LinkedIn</a> e grupos específicos encurtam o caminho mais do que qualquer pesquisa isolada';
+  const redeAU='Conecte-se com profissionais brasileiros que já estão na Austrália na sua área: o mercado australiano é fortemente baseado em networking e indicações';
 
-  // Passos para DE
+  const S=[]; // array de passos — só adiciona o que é relevante
+
+  // ── TRILHA DE
   if(T==='de'){
-    // Versão para quem já está na Alemanha
-    if(isNoDestino()) return[
-      alemaoInsuf?idiomaDE:`Otimize seu LinkedIn e currículo alemão (Lebenslauf) para recrutadores alemães: formato, idioma e palavras-chave corretas${APP_CV_URL?' — <a href="'+APP_CV_URL+'" target="_blank">use nosso otimizador de currículo</a>':''}`,
-      `Prepare sua pacote de candidatura (Bewerbungsmappe) completa: ${appsPkg}`,
-      'Explore vagas em <a href="https://www.make-it-in-germany.com" target="_blank">Make it in Germany</a>, <a href="https://www.stepstone.de" target="_blank">StepStone</a> e LinkedIn Alemanha com filtros por cidade e área'
-    ];
-    if(sc<=40) return[
-      alemaoInsuf?idiomaDE:'Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> e inicie o processo de reconhecimento o quanto antes',
-      alemaoInsuf?'Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> em paralelo com o desenvolvimento do idioma':'Defina uma única prioridade para os próximos 90 dias e execute sem dispersão',
-      'Construa uma rede de contatos com brasileiros que já estão na Alemanha na sua área: essa rede vai encurtar seu caminho mais do que qualquer curso'
-    ];
-    if(sc<=65) return[
-      alemaoInsuf?idiomaDE:'Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> e avance no processo de reconhecimento',
-      `Prepare seu pacote de candidatura: ${appsPkg}`,
-      liStep
-    ];
-    if(sc<=85) return[
-      `Prepare seu pacote de candidatura: ${appsPkg}`,
-      liStep,
-      'Explore vagas em <a href="https://www.make-it-in-germany.com" target="_blank">Make it in Germany</a> e verifique se você se enquadra no Chancenkarte'
-    ];
-    return[
-      'Comece a aplicar agora: seu perfil está entre os mais competitivos no mercado alemão',
-      `Prepare seu pacote de candidatura: ${appsPkg}`,
-      liStep
-    ];
+    if(isNoDestino()){
+      // Já está na Alemanha — foco em posicionamento e progressão
+      if(alemaoInsuf) S.push(idiomaDE);
+      if(!jaTemLI) S.push(`Otimize seu ${liLink} e currículo (Lebenslauf) para o mercado alemão: formato, idioma e palavras-chave corretas`);
+      if(!jaTemPacote&&jaTemLI) S.push(`Revise e atualize seu ${cvLink} e ${cartaLink} no padrão alemão`);
+      S.push('Explore novas oportunidades em <a href="https://www.stepstone.de" target="_blank">StepStone</a> e LinkedIn Alemanha com filtros por cidade e área');
+      return S;
+    }
+    // Ainda no Brasil ou outro país
+    if(alemaoInsuf) S.push(idiomaDE);
+    if(!diplomaOk) S.push(diplomaStep);
+    if(!jaTemPacote){
+      if(!jaTemLI) S.push(pkgStep);
+      else S.push(cvStep); // tem LI mas não tem CV/carta
+    }
+    if(!alemaoInsuf&&jaTemPacote&&diplomaOk){
+      S.push('Comece a aplicar agora: seu perfil está entre os mais preparados para o mercado alemão. Priorize vagas em <a href="https://www.make-it-in-germany.com" target="_blank">Make it in Germany</a> e StepStone');
+    }
+    if(S.length===0) S.push(redeDE);
+    if(!alemaoInsuf&&!jaTemPacote) S.push(redeDE);
+    return S.slice(0,3);
   }
 
-  // Passos para AU
-  // Versão para quem já está na Austrália
-  if(isNoDestino()) return[
-    inglesInsuf?idiomaAU:`Otimize seu perfil no LinkedIn para recrutadores australianos: headline, resumo e experiências com palavras-chave do mercado local${APP_LI_URL?' — <a href="'+APP_LI_URL+'" target="_blank">use nosso otimizador</a>':''}`,
-    `Prepare seu pacote de candidatura no padrão australiano: ${appsPkg}`,
-    'Construa uma rede de contatos ativa localmente: conecte-se com profissionais da sua área na Austrália no LinkedIn e participe de eventos e meetups na sua cidade'
-  ];
-
-  // Passos para AU — quem ainda não está lá
-  if(sc<=40) return[
-    inglesInsuf?idiomaAU:`Inicie o processo de visto com um agente de imigração registrado (MARA agent). Em paralelo, pesquise empresas que já têm acordos de patrocínio aprovados: <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">lista de empresas patrocinadoras</a>`,
-    inglesInsuf?`Inicie o processo de visto em paralelo com o Inglês: consulte um agente MARA registrado e pesquise empresas patrocinadoras em <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">immi.homeaffairs.gov.au</a>`:`Construa uma rede de contatos com brasileiros que já estão na Austrália na sua área`,
-    'Construa uma rede de contatos com brasileiros que já estão na Austrália na sua área: essa rede vai encurtar seu caminho mais do que qualquer pesquisa isolada'
-  ];
-  if(sc<=65) return[
-    inglesInsuf?idiomaAU:`Inicie o processo de visto com um agente de imigração registrado (MARA agent). Em paralelo, pesquise empresas que já têm acordos de patrocínio aprovados: <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">lista de empresas patrocinadoras</a>`,
-    `Prepare seu pacote de candidatura: ${appsPkg}`,
-    liStep
-  ];
-  if(sc<=85) return[
-    `Inicie o processo de visto com um agente de imigração registrado (MARA agent). Em paralelo, pesquise empresas que já têm acordos de patrocínio aprovados: <a href="https://immi.homeaffairs.gov.au/visas/employing-and-sponsoring-someone/labour-agreements/list-of-current-labour-agreements" target="_blank">lista de empresas patrocinadoras</a>`,
-    `Prepare seu pacote de candidatura: ${appsPkg}`,
-    liStep
-  ];
-  return[
-    'Comece a aplicar agora: seu perfil está entre os mais competitivos para o mercado australiano',
-    `Prepare seu pacote de candidatura: ${appsPkg}`,
-    liStep
-  ];
+  // ── TRILHA AU
+  if(isNoDestino()){
+    // Já está na Austrália
+    if(inglesInsuf) S.push(idiomaAU);
+    if(!jaTemLI) S.push(`Otimize seu ${liLink} para recrutadores australianos: headline, resumo e experiências com palavras-chave do mercado local`);
+    if(!jaTemPacote&&jaTemLI) S.push(`Revise seu ${cvLink} e ${cartaLink} no padrão australiano`);
+    S.push('Construa rede local ativa: conecte-se com profissionais da sua área na Austrália e participe de eventos e meetups na sua cidade');
+    return S.slice(0,3);
+  }
+  // Ainda no Brasil ou outro país
+  if(inglesInsuf) S.push(idiomaAU);
+  if(diploma<=1) S.push(vistoAU);
+  if(!jaTemPacote){
+    if(!jaTemLI) S.push(pkgStep);
+    else S.push(cvStep);
+  }
+  if(jaTemPacote&&diploma>=2){
+    S.push('Comece a aplicar agora: seu perfil está entre os mais preparados para o mercado australiano. Direcione candidaturas para empresas com patrocínio aprovado');
+  }
+  if(S.length<2) S.push(redeAU);
+  if(S.length<2) S.push(vistoAU);
+  return S.slice(0,3);
 }
 
 /* SUMMARY PARA COMPARTILHAR */
@@ -894,21 +1300,22 @@ const INS_COLORS={d1:'#6e8ef7',d2:'#f0c44a',d3:'#3ecf8e',d4:'#a98ef7',familia:'#
 function renderTrilha(){
   document.getElementById('app').innerHTML=`
     <div class="trilha-wrap">
-      <div class="trilha-tag">Career Intelligence Assessment <span style="background:#D4AF3722;color:#D4AF37;border:1px solid #D4AF3740;border-radius:4px;padding:1px 7px;font-size:9px;letter-spacing:1px;margin-left:6px;vertical-align:middle">BETA</span></div>
-      <h1 class="trilha-h1">Descubra o seu nível real de prontidão</h1>
+      <div class="trilha-brand">Elite Migration</div>
+      <h1 class="trilha-h1">O seu perfil está pronto<br>para o <em>mercado global</em>?</h1>
       <p class="trilha-sub">Avaliação estratégica para profissionais brasileiros que querem trabalhar na Alemanha ou na Austrália.</p>
+      <div class="trilha-divider-line"></div>
       <div class="trilha-context">
         <div class="trilha-proof">
-          <div class="trilha-proof-icon" style="background:#D4AF3720;color:#D4AF37">⏱</div>
-          <div class="trilha-proof-text">Avaliação completa em <strong>5 minutos</strong>. Pontuação 0-100 com análise por dimensão e próximos passos priorizados.</div>
+          <div class="trilha-proof-icon" style="background:#D4AF3712;color:#D4AF3790">◷</div>
+          <div class="trilha-proof-text">Avaliação completa em <strong>5 minutos</strong>. Pontuação 0–100 com análise por dimensão e próximos passos priorizados.</div>
         </div>
         <div class="trilha-proof">
-          <div class="trilha-proof-icon" style="background:#2B5EA720;color:#6ea8f7">✦</div>
+          <div class="trilha-proof-icon" style="background:#ffffff08;color:#aaaaaa">✦</div>
           <div class="trilha-proof-text">Criado por quem saiu do Brasil, construiu carreira na Alemanha e na Austrália, e acompanhou mais de <strong>40 profissionais</strong> no mesmo caminho.</div>
         </div>
         <div class="trilha-proof">
-          <div class="trilha-proof-icon" style="background:#3ecf8e20;color:#3ecf8e">◎</div>
-          <div class="trilha-proof-text"><strong>Sem respostas certas ou erradas.</strong> O objetivo é medir onde você está hoje, não onde deveria estar.</div>
+          <div class="trilha-proof-icon" style="background:#ffffff08;color:#aaaaaa">◎</div>
+          <div class="trilha-proof-text"><strong>Sem respostas certas ou erradas.</strong> O objetivo é mapear onde você está hoje, não onde deveria estar.</div>
         </div>
       </div>
       <div class="trilha-divider"><span class="trilha-divider-txt">Escolha seu destino</span></div>
@@ -1105,7 +1512,12 @@ function renderCadastro(){
           </div>
         </div>
 
+        <label id="cad-consent-wrap" style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);cursor:pointer">
+          <input type="checkbox" id="cad-consent" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:${cor};cursor:pointer">
+          <span style="font-size:12px;color:var(--text2);line-height:1.6">Autorizo o tratamento dos meus dados pessoais, informados neste formulário, para fins de análise de perfil e envio de conteúdo relacionado à carreira internacional. Declaro estar ciente de que meus dados serão mantidos em sigilo, utilizados exclusivamente para esta finalidade e nunca serão compartilhados com terceiros sem meu consentimento prévio, conforme a LGPD.</span>
+        </label>
         <div id="cad-err" style="display:none;font-size:12px;color:#e85555;text-align:center;padding:4px 0">Preencha nome e e-mail para continuar.</div>
+        <div id="cad-consent-err" style="display:none;font-size:12px;color:#e85555;text-align:center;padding:4px 0">É necessário aceitar os termos para continuar.</div>
         <button id="cad-btn" style="width:100%;padding:15px;border:none;border-radius:var(--r2);background:${cor};color:${corTxt};font-size:15px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:opacity .15s;letter-spacing:0.01em">Iniciar avaliação</button>
       </div>
     </div>`;
@@ -1162,14 +1574,18 @@ function renderCadastro(){
     if(tempoEl&&tempoEl.value) GEO.tempo=tempoEl.value;
     LEAD.nome=nm; LEAD.email=em;
     LEAD.waDDI=ddi; LEAD.waNum=wa; LEAD.waDDIPais=ddiPais;
+    const consentEl=document.getElementById('cad-consent');
+    const consentOk=consentEl?consentEl.checked:false;
     const valid=nm.length>1 && em.includes('@') && em.includes('.');
     const errEl=document.getElementById('cad-err');
+    const consentErrEl=document.getElementById('cad-consent-err');
     if(errEl){
       if(!nm||nm.length<=1) errEl.textContent='Informe seu nome completo para continuar.';
       else if(!em.includes('@')||!em.includes('.')) errEl.textContent='Informe um e-mail válido para continuar.';
       else errEl.textContent='Preencha nome e e-mail para continuar.';
     }
-    return valid;
+    if(consentErrEl) consentErrEl.style.display=(!consentOk&&valid)?'block':'none';
+    return valid && consentOk;
   };
 
   document.getElementById('cad-btn').addEventListener('click',()=>{
@@ -1180,7 +1596,7 @@ function renderCadastro(){
     }
     logEvent('lead_inicio',{nome:LEAD.nome,email:LEAD.email,
       whatsapp:LEAD.waDDI&&LEAD.waNum?`+${LEAD.waDDI}${LEAD.waNum}`:'',
-      idade:LEAD.idade,trilha:T});
+      idade:LEAD.idade,trilha:T,consentimento:'sim',consentimento_ts:new Date().toISOString()});
     renderQ();window.scrollTo(0,0);
   });
 
@@ -1644,6 +2060,16 @@ function renderResults(){
       await logEvent('lead',{nome:nm,email:em,whatsapp:LEAD.waDDI&&LEAD.waNum?`+${LEAD.waDDI}${LEAD.waNum}`:'',trilha:T,score:result.final,banda:band.lb,
         d1:result.dims.d1,d2:result.dims.d2,d3:result.dims.d3,d4:result.dims.d4,
         area:ANS['p3']?ANS['p3'].l:'',dependentes:CTR.adultos+CTR.criancas+CTR.jovens});
+      // Sequência de emails automática — Explorador DE
+      if(T==='de' && band.lb==='Explorador'){
+        const _area = ANS['p3']?ANS['p3'].v:'outro';
+        addToBrevo(nm, em, result.final, ANS, _area, CTR).catch(e=>console.warn('[Email DE]',e));
+      }
+      // Sequência de emails automática — Explorador AU
+      if(T==='au' && band.lb==='Explorador'){
+        const _area = ANS['p3']?ANS['p3'].v:'outro';
+        addToBrevoAU(nm, em, result.final, ANS, _area, CTR).catch(e=>console.warn('[Email AU]',e));
+      }
       btn.style.display='none';
       if(ok)ok.style.display='block';
     }catch(e){
