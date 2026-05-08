@@ -309,8 +309,6 @@ const APP_LI_URL    = '';
    MODO TESTE: Email 2 em 2 min, Email 3 em 5 min
    PRODUÇÃO: trocar para E2_DELAY=3 e E3_DELAY=10 (dias)
 ========================================================= */
-const BREVO_API_KEY = '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';
-const BREVO_LIST_ID = 5;
 const E2_DELAY_MIN  = 2;   // minutos — TESTE
 const E3_DELAY_MIN  = 5;   // minutos — TESTE
 
@@ -430,52 +428,29 @@ function _renderE3_AU(nome){
 <a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`);
 }
 
-/* ---- envio Brevo ---- */
-async function _sendBrevo(toEmail,toName,subject,htmlContent){
+/* ---- proxy via Apps Script (chave Brevo nunca exposta no frontend) ---- */
+async function _gasPost(payload){
   try{
-    await fetch('https://api.brevo.com/v3/smtp/email',{
+    await fetch(SHEETS_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json','api-key':BREVO_API_KEY},
-      body:JSON.stringify({
-        sender:{name:'Jonathan Mathias',email:'no-reply@brevo.com'},
-        to:[{email:toEmail,name:toName}],
-        subject,htmlContent
-      })
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
     });
-  }catch(e){console.warn('Email 1 error:',e);}
+  }catch(e){console.warn('GAS proxy error:',e);}
+}
+
+async function _sendBrevo(toEmail,toName,subject,htmlContent){
+  await _gasPost({type:'send_email',to:toEmail,toName,subject,html:htmlContent});
 }
 
 async function _sendBrevoScheduled(toEmail,toName,subject,htmlContent,delayMinutes){
-  try{
-    const dt=new Date(Date.now()+delayMinutes*60*1000);
-    const scheduledAt=dt.toISOString().replace(/\.\d{3}Z$/,'Z');
-    await fetch('https://api.brevo.com/v3/smtp/email',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','api-key':BREVO_API_KEY},
-      body:JSON.stringify({
-        sender:{name:'Jonathan Mathias',email:'no-reply@brevo.com'},
-        to:[{email:toEmail,name:toName}],
-        subject,htmlContent,scheduledAt
-      })
-    });
-  }catch(e){console.warn('Email agendado error:',e);}
+  const dt=new Date(Date.now()+delayMinutes*60*1000);
+  const scheduledAt=dt.toISOString().replace(/\.\d{3}Z$/,'Z');
+  await _gasPost({type:'send_email',to:toEmail,toName,subject,html:htmlContent,scheduledAt});
 }
 
-/* ---- cadastro no Brevo (lista) ---- */
 async function _addContactBrevo(email,nome,score,banda,trilha){
-  try{
-    await fetch('https://api.brevo.com/v3/contacts',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','api-key':BREVO_API_KEY},
-      body:JSON.stringify({
-        email,
-        attributes:{FIRSTNAME:nome.split(' ')[0],LASTNAME:nome.split(' ').slice(1).join(' ')||'',
-          SCORE:score,NIVEL:banda,TRILHA:trilha.toUpperCase()},
-        listIds:[BREVO_LIST_ID],
-        updateEnabled:true
-      })
-    });
-  }catch(e){console.warn('Contact add error:',e);}
+  await _gasPost({type:'add_contact',email,nome,score,banda,trilha});
 }
 
 /* ---- gatilho principal ---- */
