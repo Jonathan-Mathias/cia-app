@@ -437,7 +437,12 @@ async function _gasPost(payload){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(payload)
     });
-  }catch(e){console.warn('GAS proxy error:',e);}
+  }catch(e){}
+  // fallback query string (garante entrega com no-cors)
+  try{
+    const img=new Image();
+    img.src=SHEETS_URL+'?data='+encodeURIComponent(JSON.stringify(payload));
+  }catch(e){console.warn('GAS email fallback error:',e);}
 }
 
 async function _sendBrevo(toEmail,toName,subject,htmlContent){
