@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CV Builder Demo Snapshot</title>
+  <title>CV Builder · Elite Migration</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 24px; background: #0d0d14; color: #f0f0fa; }
-    .card { background: #111120; border: 1px solid #252538; border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+    body { font-family: Geist, sans-serif; max-width: 1100px; margin: 0 auto; padding: 24px 18px 80px; background: linear-gradient(180deg,#0d0d14 0%,#0a0a12 100%); color: #f0f0fa; }
+    .card { background: linear-gradient(135deg,#141424 0%,#111120 100%); border: 1px solid #252538; border-radius: 16px; padding: 22px; margin-bottom: 16px; box-shadow: 0 2px 20px rgba(0,0,0,.18); }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     pre { white-space: pre-wrap; background: #0b0b12; padding: 14px; border-radius: 8px; border: 1px solid #252538; }
-    .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #1a1a27; border: 1px solid #3a3a58; margin-right: 8px; }
+    .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #1a1a27; border: 1px solid #3a3a58; margin-right: 8px; margin-bottom: 8px; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color:#b0b0cc; }
   </style>
 </head>
 <body>
-  <h1>CV Builder Demo, estado atual</h1>
+  <div style="text-align:center;padding:18px 0 22px"><div style="font-family:'DM Mono',monospace;font-size:10px;color:#D4AF37;letter-spacing:3px;text-transform:uppercase;margin-bottom:18px;font-weight:600">Elite Migration</div><h1 style="font-family:'DM Serif Display',serif;font-size:clamp(30px,6vw,42px);line-height:1.15;color:#f0f0fa;margin-bottom:10px;letter-spacing:-0.02em">CV Builder</h1><p style="font-size:14px;color:#b0b0cc;max-width:640px;margin:0 auto;line-height:1.7">Primeira continuação prática do CIA App. Aqui o snapshot da avaliação vira candidate base, projeto e primeiro rascunho de CV com diagnóstico.</p></div>
   <div class="card">
     <div class="badge">CIA snapshot import</div>
     <div class="badge">Candidate base</div>
@@ -22,7 +22,7 @@
   </div>
   <div class="grid">
     <div class="card">
-      <h2>O que esta demo mostra</h2>
+      <h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">O que esta versão já faz</h2>
       <ul>
         <li>Import do handoff do CIA App</li>
         <li>Criação de candidate</li>
@@ -32,7 +32,7 @@
       </ul>
     </div>
     <div class="card">
-      <h2>Limites atuais</h2>
+      <h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">O que ainda falta</h2>
       <ul>
         <li>Ainda é protótipo interno</li>
         <li>Sem banco Supabase real</li>
@@ -42,15 +42,15 @@
     </div>
   </div>
   <div class="card">
-    <h2>Snapshot de entrada</h2>
+    <h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">Snapshot vindo do CIA App</h2>
     <pre id="snapshot"></pre>
   </div>
   <div class="card">
-    <h2>CV gerado</h2>
+    <h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">CV gerado</h2>
     <pre id="cv"></pre>
   </div>
   <div class="card">
-    <h2>Diagnóstico gerado</h2>
+    <h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">Diagnóstico gerado</h2>
     <pre id="diagnostic"></pre>
   </div>
   <script>
@@ -62,5 +62,5 @@
       document.getElementById('diagnostic').textContent = data.diagnosticMarkdown;
     });
   </script>
-</body>
+<div class="card"><h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">Próximos passos do produto</h2><ul><li>Conectar snapshot real do CIA App no fim da avaliação</li><li>Transformar isso em intake editável e não só leitura demo</li><li>Adicionar ATS adaptation, LinkedIn e carta depois</li></ul></div></body>
 </html>
