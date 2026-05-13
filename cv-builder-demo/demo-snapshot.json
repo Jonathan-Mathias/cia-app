@@ -1,0 +1,39 @@
+{
+  "source": "cia-app",
+  "snapshotVersion": "cia-result-v1",
+  "completedAt": "2026-05-12T10:00:00Z",
+  "destination": "DE",
+  "finalScore": 72,
+  "band": "Pronto para Embarcar",
+  "dimensions": {
+    "language_and_area": 75,
+    "decision_maturity": 68,
+    "behavior_profile": 70,
+    "market_knowledge": 61
+  },
+  "signals": {
+    "englishLevel": "Advanced",
+    "germanLevel": "Intermediate",
+    "visaStatus": "Sponsorship required"
+  },
+  "lead": {
+    "name": "Carlos Mendes",
+    "email": "carlos@example.com",
+    "phone": "+55 41 99999-9999"
+  },
+  "geo": {
+    "country": "Brazil",
+    "city": "Curitiba"
+  },
+  "targetRole": "Operations Manager",
+  "insights": [
+    "Boa base técnica para operações industriais",
+    "Precisa fortalecer coerência de trajetória",
+    "Idioma ajuda, mas posicionamento ainda segura a candidatura"
+  ],
+  "recommendedNextSteps": [
+    "Clarificar posicionamento",
+    "Recuperar métricas centrais",
+    "Transformar experiência em prova de impacto"
+  ]
+}
