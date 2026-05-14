@@ -404,14 +404,38 @@
       generateArtifact();
     }
 
-    function buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals) {
+    function unique(list) { return [...new Set(list.filter(Boolean))]; }
+
+    function inferSkills(targetCountry, jobDescription, experienceLines) {
+      const text = `${jobDescription}\n${experienceLines.join('\n')}`.toLowerCase();
+      const skills = [];
+      if (/process|improvement|lean/.test(text)) skills.push('Process improvement');
+      if (/customer|client|service/.test(text)) skills.push('Customer-facing operations');
+      if (/kpi|metric|report/.test(text)) skills.push('KPI follow-up');
+      if (/team|stakeholder|coordination/.test(text)) skills.push('Cross-functional coordination');
+      if (/quality|compliance/.test(text)) skills.push('Quality and compliance');
+      if (/delivery|dispatch|workflow/.test(text)) skills.push(targetCountry === 'AU' ? 'Operational delivery' : 'Structured execution');
+      return unique(skills).slice(0, 6);
+    }
+
+    function inferFocusSignals(jobDescription, companySignals) {
+      const text = String(jobDescription || '').toLowerCase();
+      const focus = [];
+      if (/manager|lead/.test(text)) focus.push('leadership scope');
+      if (/customer|service/.test(text)) focus.push('customer accountability');
+      if (/process|continuous improvement|lean/.test(text)) focus.push('process discipline');
+      if (/kpi|metric/.test(text)) focus.push('performance follow-up');
+      return unique([...focus, ...companySignals]).slice(0, 4);
+    }
+
+    function buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals, jobDescription, experienceLines) {
+      const focusSignals = inferFocusSignals(jobDescription, companySignals);
+      const focusLine = focusSignals.length ? ` Key fit signals: ${focusSignals.join(', ')}.` : '';
       if (targetCountry === 'AU') {
-        const summaryBase = profileSummaryRaw || 'operations, coordination and delivery-facing environments';
-        const fitLine = companySignals.length ? ` Strongest fit signals: ${companySignals.join(', ')}.` : '';
-        return `${targetRole} profile with experience across ${summaryBase}. Positioned with practical delivery focus, collaborative execution and clearer commercial readability for the Australian market.${fitLine}`;
+        const summaryBase = profileSummaryRaw || 'operations, coordination and service-driven environments';
+        return `${targetRole} profile with experience across ${summaryBase}. Positioned with practical delivery focus, stakeholder coordination and commercially readable wording for the Australian market.${focusLine}`;
       }
-      const fitLine = companySignals.length ? ` Strongest fit signals: ${companySignals.join(', ')}.` : '';
-      return `${targetRole} profile positioned for the German market with clearer scope, sober wording and stronger emphasis on structure, ownership and defensible experience.${fitLine}`;
+      return `${targetRole} profile positioned for the German market with clearer scope, sober wording and stronger emphasis on structure, ownership and defensible experience.${focusLine}`;
     }
 
     function generateArtifact() {
@@ -433,10 +457,12 @@
       const companySignals = companyFitSignals(`${companyName}\n${jobDescription}`);
       updateLanguageVisibility();
 
-      const summary = buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals);
+      const summary = buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals, jobDescription, experienceLines);
+      const skills = inferSkills(targetCountry, jobDescription, experienceLines);
       const bullets = experienceLines.filter(Boolean).map(line => `- ${sentence(line)}`).join('\n') || '- Relevant experience still needs to be added.';
+      const targetCountryLabel = targetCountry === 'DE' ? 'Germany' : 'Australia';
 
-      const cv = `# ${fullName || 'Candidate'}\n\n## Contact\n${email ? '- Email: ' + email + '\n' : ''}${phone ? '- Phone / WhatsApp: ' + phone + '\n' : ''}\n## Target\n- ${targetCountry}\n- ${targetRole || 'Target role to refine'}\n${seniority ? '- ' + seniority + '\n' : ''}- Document language: ${documentLanguage}\n${companyName ? '- Target company: ' + companyName + '\n' : ''}\n## Summary\n${summary}\n\n## Professional Experience\n${bullets}\n\n## Languages\n- English — ${englishLevel || 'Not informed'}\n${targetCountry === 'DE' ? `- German — ${germanLevel || 'Not informed'}\n` : ''}- Work authorization — ${visaStatus || 'Not informed'}`;
+      const cv = `# ${fullName || 'Candidate'}\n\n## Contact\n${email ? '- Email: ' + email + '\n' : ''}${phone ? '- Phone / WhatsApp: ' + phone + '\n' : ''}\n## Target\n- ${targetCountryLabel}\n- ${targetRole || 'Target role to refine'}\n${seniority ? '- ' + seniority + '\n' : ''}${companyName ? '- Target company: ' + companyName + '\n' : ''}- Document language: ${documentLanguage}\n\n## Summary\n${summary}\n\n## Core Skills\n${skills.length ? skills.map(skill => '- ' + skill).join('\n') : '- Skills still need to be confirmed from the current CV and target job.'}\n\n## Professional Experience\n${bullets}\n\n## Languages\n- English — ${englishLevel || 'Not informed'}\n${targetCountry === 'DE' ? `- German — ${germanLevel || 'Not informed'}\n` : ''}- Work authorization — ${visaStatus || 'Not informed'}`;
 
       const diagnosticNotes = [];
       if (!jobDescription) diagnosticNotes.push('No real job description was added, so the CV remains broader and less targeted to one vacancy.');
@@ -448,10 +474,10 @@
       const diagnostic = `# Diagnostic\n\n## Positioning\n- ${targetCountry === 'DE' ? 'German-market version with more structured and sober wording.' : 'Australian-market version with more practical and outcome-aware wording.'}\n\n## Risks to fix\n${diagnosticNotes.length ? diagnosticNotes.map(item => '- ' + item).join('\n') : '- No major risks detected in this test flow.'}`;
 
       const rewriteNotes = [
-        targetCountry === 'DE' ? 'Removed more generic promotional wording and kept the tone more sober for Germany.' : 'Built a more direct and commercially readable summary for Australia.',
-        companyName ? `Kept the target company visible to orient the rewrite around one opportunity.` : 'No specific company was used, so the rewrite stays more flexible.',
-        jobDescription ? 'Used the job description as a targeting signal instead of leaving the CV fully generic.' : 'No JD signal was available, so the rewrite stays more general by design.',
-        oldCvText ? 'A current CV exists and can be used later for deeper rewriting and diffing.' : 'No existing CV text was imported, avoiding fake filler content.'
+        targetCountry === 'DE' ? 'Shifted the tone toward a more structured, sober and defensible German-market presentation.' : 'Shifted the tone toward a clearer, more commercially readable Australian-market presentation.',
+        companyName ? `Kept the target company visible so the CV feels oriented to a real opportunity.` : 'No specific company was used, so the CV remains broader on purpose.',
+        jobDescription ? 'Used the job description to pull stronger fit signals, skill emphasis and market wording.' : 'No JD signal was available, so the rewrite stays intentionally more general.',
+        oldCvText ? 'An existing CV is available for deeper future rewriting and refinement.' : 'No existing CV text was imported, which avoided padding the output with weak filler content.'
       ];
 
       document.getElementById('cvOutput').textContent = cv;
