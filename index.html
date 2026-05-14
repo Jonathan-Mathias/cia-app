@@ -69,10 +69,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .trilha-btn-sub{font-size:11px;color:var(--muted);margin-top:-4px;font-family:'DM Mono',monospace;letter-spacing:0.5px}
 
 /* ALTERAR DESTINO */
-.route-switch-wrap{display:flex;justify-content:center;margin:-4px 0 20px}
-.route-switch-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:rgba(17,17,32,.72);color:var(--text2);font-family:'Geist',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.01em;cursor:pointer;transition:all .18s ease;backdrop-filter:blur(6px)}
-.route-switch-btn:hover{border-color:var(--border2);color:var(--text);background:rgba(26,26,39,.92);transform:translateY(-1px)}
-.route-switch-btn span{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+.route-switch-wrap{display:flex;justify-content:center;margin:6px 0 22px}
+.route-switch-btn{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;border:1px solid var(--border2);background:linear-gradient(135deg,#171726 0%,#131321 100%);color:var(--text);font-family:'Geist',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.01em;cursor:pointer;transition:all .18s ease;backdrop-filter:blur(6px);box-shadow:0 4px 18px rgba(0,0,0,.18)}
+.route-switch-btn:hover{border-color:var(--accent);color:var(--text);background:linear-gradient(135deg,#1d1d2d 0%,#171726 100%);transform:translateY(-1px)}
+.route-switch-btn span{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent)}
 
 /* PROGRESSO */
 .prog-wrap{margin-bottom:28px}
@@ -1618,7 +1618,7 @@ function renderQ(){
       <div class="prog-meta"><span style="opacity:0">&nbsp;</span><span>${pct}%</span></div>
       <div class="prog-bar"><div class="prog-fill ${T}" style="width:${pct}%"></div></div>
     </div>
-    ${canSwitchRoute?`<div class="route-switch-wrap"><button class="route-switch-btn" onclick="switchRoute()"><span>${routeLabel}</span>Alterar destino</button></div>`:''}`;
+    ${canSwitchRoute?`<div class="route-switch-wrap"><button class="route-switch-btn" onclick="switchRoute()"><span>${routeLabel}</span>Alterar destino ↺</button></div>`:''}`;
 
   const card=document.createElement('div');card.className='q-card';
   card.innerHTML=`<div class="q-text">${q.q}</div>`;
