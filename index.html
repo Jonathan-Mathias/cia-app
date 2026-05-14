@@ -2192,7 +2192,9 @@ function renderResults(){
         summary:buildSummary(result,insights,steps)
       };
       try{localStorage.setItem('ciaCvBuilderPayload', JSON.stringify(payload));}catch(e){}
-      window.open('./cv-builder-demo/index.html?source=cia','_blank');
+      try{sessionStorage.setItem('ciaCvBuilderPayload', JSON.stringify(payload));}catch(e){}
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      window.open('./cv-builder-demo/index.html?source=cia&payload64='+encodeURIComponent(encoded),'_blank');
     });
   }
 

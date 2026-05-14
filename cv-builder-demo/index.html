@@ -307,29 +307,35 @@ Strengthened follow-up routines between frontline and support teams | Supported 
         document.getElementById('companyName').value = 'Siemens';
         document.getElementById('jobDescription').value = 'We are looking for an Operations Manager with strong process discipline, cross-functional coordination, KPI follow-up, continuous improvement mindset and customer focus.';
       }
-      const importedPayload = getCiaPayload();
-    if (importedPayload) {
-      applyCiaPayload(importedPayload);
-    }
-    const importedPayload = getCiaPayload();
-    const didImport = applyCiaPayload(importedPayload);
-    generateArtifact();
-    if (didImport) {
-      document.getElementById('status').textContent = 'CIA payload imported. Testing with real final-report data.';
-    }
+      generateArtifact();
     }
 
     function safeJsonParse(value) {
       try { return JSON.parse(value); } catch (error) { return null; }
     }
 
+    function decodePayload64(value) {
+      try {
+        return JSON.parse(decodeURIComponent(escape(atob(value))));
+      } catch (error) {
+        return null;
+      }
+    }
+
     function getCiaPayload() {
       const params = new URLSearchParams(window.location.search);
+      const payload64 = params.get('payload64');
+      if (payload64) {
+        const parsed64 = decodePayload64(decodeURIComponent(payload64));
+        if (parsed64) return parsed64;
+      }
       const queryPayload = params.get('payload');
       if (queryPayload) {
         const parsed = safeJsonParse(decodeURIComponent(queryPayload));
         if (parsed) return parsed;
       }
+      const sessionPayload = safeJsonParse(sessionStorage.getItem('ciaCvBuilderPayload'));
+      if (sessionPayload) return sessionPayload;
       const localPayload = safeJsonParse(localStorage.getItem('ciaCvBuilderPayload'));
       if (localPayload) return localPayload;
       return null;
@@ -457,7 +463,6 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       `;
       document.getElementById('status').textContent = 'Artifact generated locally. This is the simple testable version.';
     }
-
     const importedPayload = getCiaPayload();
     const didImport = applyCiaPayload(importedPayload);
     generateArtifact();
