@@ -160,6 +160,17 @@
           </div>
         </div>
 
+        <div class="row2">
+          <div>
+            <label>Email</label>
+            <input id="email" value="" />
+          </div>
+          <div>
+            <label>Phone / WhatsApp</label>
+            <input id="phone" value="" />
+          </div>
+        </div>
+
         <div class="row3">
           <div>
             <label>Target country</label>
@@ -337,12 +348,14 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       const trilha = payload.trilha === 'au' ? 'AU' : 'DE';
       const targetCountry = trilha;
       const documentLanguage = trilha === 'DE' ? 'de' : 'en';
-      const targetRole = trilha === 'DE' ? 'Specialist / Manager role in Germany' : 'Specialist / Manager role in Australia';
+      const targetRole = answers.p3 ? answers.p3.l : (trilha === 'DE' ? 'Specialist / Manager role in Germany' : 'Specialist / Manager role in Australia');
       const seniority = score.final >= 86 ? 'Senior / High-potential' : score.final >= 66 ? 'Mid-Senior' : 'Developing';
-      const englishLevel = answers.p1 ? answers.p1.l : '';
-      const germanLevel = answers.p2 ? answers.p2.l : 'Not informed';
+      const englishLevel = answers.p1 ? answers.p1.l : 'Not informed';
+      const germanLevel = trilha === 'DE' ? (answers.p2 ? answers.p2.l : 'Not informed') : 'Not applicable';
       const visaStatus = trilha === 'AU' ? 'Work rights to be confirmed for Australia' : 'Work rights to be confirmed for Germany';
       const companyName = '';
+      const email = lead.email || '';
+      const phone = [lead.waDDI, lead.waNum].filter(Boolean).join(' ');
       const profileSummaryRaw = [
         answers.p3 ? answers.p3.l : '',
         geo.pais ? 'Current location: ' + geo.pais : '',
@@ -351,6 +364,8 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       ].filter(Boolean).join(' | ');
       const oldCvText = [
         lead.nome || 'Candidate',
+        email ? 'Email: ' + email : '',
+        phone ? 'Phone: ' + phone : '',
         'Imported from CIA App final report.',
         payload.summary || ''
       ].filter(Boolean).join('\n');
@@ -368,6 +383,8 @@ Strengthened follow-up routines between frontline and support teams | Supported 
 
       document.getElementById('fullName').value = lead.nome || 'Candidate from CIA';
       document.getElementById('targetRole').value = targetRole;
+      document.getElementById('email').value = email;
+      document.getElementById('phone').value = phone;
       document.getElementById('targetCountry').value = targetCountry;
       document.getElementById('documentLanguage').value = documentLanguage;
       document.getElementById('seniority').value = seniority;
@@ -386,6 +403,8 @@ Strengthened follow-up routines between frontline and support teams | Supported 
     function generateArtifact() {
       const fullName = document.getElementById('fullName').value.trim();
       const targetRole = document.getElementById('targetRole').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
       const targetCountry = document.getElementById('targetCountry').value;
       const documentLanguage = document.getElementById('documentLanguage').value;
       const seniority = document.getElementById('seniority').value.trim();
@@ -411,7 +430,7 @@ Strengthened follow-up routines between frontline and support teams | Supported 
         return `- ${sentence(parts.join(' '))}`;
       }).join('\n');
 
-      const cv = `# ${fullName}\n\n## Target\n- ${targetCountry}\n- ${targetRole}\n- ${seniority}\n- Document language: ${documentLanguage}\n- Target company: ${companyName || 'Not informed'}\n\n## Summary\n${summaryBase}. ${marketLine} ${fitLine}\n\n## Core Skills\n- Process discipline\n- Cross-functional coordination\n- KPI follow-up\n- Continuous improvement\n${companySignals.includes('customer focus') ? '- Customer focus\n' : ''}${companySignals.includes('quality and compliance') ? '- Quality and compliance\n' : ''}\n## Professional Experience\n### Main relevant experience\n${bullets}\n\n## Languages\n- English — ${englishLevel}\n${targetCountry === 'DE' ? `- German — ${germanLevel}\n` : ''}- Work authorization — ${visaStatus}`;
+      const cv = `# ${fullName}\n\n## Contact\n${email ? '- Email: ' + email + '\n' : ''}${phone ? '- Phone / WhatsApp: ' + phone + '\n' : ''}\n## Target\n- ${targetCountry}\n- ${targetRole}\n- ${seniority}\n- Document language: ${documentLanguage}\n- Target company: ${companyName || 'Not informed'}\n\n## Summary\n${summaryBase}. ${marketLine} ${fitLine}\n\n## Core Skills\n- Process discipline\n- Cross-functional coordination\n- KPI follow-up\n- Continuous improvement\n${companySignals.includes('customer focus') ? '- Customer focus\n' : ''}${companySignals.includes('quality and compliance') ? '- Quality and compliance\n' : ''}\n## Professional Experience\n### Main relevant experience\n${bullets}\n\n## Languages\n- English — ${englishLevel}\n${targetCountry === 'DE' ? `- German — ${germanLevel}\n` : ''}- Work authorization — ${visaStatus}`;
 
       const diagnostic = `# CV Diagnostic\n\n## Readiness\n- Applicable with warnings\n\n## Strengths\n- Clear target role\n- Market-specific rewrite\n- Company/context fit considered\n\n## Alerts\n- Review dates, scope and metrics before real application\n- Keep only defensible claims\n${/sponsor|need/i.test(visaStatus) ? '- Work-rights positioning still needs careful framing\n' : ''}\n## Notes\n- This artifact is standalone for test purposes\n- It shows the intended product behavior without backend dependency`;
 

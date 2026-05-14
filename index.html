@@ -2176,7 +2176,6 @@ function renderResults(){
       const payload={
         source:'cia-final-report',
         generatedAt:new Date().toISOString(),
-        passwordHint:'Yohas',
         lead:{...LEAD},
         geo:{...GEO},
         trilha:T,
@@ -2204,6 +2203,9 @@ function renderResults(){
     T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;
     LEAD=savedLead;GEO=savedGEO;
     renderTrilha();window.scrollTo(0,0);
+  });
+
+renderTrilha();window.scrollTo(0,0);
   });
 }
 
