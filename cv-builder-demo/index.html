@@ -1,62 +1,361 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CV Builder · Elite Migration</title>
+  <title>CV Builder Test Artifact</title>
   <style>
-    body { font-family: Geist, sans-serif; max-width: 1100px; margin: 0 auto; padding: 24px 18px 80px; background: linear-gradient(180deg,#0d0d14 0%,#0a0a12 100%); color: #f0f0fa; }
-    .card { background: linear-gradient(135deg,#141424 0%,#111120 100%); border: 1px solid #252538; border-radius: 16px; padding: 22px; margin-bottom: 16px; box-shadow: 0 2px 20px rgba(0,0,0,.18); }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    pre { white-space: pre-wrap; background: #0b0b12; padding: 14px; border-radius: 8px; border: 1px solid #252538; }
-    .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #1a1a27; border: 1px solid #3a3a58; margin-right: 8px; margin-bottom: 8px; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color:#b0b0cc; }
+    :root {
+      --bg: #0b1020;
+      --surface: #11182d;
+      --surface-2: #16203a;
+      --border: #24314f;
+      --text: #eef2ff;
+      --muted: #9fb0d1;
+      --accent: #8b5cf6;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg, #08101d, #0b1020 45%, #11172a);
+      color: var(--text);
+      padding: 24px;
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+    .hero, .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+    }
+    .hero h1, .card h2, .card h3 { margin: 0 0 10px; }
+    .hero p, .card p, label, small { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+    .stack { display: grid; gap: 14px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      margin-top: 6px;
+      font: inherit;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.secondary { background: #23304d; }
+    .button-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .status {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #0c1427;
+      border: 1px solid var(--border);
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0c1427;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tab {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0c1427;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .tab.active { background: #2d1b69; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      background: #08101d;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 260px;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+    .list { display: grid; gap: 10px; }
+    .item {
+      background: #0c1427;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: 1fr; }
+      .row2, .row3 { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div style="text-align:center;padding:18px 0 22px"><div style="font-family:'DM Mono',monospace;font-size:10px;color:#D4AF37;letter-spacing:3px;text-transform:uppercase;margin-bottom:18px;font-weight:600">Elite Migration</div><h1 style="font-family:'DM Serif Display',serif;font-size:clamp(30px,6vw,42px);line-height:1.15;color:#f0f0fa;margin-bottom:10px;letter-spacing:-0.02em">CV Builder</h1><p style="font-size:14px;color:#b0b0cc;max-width:700px;margin:0 auto;line-height:1.7">Uma experiência desenhada para transformar seu perfil em um CV mais forte, mais claro e mais competitivo para o mercado certo, com leitura estratégica e posicionamento de nível premium.</p></div>
-  <div class="card">
-    <div class="badge">CIA snapshot import</div>
-    <div class="badge">Candidate base</div>
-    <div class="badge">Project generation</div>
-    <div class="badge">Score 70</div>
-  </div>
-  <div class="grid">
-    <div class="card">
-      <h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">O que você já recebe nesta fase</h2>
-      <ul>
-        <li>Import do handoff do CIA App</li>
-        <li>Criação de candidate</li>
-        <li>Criação de project</li>
-        <li>Enriquecimento manual com experiências</li>
-        <li>Geração de CV e diagnóstico</li>
-      </ul>
+<script>
+(function(){
+  const expected = 'Yohas';
+  const provided = prompt('Enter password to access CV Builder test artifact:');
+  if (provided !== expected) {
+    document.documentElement.innerHTML = '<body style="font-family:Arial,sans-serif;background:#0b1020;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh"><div style="text-align:center"><h1>Access denied</h1><p>Incorrect password.</p></div></body>';
+    throw new Error('Access denied');
+  }
+})();
+</script>
+  <div class="wrap">
+    <section class="hero">
+      <h1>CV Builder, Test Artifact</h1>
+      <p>Esse arquivo é um artefato standalone para teste direto no navegador, sem depender do gateway. Você pode abrir localmente e validar o fluxo, a UX e a lógica básica do produto.</p>
+      <div class="pill-row">
+        <span class="pill">standalone HTML</span>
+        <span class="pill">sem backend</span>
+        <span class="pill">teste local imediato</span>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card stack">
+        <div>
+          <h2>Input</h2>
+          <p>Preencha só o necessário. A ideia aqui é testar o comportamento do produto, não infra.</p>
+        </div>
+
+        <div class="row2">
+          <div>
+            <label>Full name</label>
+            <input id="fullName" value="Carlos Mendes" />
+          </div>
+          <div>
+            <label>Target role</label>
+            <input id="targetRole" value="Operations Manager" />
+          </div>
+        </div>
+
+        <div class="row3">
+          <div>
+            <label>Target country</label>
+            <select id="targetCountry">
+              <option value="DE">Germany</option>
+              <option value="AU">Australia</option>
+            </select>
+          </div>
+          <div>
+            <label>Document language</label>
+            <select id="documentLanguage">
+              <option value="en">English</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+            </select>
+          </div>
+          <div>
+            <label>Seniority</label>
+            <input id="seniority" value="Manager" />
+          </div>
+        </div>
+
+        <div class="row3">
+          <div><label>English</label><input id="englishLevel" value="Advanced" /></div>
+          <div><label>German</label><input id="germanLevel" value="Intermediate" /></div>
+          <div><label>Visa / work auth</label><input id="visaStatus" value="Sponsorship required" /></div>
+        </div>
+
+        <div>
+          <label>Profile summary raw</label>
+          <textarea id="profileSummaryRaw">manufacturing operations, production planning and process discipline</textarea>
+        </div>
+
+        <div>
+          <label>Company (optional)</label>
+          <input id="companyName" value="Siemens" />
+        </div>
+
+        <div>
+          <label>Current CV text</label>
+          <textarea id="oldCvText">Carlos Mendes
+Operations professional with experience in production and process routines.
+Responsible for production support and internal improvements.</textarea>
+        </div>
+
+        <div>
+          <label>Job description</label>
+          <textarea id="jobDescription">We are looking for an Operations Manager with strong process discipline, cross-functional coordination, KPI follow-up, continuous improvement mindset and customer focus.</textarea>
+        </div>
+
+        <div>
+          <label>Main experience bullets, one per line</label>
+          <textarea id="experienceLines">Coordinated daily execution routines across 3 production lines
+Helped reduce recurring delivery delays | Estimated 18% delay reduction in 12 months
+Improved escalation discipline | Improved routine visibility across teams
+Strengthened follow-up routines between frontline and support teams | Supported an operation involving approximately 22 direct and indirect team members</textarea>
+        </div>
+
+        <div class="button-row">
+          <button onclick="generateArtifact()">Generate test output</button>
+          <button class="secondary" onclick="loadExample('DE')">Load DE example</button>
+          <button class="secondary" onclick="loadExample('AU')">Load AU example</button>
+        </div>
+      </section>
+
+      <section class="card stack">
+        <div>
+          <h2>Output</h2>
+          <div id="status" class="status">Ready for local test.</div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-tab="cv" onclick="setTab('cv')">Revised CV</button>
+          <button class="tab" data-tab="diagnostic" onclick="setTab('diagnostic')">Diagnostic</button>
+          <button class="tab" data-tab="rewrite" onclick="setTab('rewrite')">Rewrite notes</button>
+          <button class="tab" data-tab="diff" onclick="setTab('diff')">Diff</button>
+          <button class="tab" data-tab="company" onclick="setTab('company')">Company fit</button>
+        </div>
+
+        <div id="panel-cv" class="panel active"><pre id="cvOutput"></pre></div>
+        <div id="panel-diagnostic" class="panel"><pre id="diagnosticOutput"></pre></div>
+        <div id="panel-rewrite" class="panel"><div id="rewriteOutput" class="list"></div></div>
+        <div id="panel-diff" class="panel"><div id="diffOutput" class="list"></div></div>
+        <div id="panel-company" class="panel"><div id="companyOutput" class="list"></div></div>
+      </section>
     </div>
-    <div class="card">
-      <h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">O que ainda estou refinando</h2>
-      <ul>
-        <li>Ainda é protótipo interno</li>
-        <li>Sem banco Supabase real</li>
-        <li>Sem CIA App emitindo snapshot automaticamente</li>
-        <li>Sem deploy público final</li>
-      </ul>
-    </div>
   </div>
-    <div class="card">
-    <h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">CV gerado</h2>
-    <pre id="cv"></pre>
-  </div>
-  <div class="card">
-    <h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">Diagnóstico gerado</h2>
-    <pre id="diagnostic"></pre>
-  </div>
+
   <script>
-    fetch('demo-snapshot.json').then(r => r.json()).then(data => {
-      document.getElementById('snapshot').textContent = JSON.stringify(data, null, 2);
-    });
-    fetch('demo-output.json').then(r => r.json()).then(data => {
-      document.getElementById('cv').textContent = data.cvMarkdown;
-      document.getElementById('diagnostic').textContent = data.diagnosticMarkdown;
-    });
+    function setTab(tab) {
+      document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+      document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+      document.getElementById(`panel-${tab}`).classList.add('active');
+    }
+
+    function lines(value) {
+      return String(value || '').split('\n').map(v => v.trim()).filter(Boolean);
+    }
+
+    function sentence(value) {
+      const v = String(value || '').trim();
+      if (!v) return '';
+      return /[.!?]$/.test(v) ? v : `${v}.`;
+    }
+
+    function companyFitSignals(text) {
+      const t = String(text || '').toLowerCase();
+      const priorities = [];
+      if (/safety/.test(t)) priorities.push('safety');
+      if (/continuous improvement|lean|process/.test(t)) priorities.push('continuous improvement');
+      if (/customer|client|service/.test(t)) priorities.push('customer focus');
+      if (/quality|compliance/.test(t)) priorities.push('quality and compliance');
+      if (/team|collaboration|stakeholder/.test(t)) priorities.push('team collaboration');
+      return priorities;
+    }
+
+    function buildDiff(oldText, newText) {
+      const oldLines = lines(oldText);
+      const newLines = lines(newText);
+      const oldSet = new Set(oldLines);
+      const newSet = new Set(newLines);
+      return {
+        added: newLines.filter(line => !oldSet.has(line)),
+        removed: oldLines.filter(line => !newSet.has(line))
+      };
+    }
+
+    function loadExample(country) {
+      document.getElementById('targetCountry').value = country;
+      if (country === 'AU') {
+        document.getElementById('companyName').value = 'Wesfarmers';
+        document.getElementById('jobDescription').value = 'Looking for an Operations Manager with customer focus, team collaboration, visible delivery accountability, continuous improvement and KPI follow-up.';
+      } else {
+        document.getElementById('companyName').value = 'Siemens';
+        document.getElementById('jobDescription').value = 'We are looking for an Operations Manager with strong process discipline, cross-functional coordination, KPI follow-up, continuous improvement mindset and customer focus.';
+      }
+      generateArtifact();
+    }
+
+    function generateArtifact() {
+      const fullName = document.getElementById('fullName').value.trim();
+      const targetRole = document.getElementById('targetRole').value.trim();
+      const targetCountry = document.getElementById('targetCountry').value;
+      const documentLanguage = document.getElementById('documentLanguage').value;
+      const seniority = document.getElementById('seniority').value.trim();
+      const englishLevel = document.getElementById('englishLevel').value.trim();
+      const germanLevel = document.getElementById('germanLevel').value.trim();
+      const visaStatus = document.getElementById('visaStatus').value.trim();
+      const profileSummaryRaw = document.getElementById('profileSummaryRaw').value.trim();
+      const companyName = document.getElementById('companyName').value.trim();
+      const oldCvText = document.getElementById('oldCvText').value.trim();
+      const jobDescription = document.getElementById('jobDescription').value.trim();
+      const experienceLines = lines(document.getElementById('experienceLines').value);
+      const companySignals = companyFitSignals(`${companyName}\n${jobDescription}`);
+
+      const summaryBase = `${targetRole} profile with strong experience across ${profileSummaryRaw}`;
+      const marketLine = targetCountry === 'DE'
+        ? 'Structured for Germany with clearer scope, evidence and sober positioning.'
+        : 'Structured for Australia with stronger outcome-first language and collaborative delivery framing.';
+      const fitLine = companySignals.length ? `Company-fit emphasis: ${companySignals.join(', ')}.` : 'No strong company-fit signals detected.';
+
+      const bullets = experienceLines.map(line => {
+        const parts = line.split('|').map(v => v.trim());
+        if (targetCountry === 'AU' && parts[1]) return `- ${sentence(parts[0] + ' ' + parts[1])}`;
+        return `- ${sentence(parts.join(' '))}`;
+      }).join('\n');
+
+      const cv = `# ${fullName}\n\n## Target\n- ${targetCountry}\n- ${targetRole}\n- ${seniority}\n- Document language: ${documentLanguage}\n- Target company: ${companyName || 'Not informed'}\n\n## Summary\n${summaryBase}. ${marketLine} ${fitLine}\n\n## Core Skills\n- Process discipline\n- Cross-functional coordination\n- KPI follow-up\n- Continuous improvement\n${companySignals.includes('customer focus') ? '- Customer focus\n' : ''}${companySignals.includes('quality and compliance') ? '- Quality and compliance\n' : ''}\n## Professional Experience\n### Main relevant experience\n${bullets}\n\n## Languages\n- English — ${englishLevel}\n${targetCountry === 'DE' ? `- German — ${germanLevel}\n` : ''}- Work authorization — ${visaStatus}`;
+
+      const diagnostic = `# CV Diagnostic\n\n## Readiness\n- Applicable with warnings\n\n## Strengths\n- Clear target role\n- Market-specific rewrite\n- Company/context fit considered\n\n## Alerts\n- Review dates, scope and metrics before real application\n- Keep only defensible claims\n${/sponsor|need/i.test(visaStatus) ? '- Work-rights positioning still needs careful framing\n' : ''}\n## Notes\n- This artifact is standalone for test purposes\n- It shows the intended product behavior without backend dependency`;
+
+      const rewriteNotes = [
+        'Summary rebuilt around target market instead of generic profile language.',
+        targetCountry === 'AU' ? 'Bullets shifted toward outcome-first wording for Australian readability.' : 'Bullets kept more explicit and structured for German market expectations.',
+        companySignals.length ? `Company-fit cues detected: ${companySignals.join(', ')}.` : 'No strong company-fit cues found, so rewrite stayed more generic.',
+        'Product framing prioritizes candidate repositioning, not cosmetic CV polishing.'
+      ];
+
+      const diff = buildDiff(oldCvText, cv);
+
+      document.getElementById('cvOutput').textContent = cv;
+      document.getElementById('diagnosticOutput').textContent = diagnostic;
+      document.getElementById('rewriteOutput').innerHTML = rewriteNotes.map(item => `<div class="item">${item}</div>`).join('');
+      document.getElementById('diffOutput').innerHTML = `
+        <div class="item"><strong>Added</strong><br>${diff.added.length ? diff.added.join('<br>') : 'None'}</div>
+        <div class="item"><strong>Removed</strong><br>${diff.removed.length ? diff.removed.join('<br>') : 'None'}</div>
+      `;
+      document.getElementById('companyOutput').innerHTML = `
+        <div class="item"><strong>Company</strong><br>${companyName || 'Not informed'}</div>
+        <div class="item"><strong>Fit priorities</strong><br>${companySignals.length ? companySignals.join(', ') : 'None detected'}</div>
+        <div class="item"><strong>JD snippet</strong><br>${jobDescription || 'No JD provided'}</div>
+      `;
+      document.getElementById('status').textContent = 'Artifact generated locally. This is the simple testable version.';
+    }
+
+    generateArtifact();
   </script>
-<div class="card"><h2 style="font-family:DM Serif Display,serif;font-size:24px;margin-bottom:10px">Próximos passos do produto</h2><ul><li>Conectar snapshot real do CIA App no fim da avaliação</li><li>Transformar isso em intake editável e não só leitura demo</li><li>Adicionar ATS adaptation, LinkedIn e carta depois</li></ul></div></body>
+</body>
 </html>
