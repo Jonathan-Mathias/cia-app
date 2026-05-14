@@ -300,7 +300,12 @@ Strengthened follow-up routines between frontline and support teams | Supported 
     if (importedPayload) {
       applyCiaPayload(importedPayload);
     }
+    const importedPayload = getCiaPayload();
+    const didImport = applyCiaPayload(importedPayload);
     generateArtifact();
+    if (didImport) {
+      document.getElementById('status').textContent = 'CIA payload imported. Testing with real final-report data.';
+    }
     }
 
     function safeJsonParse(value) {
@@ -434,7 +439,12 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       document.getElementById('status').textContent = 'Artifact generated locally. This is the simple testable version.';
     }
 
+    const importedPayload = getCiaPayload();
+    const didImport = applyCiaPayload(importedPayload);
     generateArtifact();
+    if (didImport) {
+      document.getElementById('status').textContent = 'CIA payload imported. Testing with real final-report data.';
+    }
   </script>
 </body>
 </html>
