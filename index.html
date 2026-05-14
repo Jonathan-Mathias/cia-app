@@ -1493,6 +1493,7 @@ function renderCadastro(){
   app.innerHTML=`
     <div style="text-align:center;padding:28px 0 20px;animation:fadeUp .4s ease both">
       <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${cor}">${pais} · Início</div>
+      ${routeSwitchInline()}
       <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(20px,5vw,26px);color:var(--text);line-height:1.25;margin:10px 0 8px;font-weight:400">Duas perguntas rápidas</h2>
       <p style="font-size:14px;color:var(--muted);line-height:1.6;max-width:300px;margin:0 auto">Para personalizar as perguntas da avaliação ao seu perfil.</p>
     </div>
@@ -1617,8 +1618,7 @@ function renderQ(){
     <div class="prog-wrap">
       <div class="prog-meta"><span style="opacity:0">&nbsp;</span><span>${pct}%</span></div>
       <div class="prog-bar"><div class="prog-fill ${T}" style="width:${pct}%"></div></div>
-    </div>
-    ${canSwitchRoute?`<div class="route-switch-wrap"><button class="route-switch-btn" onclick="switchRoute()"><span>${routeLabel}</span>Alterar destino ↺</button></div>`:''}`;
+    </div>`;
 
   const card=document.createElement('div');card.className='q-card';
   card.innerHTML=`<div class="q-text">${q.q}</div>`;
@@ -2219,6 +2219,12 @@ function renderResults(){
 function switchRoute(){
   T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;
   renderTrilha();window.scrollTo(0,0);
+}
+
+function routeSwitchInline(){
+  if(!T) return '';
+  const routeLabel=T==='de'?'Alemanha':'Austrália';
+  return `<div class="route-switch-wrap"><button class="route-switch-btn" onclick="switchRoute()"><span>${routeLabel}</span>Alterar destino ↺</button></div>`;
 }
 
 renderTrilha();
