@@ -223,7 +223,7 @@
 
         <div>
           <label>Profile summary raw</label>
-          <textarea id="profileSummaryRaw">manufacturing operations, production planning and process discipline</textarea>
+          <textarea id="profileSummaryRaw" placeholder="Only include a short professional summary if it adds real CV value. Otherwise leave blank."></textarea>
         </div>
 
         <div>
@@ -233,9 +233,7 @@
 
         <div>
           <label>Current CV text</label>
-          <textarea id="oldCvText">Carlos Mendes
-Operations professional with experience in production and process routines.
-Responsible for production support and internal improvements.</textarea>
+          <textarea id="oldCvText" placeholder="Paste an existing CV only if one already exists. Leave blank otherwise."></textarea>
         </div>
 
         <div>
@@ -341,12 +339,20 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       if (/a2/.test(value)) return 'A2';
       if (/b1/.test(value)) return 'B1';
       if (/b2/.test(value)) return 'B2';
-      if (/c1|avancad|advanced|fluente|fluent/.test(value)) return 'C1';
-      if (/c2|nativo|native|bilingue|bilingual/.test(value)) return 'C2';
-      if (/basico|basic|consigo.*ajuda|precisaria.*ajuda/.test(value)) return 'A2';
+      if (/c1/.test(value)) return 'C1';
+      if (/c2/.test(value)) return 'C2';
+      if (/consigo, mas precisaria me preparar bastante/.test(value)) return 'B1';
+      if (/sim, com razoável confiança/.test(value)) return 'B2';
+      if (/idioma de trabalho habitual|idioma principal de trabalho/.test(value)) return 'C1';
+      if (/estou aprendendo/.test(value)) return 'A2';
+      if (/me comunicar no dia a dia/.test(value)) return 'B1';
+      if (/contextos técnicos/.test(value)) return 'B2';
+      if (/c1 ou mais/.test(value)) return 'C1';
+      if (/básico|basico|difficulty|dificuldade/.test(value)) return 'A2';
       if (/intermedi/.test(value)) return 'B1';
-      if (/upper|consigo.*sozinho|independent/.test(value)) return 'B2';
-      return 'does-not-speak';
+      if (/avançado|avancado|advanced/.test(value)) return 'C1';
+      if (/fluente|fluent/.test(value)) return 'C2';
+      return '';
     }
 
     function updateLanguageVisibility() {
@@ -403,26 +409,15 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       const targetCountry = trilha;
       const documentLanguage = trilha === 'DE' ? 'de' : 'en';
       const targetRole = answers.p3 ? answers.p3.l : (trilha === 'DE' ? 'Specialist / Manager role in Germany' : 'Specialist / Manager role in Australia');
-      const seniority = score.final >= 86 ? 'Senior / High-potential' : score.final >= 66 ? 'Mid-Senior' : 'Developing';
+      const seniority = '';
       const englishLevel = mapCiaLanguageToCefr(answers.p1 ? answers.p1.l : '');
       const germanLevel = trilha === 'DE' ? mapCiaLanguageToCefr(answers.p2 ? answers.p2.l : '') : 'does-not-speak';
       const visaStatus = trilha === 'AU' ? 'Work rights to be confirmed for Australia' : 'Work rights to be confirmed for Germany';
       const companyName = '';
       const email = lead.email || '';
       const phone = [lead.waDDI, lead.waNum].filter(Boolean).join(' ');
-      const profileSummaryRaw = [
-        answers.p3 ? answers.p3.l : '',
-        geo.pais ? 'Current location: ' + geo.pais : '',
-        'CIA score: ' + (score.final ?? 'N/A') + '/100',
-        score.band ? 'Band: ' + score.band : ''
-      ].filter(Boolean).join(' | ');
-      const oldCvText = [
-        lead.nome || 'Candidate',
-        email ? 'Email: ' + email : '',
-        phone ? 'Phone: ' + phone : '',
-        'Imported from CIA App final report.',
-        payload.summary || ''
-      ].filter(Boolean).join('\n');
+      const profileSummaryRaw = '';
+      const oldCvText = '';
       const jobDescription = [
         'Imported from CIA diagnostic.',
         alerts.map(a => a.text || '').join(' '),
@@ -441,9 +436,9 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       document.getElementById('phone').value = phone;
       document.getElementById('targetCountry').value = targetCountry;
       document.getElementById('documentLanguage').value = documentLanguage;
-      document.getElementById('seniority').value = seniority;
-      document.getElementById('englishLevel').value = englishLevel || 'does-not-speak';
-      document.getElementById('germanLevel').value = germanLevel || 'does-not-speak';
+      document.getElementById('seniority').value = seniority || '';
+      document.getElementById('englishLevel').value = englishLevel || '';
+      document.getElementById('germanLevel').value = germanLevel || '';
       updateLanguageVisibility();
       document.getElementById('visaStatus').value = visaStatus;
       document.getElementById('profileSummaryRaw').value = profileSummaryRaw;
