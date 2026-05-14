@@ -68,6 +68,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .trilha-nome{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-0.01em}
 .trilha-btn-sub{font-size:11px;color:var(--muted);margin-top:-4px;font-family:'DM Mono',monospace;letter-spacing:0.5px}
 
+/* ALTERAR DESTINO */
+.route-switch-wrap{display:flex;justify-content:center;margin:-4px 0 20px}
+.route-switch-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:rgba(17,17,32,.72);color:var(--text2);font-family:'Geist',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.01em;cursor:pointer;transition:all .18s ease;backdrop-filter:blur(6px)}
+.route-switch-btn:hover{border-color:var(--border2);color:var(--text);background:rgba(26,26,39,.92);transform:translateY(-1px)}
+.route-switch-btn span{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+
 /* PROGRESSO */
 .prog-wrap{margin-bottom:28px}
 .prog-meta{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px}
@@ -1601,15 +1607,18 @@ function renderQ(){
     : '';
 
   const wrap=document.createElement('div');
+  const routeLabel=T==='de'?'Alemanha':'Austrália';
+  const canSwitchRoute=step===0;
   wrap.innerHTML=`
     ${badgeDestino}
     <div style="text-align:center;padding:${isNoDestino()?'8px':'20px'} 0 16px">
-      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${cor}">${T==='de'?'Alemanha':'Austrália'} · Pergunta ${step+1} de ${total}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${cor}">${routeLabel} · Pergunta ${step+1} de ${total}</div>
     </div>
     <div class="prog-wrap">
       <div class="prog-meta"><span style="opacity:0">&nbsp;</span><span>${pct}%</span></div>
       <div class="prog-bar"><div class="prog-fill ${T}" style="width:${pct}%"></div></div>
-    </div>`;
+    </div>
+    ${canSwitchRoute?`<div class="route-switch-wrap"><button class="route-switch-btn" onclick="switchRoute()"><span>${routeLabel}</span>Alterar destino</button></div>`:''}`;
 
   const card=document.createElement('div');card.className='q-card';
   card.innerHTML=`<div class="q-text">${q.q}</div>`;
@@ -2205,6 +2214,11 @@ function renderResults(){
     LEAD=savedLead;GEO=savedGEO;
     renderTrilha();window.scrollTo(0,0);
   });
+}
+
+function switchRoute(){
+  T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;
+  renderTrilha();window.scrollTo(0,0);
 }
 
 renderTrilha();
