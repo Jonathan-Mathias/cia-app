@@ -69,10 +69,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .trilha-btn-sub{font-size:11px;color:var(--muted);margin-top:-4px;font-family:'DM Mono',monospace;letter-spacing:0.5px}
 
 /* ALTERAR DESTINO */
-.route-switch-wrap{display:flex;justify-content:flex-start;margin:12px 0 0}
-.route-switch-btn{display:inline-flex;align-items:center;gap:8px;padding:0;border:none;background:transparent;color:var(--text2);font-family:'Geist',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.01em;cursor:pointer;transition:color .18s ease,opacity .18s ease;text-decoration:none;box-shadow:none}
+.route-switch-wrap{display:flex;justify-content:flex-start;margin:14px 0 4px}
+.route-switch-btn{display:inline-flex;align-items:center;gap:6px;padding:0;border:none;background:transparent;color:var(--text2);font-family:'Geist',sans-serif;font-size:13px;font-weight:400;letter-spacing:0.01em;cursor:pointer;transition:color .18s ease,opacity .18s ease;text-decoration:none;box-shadow:none;opacity:.9}
 .route-switch-btn:hover{color:var(--text);opacity:1;text-decoration:underline;text-underline-offset:3px;background:transparent;transform:none}
-.route-switch-btn::before{content:'←';font-size:13px;color:var(--muted)}
+.route-switch-btn::before{content:'←';font-size:12px;color:var(--muted)}
 
 /* PROGRESSO */
 .prog-wrap{margin-bottom:28px}
@@ -1539,7 +1539,7 @@ function renderCadastro(){
         </div>
         <div id="cad-err" style="display:none;font-size:12px;color:#e85555;text-align:center;padding:4px 0">Selecione sua faixa etária e país atual para continuar.</div>
         ${routeSwitchInline()}
-        <button id="cad-btn" style="width:100%;padding:15px;border:none;border-radius:var(--r2);background:${cor};color:${corTxt};font-size:15px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:opacity .15s;letter-spacing:0.01em">Iniciar avaliação →</button>
+        <button id="cad-btn" style="width:100%;margin-top:18px;padding:15px;border:none;border-radius:var(--r2);background:${cor};color:${corTxt};font-size:15px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:opacity .15s;letter-spacing:0.01em">Iniciar avaliação →</button>
       </div>
     </div>`;
 
