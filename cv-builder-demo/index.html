@@ -245,8 +245,10 @@
 
         <div>
           <label>Relevant experience</label>
-          <textarea id="experienceLines" placeholder="Add only the strongest and most relevant experience points. One point per line."></textarea>
+          <textarea id="experienceLines" placeholder="Add only the strongest and most relevant experience points. One point per line, focused on scope, ownership and outcomes."></textarea>
         </div>
+
+        <div class="muted-copy" id="smartHints">The best results come from: a real current CV, a real vacancy, and 3 to 5 strong experience points with scope or outcomes.</div>
 
         <div class="button-row">
           <button onclick="generateArtifact()">Generate CV package</button>
@@ -266,6 +268,8 @@
           <button class="tab" data-tab="diagnostic" onclick="setTab('diagnostic')">Diagnostic</button>
           <button class="tab" data-tab="rewrite" onclick="setTab('rewrite')">What changed</button>
         </div>
+
+        <div class="muted-copy" id="qualityHint">This output is optimized to feel cleaner, more targeted and easier to defend in interview.</div>
 
         <div id="panel-cv" class="panel active"><pre id="cvOutput"></pre></div>
         <div id="panel-diagnostic" class="panel"><pre id="diagnosticOutput"></pre></div>
@@ -428,14 +432,27 @@
       return unique([...focus, ...companySignals]).slice(0, 4);
     }
 
-    function buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals, jobDescription, experienceLines) {
+    function inferStrengths(oldCvText, jobDescription, experienceLines) {
+      const text = `${oldCvText}\n${jobDescription}\n${experienceLines.join('\n')}`.toLowerCase();
+      const strengths = [];
+      if (/customer|client|service/.test(text)) strengths.push('customer-facing reliability');
+      if (/process|lean|improvement/.test(text)) strengths.push('process discipline');
+      if (/kpi|metric|report/.test(text)) strengths.push('performance follow-up');
+      if (/team|stakeholder|coordination/.test(text)) strengths.push('cross-functional coordination');
+      if (/delivery|dispatch|workflow/.test(text)) strengths.push('operational execution');
+      return unique(strengths).slice(0, 4);
+    }
+
+    function buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals, jobDescription, experienceLines, oldCvText) {
       const focusSignals = inferFocusSignals(jobDescription, companySignals);
+      const strengths = inferStrengths(oldCvText, jobDescription, experienceLines);
       const focusLine = focusSignals.length ? ` Key fit signals: ${focusSignals.join(', ')}.` : '';
+      const strengthsLine = strengths.length ? ` Strongest positioning themes: ${strengths.join(', ')}.` : '';
       if (targetCountry === 'AU') {
         const summaryBase = profileSummaryRaw || 'operations, coordination and service-driven environments';
-        return `${targetRole} profile with experience across ${summaryBase}. Positioned with practical delivery focus, stakeholder coordination and commercially readable wording for the Australian market.${focusLine}`;
+        return `${targetRole} profile with experience across ${summaryBase}. Positioned with practical delivery focus, stakeholder coordination and commercially readable wording for the Australian market.${focusLine}${strengthsLine}`;
       }
-      return `${targetRole} profile positioned for the German market with clearer scope, sober wording and stronger emphasis on structure, ownership and defensible experience.${focusLine}`;
+      return `${targetRole} profile positioned for the German market with clearer scope, sober wording and stronger emphasis on structure, ownership and defensible experience.${focusLine}${strengthsLine}`;
     }
 
     function generateArtifact() {
@@ -457,7 +474,7 @@
       const companySignals = companyFitSignals(`${companyName}\n${jobDescription}`);
       updateLanguageVisibility();
 
-      const summary = buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals, jobDescription, experienceLines);
+      const summary = buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals, jobDescription, experienceLines, oldCvText);
       const skills = inferSkills(targetCountry, jobDescription, experienceLines);
       const bullets = experienceLines.filter(Boolean).map(line => `- ${sentence(line)}`).join('\n') || '- Relevant experience still needs to be added.';
       const targetCountryLabel = targetCountry === 'DE' ? 'Germany' : 'Australia';
@@ -465,13 +482,14 @@
       const cv = `# ${fullName || 'Candidate'}\n\n## Contact\n${email ? '- Email: ' + email + '\n' : ''}${phone ? '- Phone / WhatsApp: ' + phone + '\n' : ''}\n## Target\n- ${targetCountryLabel}\n- ${targetRole || 'Target role to refine'}\n${seniority ? '- ' + seniority + '\n' : ''}${companyName ? '- Target company: ' + companyName + '\n' : ''}- Document language: ${documentLanguage}\n\n## Summary\n${summary}\n\n## Core Skills\n${skills.length ? skills.map(skill => '- ' + skill).join('\n') : '- Skills still need to be confirmed from the current CV and target job.'}\n\n## Professional Experience\n${bullets}\n\n## Languages\n- English — ${englishLevel || 'Not informed'}\n${targetCountry === 'DE' ? `- German — ${germanLevel || 'Not informed'}\n` : ''}- Work authorization — ${visaStatus || 'Not informed'}`;
 
       const diagnosticNotes = [];
+      const strengths = inferStrengths(oldCvText, jobDescription, experienceLines);
       if (!jobDescription) diagnosticNotes.push('No real job description was added, so the CV remains broader and less targeted to one vacancy.');
       if (!oldCvText) diagnosticNotes.push('No current CV was provided, so the rewrite is being built from fresh intake only.');
       if (!experienceLines.length) diagnosticNotes.push('Relevant experience is still thin and should be strengthened before real applications.');
       if (targetCountry === 'DE' && !germanLevel) diagnosticNotes.push('German level is still unclear for a Germany-facing CV.');
       if (targetCountry === 'AU' && !profileSummaryRaw) diagnosticNotes.push('Australia-facing CVs usually benefit from a tighter raw profile summary.');
 
-      const diagnostic = `# Diagnostic\n\n## Positioning\n- ${targetCountry === 'DE' ? 'German-market version with more structured and sober wording.' : 'Australian-market version with more practical and outcome-aware wording.'}\n\n## Risks to fix\n${diagnosticNotes.length ? diagnosticNotes.map(item => '- ' + item).join('\n') : '- No major risks detected in this test flow.'}`;
+      const diagnostic = `# Diagnostic\n\n## Positioning\n- ${targetCountry === 'DE' ? 'German-market version with more structured and sober wording.' : 'Australian-market version with more practical and outcome-aware wording.'}\n${strengths.length ? '- Strongest fit themes: ' + strengths.join(', ') + '\n' : ''}\n## Risks to fix\n${diagnosticNotes.length ? diagnosticNotes.map(item => '- ' + item).join('\n') : '- No major risks detected in this test flow.'}`;
 
       const rewriteNotes = [
         targetCountry === 'DE' ? 'Shifted the tone toward a more structured, sober and defensible German-market presentation.' : 'Shifted the tone toward a clearer, more commercially readable Australian-market presentation.',
@@ -483,7 +501,7 @@
       document.getElementById('cvOutput').textContent = cv;
       document.getElementById('diagnosticOutput').textContent = diagnostic;
       document.getElementById('rewriteOutput').innerHTML = rewriteNotes.map(item => `<div class="item">${item}</div>`).join('');
-      document.getElementById('status').textContent = 'CV package generated for test.';
+      document.getElementById('status').textContent = jobDescription ? 'Targeted CV package generated.' : 'General CV package generated without a specific vacancy.';
     }
 
     const targetCountryEl = document.getElementById('targetCountry');
