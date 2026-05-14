@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CV Builder Test Artifact</title>
+  <title>CV Builder</title>
   <style>
     :root {
       --bg: #0b1020;
@@ -14,109 +14,108 @@
       --muted: #9fb0d1;
       --accent: #8b5cf6;
       --ok: #22c55e;
-      --warn: #f59e0b;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Inter, Arial, sans-serif;
-      background: linear-gradient(180deg, #08101d, #0b1020 45%, #11172a);
+      background: linear-gradient(180deg, #0b1020 0%, #0a0f1b 100%);
       color: var(--text);
-      padding: 24px;
     }
-    .wrap {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: grid;
-      gap: 20px;
-    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px; }
     .hero, .card {
-      background: var(--surface);
+      background: rgba(17,24,45,.94);
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
     }
-    .hero h1, .card h2, .card h3 { margin: 0 0 10px; }
-    .hero p, .card p, label, small { color: var(--muted); }
-    .grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 20px;
-    }
-    .stack { display: grid; gap: 14px; }
+    .hero { padding: 24px; margin-bottom: 20px; }
+    .hero h1 { margin: 0 0 8px; font-size: 34px; }
+    .hero p { margin: 0; color: var(--muted); line-height: 1.5; max-width: 860px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+    .card { padding: 20px; }
+    .stack { display: grid; gap: 16px; }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    label { display: block; color: var(--muted); font-size: 13px; margin-bottom: 6px; }
     input, select, textarea {
       width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
       background: var(--surface-2);
       color: var(--text);
-      margin-top: 6px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 13px;
       font: inherit;
     }
-    textarea { min-height: 80px; resize: vertical; }
+    textarea { min-height: 90px; resize: vertical; }
     button {
       border: 0;
       border-radius: 12px;
-      padding: 12px 16px;
-      background: var(--accent);
-      color: white;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      color: #fff;
       font-weight: 700;
       cursor: pointer;
     }
-    button.secondary { background: #23304d; }
+    button.secondary {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
     .button-row { display: flex; gap: 10px; flex-wrap: wrap; }
     .status {
-      padding: 12px 14px;
+      border: 1px solid var(--border);
       border-radius: 12px;
-      background: #0c1427;
-      border: 1px solid var(--border);
-    }
-    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
-    .pill {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: #0c1427;
+      background: #0f172a;
+      padding: 12px 14px;
       color: var(--muted);
-      font-size: 12px;
     }
-    .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
     .tab {
-      padding: 10px 12px;
+      padding: 9px 12px;
       border-radius: 999px;
+      background: rgba(255,255,255,.04);
       border: 1px solid var(--border);
-      background: #0c1427;
       color: var(--text);
       cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
     }
-    .tab.active { background: #2d1b69; }
+    .tab.active { background: rgba(139,92,246,.22); border-color: rgba(139,92,246,.8); }
     .panel { display: none; }
     .panel.active { display: block; }
-    pre {
+    pre, .list {
       margin: 0;
       white-space: pre-wrap;
-      background: #08101d;
+      word-break: break-word;
+      background: #0a1120;
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 16px;
-      min-height: 260px;
-      line-height: 1.5;
+      min-height: 420px;
+      line-height: 1.55;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 13px;
     }
-    .list { display: grid; gap: 10px; }
-    .item {
-      background: #0c1427;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
+    .list .item {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      line-height: 1.5;
     }
-    @media (max-width: 1100px) {
-      .grid { grid-template-columns: 1fr; }
-      .row2, .row3 { grid-template-columns: 1fr; }
+    .list .item:last-child { border-bottom: 0; }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .pill {
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,.03);
+    }
+    .muted-copy { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .hidden { display: none; }
+    @media (max-width: 980px) {
+      .grid, .row2, .row3 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -133,30 +132,30 @@
 </script>
   <div class="wrap">
     <section class="hero">
-      <h1>CV Builder, Test Artifact</h1>
-      <p>Esse arquivo é um artefato standalone para teste direto no navegador, sem depender do gateway. Você pode abrir localmente e validar o fluxo, a UX e a lógica básica do produto.</p>
+      <h1>CV Builder</h1>
+      <p>Minimalista, prático e orientado a valor real. O objetivo aqui é transformar dados úteis do CIA, CV atual e vaga alvo em um CV mais forte, sem duplicar trabalho e sem poluir a experiência.</p>
       <div class="pill-row">
-        <span class="pill">standalone HTML</span>
-        <span class="pill">sem backend</span>
-        <span class="pill">teste local imediato</span>
+        <span class="pill">CIA handoff</span>
+        <span class="pill">PDF / DOCX / text</span>
+        <span class="pill">targeted rewrite</span>
       </div>
     </section>
 
     <div class="grid">
       <section class="card stack">
         <div>
-          <h2>Input</h2>
-          <p>Preencha só o necessário. A ideia aqui é testar o comportamento do produto, não infra.</p>
+          <h2 style="margin:0 0 8px">Input</h2>
+          <p class="muted-copy">Só o que gera valor. O que vier do CIA ajuda. O que estiver incerto fica em branco.</p>
         </div>
 
         <div class="row2">
           <div>
             <label>Full name</label>
-            <input id="fullName" value="Carlos Mendes" />
+            <input id="fullName" value="" />
           </div>
           <div>
             <label>Target role</label>
-            <input id="targetRole" value="Operations Manager" />
+            <input id="targetRole" value="" />
           </div>
         </div>
 
@@ -189,15 +188,15 @@
           </div>
           <div>
             <label>Seniority</label>
-            <input id="seniority" value="Manager" />
+            <input id="seniority" value="" placeholder="Leave blank if unsure" />
           </div>
         </div>
 
-        <div class="row3" id="languageRow">
+        <div class="row3">
           <div>
             <label>English</label>
             <select id="englishLevel">
-              <option value="does-not-speak">Does not speak</option>
+              <option value=""></option>
               <option value="A1">A1</option>
               <option value="A2">A2</option>
               <option value="B1">B1</option>
@@ -209,7 +208,7 @@
           <div id="germanFieldWrap">
             <label>German</label>
             <select id="germanLevel">
-              <option value="does-not-speak">Does not speak</option>
+              <option value=""></option>
               <option value="A1">A1</option>
               <option value="A2">A2</option>
               <option value="B1">B1</option>
@@ -218,39 +217,39 @@
               <option value="C2">C2</option>
             </select>
           </div>
-          <div><label>Visa / work auth</label><input id="visaStatus" value="Sponsorship required" /></div>
+          <div>
+            <label>Visa / work auth</label>
+            <input id="visaStatus" value="" />
+          </div>
         </div>
 
-        <div>
+        <div id="profileSummaryWrap">
           <label>Profile summary raw</label>
-          <textarea id="profileSummaryRaw" placeholder="Only include a short professional summary if it adds real CV value. Otherwise leave blank."></textarea>
+          <textarea id="profileSummaryRaw" placeholder="Useful mainly for Australia-facing CVs. Leave blank if unclear."></textarea>
         </div>
 
         <div>
           <label>Company (optional)</label>
-          <input id="companyName" value="Siemens" />
+          <input id="companyName" value="" />
         </div>
 
         <div>
-          <label>Current CV text</label>
-          <textarea id="oldCvText" placeholder="Paste an existing CV only if one already exists. Leave blank otherwise."></textarea>
+          <label>Current CV (text only in this test artifact)</label>
+          <textarea id="oldCvText" placeholder="Paste the current CV text here only if it already exists."></textarea>
         </div>
 
         <div>
-          <label>Job description</label>
-          <textarea id="jobDescription">We are looking for an Operations Manager with strong process discipline, cross-functional coordination, KPI follow-up, continuous improvement mindset and customer focus.</textarea>
+          <label>Job description text or job link</label>
+          <textarea id="jobDescription" placeholder="Paste the job description here, or paste the job link. This field is optional, but without a real vacancy the CV will stay broader and less targeted."></textarea>
         </div>
 
         <div>
-          <label>Main experience bullets, one per line</label>
-          <textarea id="experienceLines">Coordinated daily execution routines across 3 production lines
-Helped reduce recurring delivery delays | Estimated 18% delay reduction in 12 months
-Improved escalation discipline | Improved routine visibility across teams
-Strengthened follow-up routines between frontline and support teams | Supported an operation involving approximately 22 direct and indirect team members</textarea>
+          <label>Relevant experience</label>
+          <textarea id="experienceLines" placeholder="Add only the strongest and most relevant experience points. One point per line."></textarea>
         </div>
 
         <div class="button-row">
-          <button onclick="generateArtifact()">Generate test output</button>
+          <button onclick="generateArtifact()">Generate CV package</button>
           <button class="secondary" onclick="loadExample('DE')">Load DE example</button>
           <button class="secondary" onclick="loadExample('AU')">Load AU example</button>
         </div>
@@ -258,23 +257,19 @@ Strengthened follow-up routines between frontline and support teams | Supported 
 
       <section class="card stack">
         <div>
-          <h2>Output</h2>
+          <h2 style="margin:0 0 8px">Output</h2>
           <div id="status" class="status">Ready for local test.</div>
         </div>
 
         <div class="tabs">
-          <button class="tab active" data-tab="cv" onclick="setTab('cv')">Revised CV</button>
+          <button class="tab active" data-tab="cv" onclick="setTab('cv')">CV</button>
           <button class="tab" data-tab="diagnostic" onclick="setTab('diagnostic')">Diagnostic</button>
-          <button class="tab" data-tab="rewrite" onclick="setTab('rewrite')">Rewrite notes</button>
-          <button class="tab" data-tab="diff" onclick="setTab('diff')">Diff</button>
-          <button class="tab" data-tab="company" onclick="setTab('company')">Company fit</button>
+          <button class="tab" data-tab="rewrite" onclick="setTab('rewrite')">What changed</button>
         </div>
 
         <div id="panel-cv" class="panel active"><pre id="cvOutput"></pre></div>
         <div id="panel-diagnostic" class="panel"><pre id="diagnosticOutput"></pre></div>
         <div id="panel-rewrite" class="panel"><div id="rewriteOutput" class="list"></div></div>
-        <div id="panel-diff" class="panel"><div id="diffOutput" class="list"></div></div>
-        <div id="panel-company" class="panel"><div id="companyOutput" class="list"></div></div>
       </section>
     </div>
   </div>
@@ -307,58 +302,26 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       return priorities;
     }
 
-    function buildDiff(oldText, newText) {
-      const oldLines = lines(oldText);
-      const newLines = lines(newText);
-      const oldSet = new Set(oldLines);
-      const newSet = new Set(newLines);
-      return {
-        added: newLines.filter(line => !oldSet.has(line)),
-        removed: oldLines.filter(line => !newSet.has(line))
-      };
-    }
-
-    function loadExample(country) {
-      document.getElementById('targetCountry').value = country;
-      if (country === 'AU') {
-        document.getElementById('companyName').value = 'Wesfarmers';
-        document.getElementById('jobDescription').value = 'Looking for an Operations Manager with customer focus, team collaboration, visible delivery accountability, continuous improvement and KPI follow-up.';
-      } else {
-        document.getElementById('companyName').value = 'Siemens';
-        document.getElementById('jobDescription').value = 'We are looking for an Operations Manager with strong process discipline, cross-functional coordination, KPI follow-up, continuous improvement mindset and customer focus.';
-      }
-      generateArtifact();
-    }
-
-
     function mapCiaLanguageToCefr(label) {
       const value = String(label || '').trim().toLowerCase();
-      if (!value) return 'does-not-speak';
-      if (/nao fala|não fala|nenhum|does not speak|not applicable/.test(value)) return 'does-not-speak';
+      if (!value) return '';
       if (/a1/.test(value)) return 'A1';
-      if (/a2/.test(value)) return 'A2';
-      if (/b1/.test(value)) return 'B1';
-      if (/b2/.test(value)) return 'B2';
-      if (/c1/.test(value)) return 'C1';
-      if (/c2/.test(value)) return 'C2';
-      if (/consigo, mas precisaria me preparar bastante/.test(value)) return 'B1';
-      if (/sim, com razoável confiança/.test(value)) return 'B2';
-      if (/idioma de trabalho habitual|idioma principal de trabalho/.test(value)) return 'C1';
-      if (/estou aprendendo/.test(value)) return 'A2';
-      if (/me comunicar no dia a dia/.test(value)) return 'B1';
-      if (/contextos técnicos/.test(value)) return 'B2';
-      if (/c1 ou mais/.test(value)) return 'C1';
-      if (/básico|basico|difficulty|dificuldade/.test(value)) return 'A2';
-      if (/intermedi/.test(value)) return 'B1';
-      if (/avançado|avancado|advanced/.test(value)) return 'C1';
-      if (/fluente|fluent/.test(value)) return 'C2';
+      if (/a2|estou aprendendo|básico|basico/.test(value)) return 'A2';
+      if (/b1|intermedi|me comunicar no dia a dia/.test(value)) return 'B1';
+      if (/b2|razoável confiança|razoavel confianca|contextos técnicos|contextos tecnicos/.test(value)) return 'B2';
+      if (/c1|avançado|avancado|idioma principal|idioma de trabalho habitual/.test(value)) return 'C1';
+      if (/c2|fluente/.test(value)) return 'C2';
       return '';
     }
 
     function updateLanguageVisibility() {
       const targetCountry = document.getElementById('targetCountry').value;
       const germanWrap = document.getElementById('germanFieldWrap');
+      const profileSummaryWrap = document.getElementById('profileSummaryWrap');
       if (germanWrap) germanWrap.style.display = targetCountry === 'DE' ? 'block' : 'none';
+      if (profileSummaryWrap) profileSummaryWrap.style.display = targetCountry === 'AU' ? 'block' : 'none';
+      if (targetCountry !== 'DE') document.getElementById('germanLevel').value = '';
+      if (targetCountry !== 'AU') document.getElementById('profileSummaryRaw').value = '';
       const docLang = document.getElementById('documentLanguage');
       if (targetCountry === 'AU' && docLang.value === 'de') docLang.value = 'en';
       if (targetCountry === 'DE' && !docLang.value) docLang.value = 'de';
@@ -368,86 +331,87 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       try { return JSON.parse(value); } catch (error) { return null; }
     }
 
-    function decodePayload64(value) {
-      try {
-        return JSON.parse(decodeURIComponent(escape(atob(value))));
-      } catch (error) {
-        return null;
-      }
-    }
-
     function getCiaPayload() {
-      const params = new URLSearchParams(window.location.search);
-      const payload64 = params.get('payload64');
-      if (payload64) {
-        const parsed64 = decodePayload64(decodeURIComponent(payload64));
-        if (parsed64) return parsed64;
-      }
-      const queryPayload = params.get('payload');
-      if (queryPayload) {
-        const parsed = safeJsonParse(decodeURIComponent(queryPayload));
-        if (parsed) return parsed;
-      }
-      const sessionPayload = safeJsonParse(sessionStorage.getItem('ciaCvBuilderPayload'));
-      if (sessionPayload) return sessionPayload;
       const localPayload = safeJsonParse(localStorage.getItem('ciaCvBuilderPayload'));
       if (localPayload) return localPayload;
+      const sessionPayload = safeJsonParse(sessionStorage.getItem('ciaCvBuilderPayload'));
+      if (sessionPayload) return sessionPayload;
       return null;
     }
 
     function applyCiaPayload(payload) {
       if (!payload) return false;
       const lead = payload.lead || {};
-      const geo = payload.geo || {};
-      const score = payload.score || {};
-      const dims = score.dimensions || {};
       const alerts = Array.isArray(payload.alerts) ? payload.alerts : [];
       const insights = Array.isArray(payload.insights) ? payload.insights : [];
-      const steps = Array.isArray(payload.steps) ? payload.steps : [];
       const answers = payload.answers || {};
       const trilha = payload.trilha === 'au' ? 'AU' : 'DE';
-      const targetCountry = trilha;
-      const documentLanguage = trilha === 'DE' ? 'de' : 'en';
-      const targetRole = answers.p3 ? answers.p3.l : (trilha === 'DE' ? 'Specialist / Manager role in Germany' : 'Specialist / Manager role in Australia');
-      const seniority = '';
-      const englishLevel = mapCiaLanguageToCefr(answers.p1 ? answers.p1.l : '');
-      const germanLevel = trilha === 'DE' ? mapCiaLanguageToCefr(answers.p2 ? answers.p2.l : '') : 'does-not-speak';
-      const visaStatus = trilha === 'AU' ? 'Work rights to be confirmed for Australia' : 'Work rights to be confirmed for Germany';
-      const companyName = '';
-      const email = lead.email || '';
-      const phone = [lead.waDDI, lead.waNum].filter(Boolean).join(' ');
-      const profileSummaryRaw = '';
-      const oldCvText = '';
-      const jobDescription = [
-        'Imported from CIA diagnostic.',
-        alerts.map(a => a.text || '').join(' '),
-        insights.map(i => (i.title ? i.title + ': ' : '') + (i.text || '')).join(' ')
-      ].filter(Boolean).join('\n\n');
-      const experienceLines = [
-        'CIA route | ' + (trilha === 'AU' ? 'Australia' : 'Germany'),
-        'Score band | ' + (score.band || 'Not informed'),
-        'Dimension scores | Language/Area: ' + (dims.d1 ?? 'N/A') + ', Decision maturity: ' + (dims.d2 ?? 'N/A') + ', Behavioral profile: ' + (dims.d3 ?? 'N/A') + ', Market knowledge: ' + (dims.d4 ?? 'N/A'),
-        ...steps.map(step => step.replace(/<[^>]+>/g, ' '))
-      ].join('\n');
 
-      document.getElementById('fullName').value = lead.nome || 'Candidate from CIA';
-      document.getElementById('targetRole').value = targetRole;
-      document.getElementById('email').value = email;
-      document.getElementById('phone').value = phone;
-      document.getElementById('targetCountry').value = targetCountry;
-      document.getElementById('documentLanguage').value = documentLanguage;
-      document.getElementById('seniority').value = seniority || '';
-      document.getElementById('englishLevel').value = englishLevel || '';
-      document.getElementById('germanLevel').value = germanLevel || '';
+      document.getElementById('fullName').value = lead.nome || '';
+      document.getElementById('targetRole').value = answers.p3 ? answers.p3.l : '';
+      document.getElementById('email').value = lead.email || '';
+      document.getElementById('phone').value = [lead.waDDI, lead.waNum].filter(Boolean).join(' ');
+      document.getElementById('targetCountry').value = trilha;
+      document.getElementById('documentLanguage').value = trilha === 'DE' ? 'de' : 'en';
+      document.getElementById('seniority').value = '';
+      document.getElementById('englishLevel').value = mapCiaLanguageToCefr(trilha === 'AU' ? (answers.p2 ? answers.p2.l : '') : (answers.p1 ? answers.p1.l : ''));
+      document.getElementById('germanLevel').value = trilha === 'DE' ? mapCiaLanguageToCefr(answers.p2 ? answers.p2.l : '') : '';
+      document.getElementById('visaStatus').value = trilha === 'AU' ? 'Work rights to be confirmed for Australia' : 'Work rights to be confirmed for Germany';
+      document.getElementById('profileSummaryRaw').value = '';
+      document.getElementById('companyName').value = '';
+      document.getElementById('oldCvText').value = '';
+      document.getElementById('jobDescription').value = '';
+      document.getElementById('experienceLines').value = [
+        ...insights.slice(0, 2).map(i => `${i.title || ''} ${i.text || ''}`.trim()),
+        ...alerts.slice(0, 2).map(a => a.text || '')
+      ].filter(Boolean).join('\n');
       updateLanguageVisibility();
-      document.getElementById('visaStatus').value = visaStatus;
-      document.getElementById('profileSummaryRaw').value = profileSummaryRaw;
-      document.getElementById('companyName').value = companyName;
-      document.getElementById('oldCvText').value = oldCvText;
-      document.getElementById('jobDescription').value = jobDescription;
-      document.getElementById('experienceLines').value = experienceLines;
-      document.getElementById('status').textContent = 'CIA payload imported. Testing with real final-report data.';
+      document.getElementById('status').textContent = 'CIA payload imported. Only high-value fields were prefilled.';
       return true;
+    }
+
+    function loadExample(country) {
+      if (country === 'AU') {
+        document.getElementById('fullName').value = 'Carlos Mendes';
+        document.getElementById('targetRole').value = 'Operations Manager';
+        document.getElementById('email').value = 'carlos@example.com';
+        document.getElementById('phone').value = '+61 400 555 111';
+        document.getElementById('targetCountry').value = 'AU';
+        document.getElementById('documentLanguage').value = 'en';
+        document.getElementById('englishLevel').value = 'C1';
+        document.getElementById('germanLevel').value = '';
+        document.getElementById('visaStatus').value = 'Work rights to be confirmed for Australia';
+        document.getElementById('profileSummaryRaw').value = 'operations leadership, customer service and process discipline';
+        document.getElementById('companyName').value = 'Wesfarmers';
+        document.getElementById('jobDescription').value = 'Operations Manager role with customer focus, KPI follow-up, visible accountability and cross-functional team coordination.';
+        document.getElementById('experienceLines').value = 'Led daily coordination across service routines and internal priorities.\nImproved follow-up discipline across customer-facing operations.\nSupported clearer execution visibility for multiple teams.';
+      } else {
+        document.getElementById('fullName').value = 'Carlos Mendes';
+        document.getElementById('targetRole').value = 'Operations Manager';
+        document.getElementById('email').value = 'carlos@example.com';
+        document.getElementById('phone').value = '+49 111 222 333';
+        document.getElementById('targetCountry').value = 'DE';
+        document.getElementById('documentLanguage').value = 'de';
+        document.getElementById('englishLevel').value = 'B2';
+        document.getElementById('germanLevel').value = 'B1';
+        document.getElementById('visaStatus').value = 'Work rights to be confirmed for Germany';
+        document.getElementById('profileSummaryRaw').value = '';
+        document.getElementById('companyName').value = 'Siemens';
+        document.getElementById('jobDescription').value = 'Operations Manager role requiring process discipline, stakeholder coordination, KPI ownership and continuous improvement mindset.';
+        document.getElementById('experienceLines').value = 'Coordinated structured execution routines across operations.\nImproved escalation discipline and internal follow-up consistency.\nSupported operational visibility with clearer process ownership.';
+      }
+      updateLanguageVisibility();
+      generateArtifact();
+    }
+
+    function buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals) {
+      if (targetCountry === 'AU') {
+        const summaryBase = profileSummaryRaw || 'operations, coordination and delivery-facing environments';
+        const fitLine = companySignals.length ? ` Strongest fit signals: ${companySignals.join(', ')}.` : '';
+        return `${targetRole} profile with experience across ${summaryBase}. Positioned with practical delivery focus, collaborative execution and clearer commercial readability for the Australian market.${fitLine}`;
+      }
+      const fitLine = companySignals.length ? ` Strongest fit signals: ${companySignals.join(', ')}.` : '';
+      return `${targetRole} profile positioned for the German market with clearer scope, sober wording and stronger emphasis on structure, ownership and defensible experience.${fitLine}`;
     }
 
     function generateArtifact() {
@@ -460,7 +424,6 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       const seniority = document.getElementById('seniority').value.trim();
       const englishLevel = document.getElementById('englishLevel').value.trim();
       const germanLevel = document.getElementById('germanLevel').value.trim();
-      updateLanguageVisibility();
       const visaStatus = document.getElementById('visaStatus').value.trim();
       const profileSummaryRaw = document.getElementById('profileSummaryRaw').value.trim();
       const companyName = document.getElementById('companyName').value.trim();
@@ -468,45 +431,33 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       const jobDescription = document.getElementById('jobDescription').value.trim();
       const experienceLines = lines(document.getElementById('experienceLines').value);
       const companySignals = companyFitSignals(`${companyName}\n${jobDescription}`);
+      updateLanguageVisibility();
 
-      const summaryBase = `${targetRole} profile with strong experience across ${profileSummaryRaw}`;
-      const marketLine = targetCountry === 'DE'
-        ? 'Structured for Germany with clearer scope, evidence and sober positioning.'
-        : 'Structured for Australia with stronger outcome-first language and collaborative delivery framing.';
-      const fitLine = companySignals.length ? `Company-fit emphasis: ${companySignals.join(', ')}.` : 'No strong company-fit signals detected.';
+      const summary = buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals);
+      const bullets = experienceLines.filter(Boolean).map(line => `- ${sentence(line)}`).join('\n') || '- Relevant experience still needs to be added.';
 
-      const bullets = experienceLines.map(line => {
-        const parts = line.split('|').map(v => v.trim());
-        if (targetCountry === 'AU' && parts[1]) return `- ${sentence(parts[0] + ' ' + parts[1])}`;
-        return `- ${sentence(parts.join(' '))}`;
-      }).join('\n');
+      const cv = `# ${fullName || 'Candidate'}\n\n## Contact\n${email ? '- Email: ' + email + '\n' : ''}${phone ? '- Phone / WhatsApp: ' + phone + '\n' : ''}\n## Target\n- ${targetCountry}\n- ${targetRole || 'Target role to refine'}\n${seniority ? '- ' + seniority + '\n' : ''}- Document language: ${documentLanguage}\n${companyName ? '- Target company: ' + companyName + '\n' : ''}\n## Summary\n${summary}\n\n## Professional Experience\n${bullets}\n\n## Languages\n- English — ${englishLevel || 'Not informed'}\n${targetCountry === 'DE' ? `- German — ${germanLevel || 'Not informed'}\n` : ''}- Work authorization — ${visaStatus || 'Not informed'}`;
 
-      const cv = `# ${fullName}\n\n## Contact\n${email ? '- Email: ' + email + '\n' : ''}${phone ? '- Phone / WhatsApp: ' + phone + '\n' : ''}\n## Target\n- ${targetCountry}\n- ${targetRole}\n- ${seniority}\n- Document language: ${documentLanguage}\n- Target company: ${companyName || 'Not informed'}\n\n## Summary\n${summaryBase}. ${marketLine} ${fitLine}\n\n## Core Skills\n- Process discipline\n- Cross-functional coordination\n- KPI follow-up\n- Continuous improvement\n${companySignals.includes('customer focus') ? '- Customer focus\n' : ''}${companySignals.includes('quality and compliance') ? '- Quality and compliance\n' : ''}\n## Professional Experience\n### Main relevant experience\n${bullets}\n\n## Languages\n- English — ${englishLevel}\n${targetCountry === 'DE' ? `- German — ${germanLevel}\n` : ''}- Work authorization — ${visaStatus}`;
+      const diagnosticNotes = [];
+      if (!jobDescription) diagnosticNotes.push('No real job description was added, so the CV remains broader and less targeted to one vacancy.');
+      if (!oldCvText) diagnosticNotes.push('No current CV was provided, so the rewrite is being built from fresh intake only.');
+      if (!experienceLines.length) diagnosticNotes.push('Relevant experience is still thin and should be strengthened before real applications.');
+      if (targetCountry === 'DE' && !germanLevel) diagnosticNotes.push('German level is still unclear for a Germany-facing CV.');
+      if (targetCountry === 'AU' && !profileSummaryRaw) diagnosticNotes.push('Australia-facing CVs usually benefit from a tighter raw profile summary.');
 
-      const diagnostic = `# CV Diagnostic\n\n## Readiness\n- Applicable with warnings\n\n## Strengths\n- Clear target role\n- Market-specific rewrite\n- Company/context fit considered\n\n## Alerts\n- Review dates, scope and metrics before real application\n- Keep only defensible claims\n${/sponsor|need/i.test(visaStatus) ? '- Work-rights positioning still needs careful framing\n' : ''}\n## Notes\n- This artifact is standalone for test purposes\n- It shows the intended product behavior without backend dependency`;
+      const diagnostic = `# Diagnostic\n\n## Positioning\n- ${targetCountry === 'DE' ? 'German-market version with more structured and sober wording.' : 'Australian-market version with more practical and outcome-aware wording.'}\n\n## Risks to fix\n${diagnosticNotes.length ? diagnosticNotes.map(item => '- ' + item).join('\n') : '- No major risks detected in this test flow.'}`;
 
       const rewriteNotes = [
-        'Summary rebuilt around target market instead of generic profile language.',
-        targetCountry === 'AU' ? 'Bullets shifted toward outcome-first wording for Australian readability.' : 'Bullets kept more explicit and structured for German market expectations.',
-        companySignals.length ? `Company-fit cues detected: ${companySignals.join(', ')}.` : 'No strong company-fit cues found, so rewrite stayed more generic.',
-        'Product framing prioritizes candidate repositioning, not cosmetic CV polishing.'
+        targetCountry === 'DE' ? 'Removed more generic promotional wording and kept the tone more sober for Germany.' : 'Built a more direct and commercially readable summary for Australia.',
+        companyName ? `Kept the target company visible to orient the rewrite around one opportunity.` : 'No specific company was used, so the rewrite stays more flexible.',
+        jobDescription ? 'Used the job description as a targeting signal instead of leaving the CV fully generic.' : 'No JD signal was available, so the rewrite stays more general by design.',
+        oldCvText ? 'A current CV exists and can be used later for deeper rewriting and diffing.' : 'No existing CV text was imported, avoiding fake filler content.'
       ];
-
-      const diff = buildDiff(oldCvText, cv);
 
       document.getElementById('cvOutput').textContent = cv;
       document.getElementById('diagnosticOutput').textContent = diagnostic;
       document.getElementById('rewriteOutput').innerHTML = rewriteNotes.map(item => `<div class="item">${item}</div>`).join('');
-      document.getElementById('diffOutput').innerHTML = `
-        <div class="item"><strong>Added</strong><br>${diff.added.length ? diff.added.join('<br>') : 'None'}</div>
-        <div class="item"><strong>Removed</strong><br>${diff.removed.length ? diff.removed.join('<br>') : 'None'}</div>
-      `;
-      document.getElementById('companyOutput').innerHTML = `
-        <div class="item"><strong>Company</strong><br>${companyName || 'Not informed'}</div>
-        <div class="item"><strong>Fit priorities</strong><br>${companySignals.length ? companySignals.join(', ') : 'None detected'}</div>
-        <div class="item"><strong>JD snippet</strong><br>${jobDescription || 'No JD provided'}</div>
-      `;
-      document.getElementById('status').textContent = 'Artifact generated locally. This is the simple testable version.';
+      document.getElementById('status').textContent = 'CV package generated for test.';
     }
 
     const targetCountryEl = document.getElementById('targetCountry');
@@ -518,12 +469,9 @@ Strengthened follow-up routines between frontline and support teams | Supported 
     }
 
     const importedPayload = getCiaPayload();
-    const didImport = applyCiaPayload(importedPayload);
+    if (importedPayload) applyCiaPayload(importedPayload);
     updateLanguageVisibility();
     generateArtifact();
-    if (didImport) {
-      document.getElementById('status').textContent = 'CIA payload imported. Testing with real final-report data.';
-    }
   </script>
 </body>
 </html>
