@@ -135,18 +135,13 @@
     <section class="hero">
       <h1>CV Builder</h1>
       <p>Seu diagnóstico já virou direção. Agora vamos transformar isso em um CV mais forte, mais claro e mais competitivo.</p>
-      <div class="pill-row">
-        <span class="pill">CIA handoff</span>
-        <span class="pill">PDF / DOCX / text</span>
-        <span class="pill">targeted rewrite</span>
-      </div>
+      
     </section>
 
     <div class="grid">
       <section class="card stack">
         <div>
-          <h2 style="margin:0 0 8px">Input</h2>
-          <p class="muted-copy">Só o que gera valor. O que vier do CIA ajuda. O que estiver incerto fica em branco.</p>
+          <h2 style="margin:0 0 8px; font-family: 'DM Serif Display', serif; font-weight:400; font-size:30px">CV setup</h2>
         </div>
 
         <div class="row2">
@@ -180,7 +175,7 @@
             </select>
           </div>
           <div>
-            <label>Document language</label>
+            <label>CV language</label>
             <select id="documentLanguage">
               <option value="en">English</option>
               <option value="de">German</option>
@@ -188,12 +183,19 @@
             </select>
           </div>
           <div>
-            <label>Seniority</label>
-            <input id="seniority" value="" placeholder="Leave blank if unsure" />
+            <label>Work authorization</label>
+            <select id="visaStatus">
+              <option value=""></option>
+              <option value="I have full work rights in the target country">I have full work rights in the target country</option>
+              <option value="I need employer sponsorship">I need employer sponsorship</option>
+              <option value="I am eligible for a visa pathway but not yet approved">I am eligible for a visa pathway but not yet approved</option>
+              <option value="I am still defining the best visa pathway">I am still defining the best visa pathway</option>
+              <option value="Prefer not to say yet">Prefer not to say yet</option>
+            </select>
           </div>
         </div>
 
-        <div class="row3">
+        <div class="row2">
           <div>
             <label>English</label>
             <select id="englishLevel">
@@ -218,16 +220,7 @@
               <option value="C2">C2</option>
             </select>
           </div>
-          <div>
-            <label>Visa / work auth</label>
-            <input id="visaStatus" value="" />
           </div>
-        </div>
-
-        <div id="profileSummaryWrap">
-          <label>Profile summary raw</label>
-          <textarea id="profileSummaryRaw" placeholder="Useful mainly for Australia-facing CVs. Leave blank if unclear."></textarea>
-        </div>
 
         <div>
           <label>Company (optional)</label>
@@ -235,8 +228,8 @@
         </div>
 
         <div>
-          <label>Current CV (text only in this test artifact)</label>
-          <textarea id="oldCvText" placeholder="Paste the current CV text here only if it already exists."></textarea>
+          <label>Current curriculum</label>
+          <textarea id="oldCvText" placeholder="Paste the current CV text here for now. In the real backend flow, this will accept PDF and Word documents too."></textarea>
         </div>
 
         <div>
@@ -244,12 +237,7 @@
           <textarea id="jobDescription" placeholder="Paste the job description here, or paste the job link. This field is optional, but without a real vacancy the CV will stay broader and less targeted."></textarea>
         </div>
 
-        <div>
-          <label>Relevant experience</label>
-          <textarea id="experienceLines" placeholder="Add only the strongest and most relevant experience points. One point per line, focused on scope, ownership and outcomes."></textarea>
-        </div>
-
-        <div class="muted-copy" id="smartHints">The best results come from: a real current CV, a real vacancy, and 3 to 5 strong experience points with scope or outcomes.</div>
+        
 
         <div class="button-row">
           <button onclick="generateArtifact()">Generate CV package</button>
@@ -358,18 +346,14 @@
       document.getElementById('phone').value = [lead.waDDI, lead.waNum].filter(Boolean).join(' ');
       document.getElementById('targetCountry').value = trilha;
       document.getElementById('documentLanguage').value = trilha === 'DE' ? 'de' : 'en';
-      document.getElementById('seniority').value = '';
       document.getElementById('englishLevel').value = mapCiaLanguageToCefr(trilha === 'AU' ? (answers.p2 ? answers.p2.l : '') : (answers.p1 ? answers.p1.l : ''));
       document.getElementById('germanLevel').value = trilha === 'DE' ? mapCiaLanguageToCefr(answers.p2 ? answers.p2.l : '') : '';
       document.getElementById('visaStatus').value = trilha === 'AU' ? 'Work rights to be confirmed for Australia' : 'Work rights to be confirmed for Germany';
-      document.getElementById('profileSummaryRaw').value = '';
       document.getElementById('companyName').value = '';
       document.getElementById('oldCvText').value = '';
       document.getElementById('jobDescription').value = '';
-      document.getElementById('experienceLines').value = [
-        ...insights.slice(0, 2).map(i => `${i.title || ''} ${i.text || ''}`.trim()),
-        ...alerts.slice(0, 2).map(a => a.text || '')
-      ].filter(Boolean).join('\n');
+      document.getElementById('oldCvText').value = '';
+      document.getElementById('jobDescription').value = '';
       updateLanguageVisibility();
       document.getElementById('status').textContent = 'CIA payload imported. Only high-value fields were prefilled.';
       return true;
@@ -385,7 +369,7 @@
         document.getElementById('documentLanguage').value = 'en';
         document.getElementById('englishLevel').value = 'C1';
         document.getElementById('germanLevel').value = '';
-        document.getElementById('visaStatus').value = 'Work rights to be confirmed for Australia';
+        document.getElementById('visaStatus').value = 'I am still defining the best visa pathway';
         document.getElementById('profileSummaryRaw').value = 'operations leadership, customer service and process discipline';
         document.getElementById('companyName').value = 'Wesfarmers';
         document.getElementById('jobDescription').value = 'Operations Manager role with customer focus, KPI follow-up, visible accountability and cross-functional team coordination.';
@@ -399,9 +383,8 @@
         document.getElementById('documentLanguage').value = 'de';
         document.getElementById('englishLevel').value = 'B2';
         document.getElementById('germanLevel').value = 'B1';
-        document.getElementById('visaStatus').value = 'Work rights to be confirmed for Germany';
-        document.getElementById('profileSummaryRaw').value = '';
-        document.getElementById('companyName').value = 'Siemens';
+        document.getElementById('visaStatus').value = 'I am still defining the best visa pathway';
+          document.getElementById('companyName').value = 'Siemens';
         document.getElementById('jobDescription').value = 'Operations Manager role requiring process discipline, stakeholder coordination, KPI ownership and continuous improvement mindset.';
         document.getElementById('experienceLines').value = 'Coordinated structured execution routines across operations.\nImproved escalation discipline and internal follow-up consistency.\nSupported operational visibility with clearer process ownership.';
       }
@@ -463,24 +446,22 @@
       const phone = document.getElementById('phone').value.trim();
       const targetCountry = document.getElementById('targetCountry').value;
       const documentLanguage = document.getElementById('documentLanguage').value;
-      const seniority = document.getElementById('seniority').value.trim();
       const englishLevel = document.getElementById('englishLevel').value.trim();
       const germanLevel = document.getElementById('germanLevel').value.trim();
       const visaStatus = document.getElementById('visaStatus').value.trim();
-      const profileSummaryRaw = document.getElementById('profileSummaryRaw').value.trim();
       const companyName = document.getElementById('companyName').value.trim();
       const oldCvText = document.getElementById('oldCvText').value.trim();
       const jobDescription = document.getElementById('jobDescription').value.trim();
-      const experienceLines = lines(document.getElementById('experienceLines').value);
+      const experienceLines = lines(oldCvText).slice(0, 6);
       const companySignals = companyFitSignals(`${companyName}\n${jobDescription}`);
       updateLanguageVisibility();
 
-      const summary = buildSummary(targetCountry, targetRole, profileSummaryRaw, companySignals, jobDescription, experienceLines, oldCvText);
+      const summary = buildSummary(targetCountry, targetRole, '', companySignals, jobDescription, experienceLines, oldCvText);
       const skills = inferSkills(targetCountry, jobDescription, experienceLines);
       const bullets = experienceLines.filter(Boolean).map(line => `- ${sentence(line)}`).join('\n') || '- Relevant experience still needs to be added.';
       const targetCountryLabel = targetCountry === 'DE' ? 'Germany' : 'Australia';
 
-      const cv = `# ${fullName || 'Candidate'}\n\n## Contact\n${email ? '- Email: ' + email + '\n' : ''}${phone ? '- Phone / WhatsApp: ' + phone + '\n' : ''}\n## Target\n- ${targetCountryLabel}\n- ${targetRole || 'Target role to refine'}\n${seniority ? '- ' + seniority + '\n' : ''}${companyName ? '- Target company: ' + companyName + '\n' : ''}- Document language: ${documentLanguage}\n\n## Summary\n${summary}\n\n## Core Skills\n${skills.length ? skills.map(skill => '- ' + skill).join('\n') : '- Skills still need to be confirmed from the current CV and target job.'}\n\n## Professional Experience\n${bullets}\n\n## Languages\n- English — ${englishLevel || 'Not informed'}\n${targetCountry === 'DE' ? `- German — ${germanLevel || 'Not informed'}\n` : ''}- Work authorization — ${visaStatus || 'Not informed'}`;
+      const cv = `# ${fullName || 'Candidate'}\n\n## Contact\n${email ? '- Email: ' + email + '\n' : ''}${phone ? '- Phone / WhatsApp: ' + phone + '\n' : ''}\n## Target\n- ${targetCountryLabel}\n- ${targetRole || 'Target role to refine'}\n${companyName ? '- Target company: ' + companyName + '\n' : ''}- Document language: ${documentLanguage}\n\n## Summary\n${summary}\n\n## Core Skills\n${skills.length ? skills.map(skill => '- ' + skill).join('\n') : '- Skills still need to be confirmed from the current curriculum and target job.'}\n\n## Professional Experience\n${bullets}\n\n## Languages\n- English — ${englishLevel || 'Not informed'}\n${targetCountry === 'DE' ? `- German — ${germanLevel || 'Not informed'}\n` : ''}${visaStatus === 'I have full work rights in the target country' ? '- Work authorization — Full work rights confirmed\n' : ''}`;
 
       const diagnosticNotes = [];
       const strengths = inferStrengths(oldCvText, jobDescription, experienceLines);
@@ -488,7 +469,6 @@
       if (!oldCvText) diagnosticNotes.push('No current CV was provided, so the rewrite is being built from fresh intake only.');
       if (!experienceLines.length) diagnosticNotes.push('Relevant experience is still thin and should be strengthened before real applications.');
       if (targetCountry === 'DE' && !germanLevel) diagnosticNotes.push('German level is still unclear for a Germany-facing CV.');
-      if (targetCountry === 'AU' && !profileSummaryRaw) diagnosticNotes.push('Australia-facing CVs usually benefit from a tighter raw profile summary.');
 
       const diagnostic = `# Diagnostic\n\n## Positioning\n- ${targetCountry === 'DE' ? 'German-market version with more structured and sober wording.' : 'Australian-market version with more practical and outcome-aware wording.'}\n${strengths.length ? '- Strongest fit themes: ' + strengths.join(', ') + '\n' : ''}\n## Risks to fix\n${diagnosticNotes.length ? diagnosticNotes.map(item => '- ' + item).join('\n') : '- No major risks detected in this test flow.'}`;
 
