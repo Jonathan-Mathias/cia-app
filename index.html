@@ -69,9 +69,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .trilha-btn-sub{font-size:11px;color:var(--muted);margin-top:-4px;font-family:'DM Mono',monospace;letter-spacing:0.5px}
 
 /* ALTERAR DESTINO */
-.route-switch-wrap{display:flex;justify-content:center;margin:6px 0 22px}
-.route-switch-btn{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;border:1px solid var(--border2);background:linear-gradient(135deg,#171726 0%,#131321 100%);color:var(--text);font-family:'Geist',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.01em;cursor:pointer;transition:all .18s ease;backdrop-filter:blur(6px);box-shadow:0 4px 18px rgba(0,0,0,.18)}
-.route-switch-btn:hover{border-color:var(--accent);color:var(--text);background:linear-gradient(135deg,#1d1d2d 0%,#171726 100%);transform:translateY(-1px)}
+.route-switch-wrap{display:flex;justify-content:center;margin:10px 0 24px}
+.route-switch-btn{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:999px;border:1px solid rgba(212,175,55,.22);background:linear-gradient(135deg,rgba(24,24,36,.96) 0%,rgba(18,18,28,.98) 100%);color:var(--text);font-family:'Geist',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.01em;cursor:pointer;transition:all .18s ease;backdrop-filter:blur(6px);box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.route-switch-btn:hover{border-color:rgba(212,175,55,.48);color:var(--text);background:linear-gradient(135deg,#1e1e30 0%,#171726 100%);transform:translateY(-1px)}
 .route-switch-btn span{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent)}
 
 /* PROGRESSO */
@@ -2224,7 +2224,7 @@ function switchRoute(){
 function routeSwitchInline(){
   if(!T) return '';
   const routeLabel=T==='de'?'Alemanha':'Austrália';
-  return `<div class="route-switch-wrap"><button class="route-switch-btn" onclick="switchRoute()"><span>${routeLabel}</span>Alterar destino ↺</button></div>`;
+  return `<div class="route-switch-wrap"><button class="route-switch-btn" onclick="switchRoute()"><span>${routeLabel}</span>Escolher outro destino</button></div>`;
 }
 
 renderTrilha();
