@@ -2193,8 +2193,7 @@ function renderResults(){
       };
       try{localStorage.setItem('ciaCvBuilderPayload', JSON.stringify(payload));}catch(e){}
       try{sessionStorage.setItem('ciaCvBuilderPayload', JSON.stringify(payload));}catch(e){}
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-      window.open('./cv-builder-demo/index.html?source=cia&payload64='+encodeURIComponent(encoded),'_blank');
+      window.open('./cv-builder-demo/index.html?source=cia','_blank');
     });
   }
 
