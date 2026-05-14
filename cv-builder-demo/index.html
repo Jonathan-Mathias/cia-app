@@ -296,7 +296,86 @@ Strengthened follow-up routines between frontline and support teams | Supported 
         document.getElementById('companyName').value = 'Siemens';
         document.getElementById('jobDescription').value = 'We are looking for an Operations Manager with strong process discipline, cross-functional coordination, KPI follow-up, continuous improvement mindset and customer focus.';
       }
-      generateArtifact();
+      const importedPayload = getCiaPayload();
+    if (importedPayload) {
+      applyCiaPayload(importedPayload);
+    }
+    generateArtifact();
+    }
+
+    function safeJsonParse(value) {
+      try { return JSON.parse(value); } catch (error) { return null; }
+    }
+
+    function getCiaPayload() {
+      const params = new URLSearchParams(window.location.search);
+      const queryPayload = params.get('payload');
+      if (queryPayload) {
+        const parsed = safeJsonParse(decodeURIComponent(queryPayload));
+        if (parsed) return parsed;
+      }
+      const localPayload = safeJsonParse(localStorage.getItem('ciaCvBuilderPayload'));
+      if (localPayload) return localPayload;
+      return null;
+    }
+
+    function applyCiaPayload(payload) {
+      if (!payload) return false;
+      const lead = payload.lead || {};
+      const geo = payload.geo || {};
+      const score = payload.score || {};
+      const dims = score.dimensions || {};
+      const alerts = Array.isArray(payload.alerts) ? payload.alerts : [];
+      const insights = Array.isArray(payload.insights) ? payload.insights : [];
+      const steps = Array.isArray(payload.steps) ? payload.steps : [];
+      const answers = payload.answers || {};
+      const trilha = payload.trilha === 'au' ? 'AU' : 'DE';
+      const targetCountry = trilha;
+      const documentLanguage = trilha === 'DE' ? 'de' : 'en';
+      const targetRole = trilha === 'DE' ? 'Specialist / Manager role in Germany' : 'Specialist / Manager role in Australia';
+      const seniority = score.final >= 86 ? 'Senior / High-potential' : score.final >= 66 ? 'Mid-Senior' : 'Developing';
+      const englishLevel = answers.p1 ? answers.p1.l : '';
+      const germanLevel = answers.p2 ? answers.p2.l : 'Not informed';
+      const visaStatus = trilha === 'AU' ? 'Work rights to be confirmed for Australia' : 'Work rights to be confirmed for Germany';
+      const companyName = '';
+      const profileSummaryRaw = [
+        answers.p3 ? answers.p3.l : '',
+        geo.pais ? 'Current location: ' + geo.pais : '',
+        'CIA score: ' + (score.final ?? 'N/A') + '/100',
+        score.band ? 'Band: ' + score.band : ''
+      ].filter(Boolean).join(' | ');
+      const oldCvText = [
+        lead.nome || 'Candidate',
+        'Imported from CIA App final report.',
+        payload.summary || ''
+      ].filter(Boolean).join('\n');
+      const jobDescription = [
+        'Imported from CIA diagnostic.',
+        alerts.map(a => a.text || '').join(' '),
+        insights.map(i => (i.title ? i.title + ': ' : '') + (i.text || '')).join(' ')
+      ].filter(Boolean).join('\n\n');
+      const experienceLines = [
+        'CIA route | ' + (trilha === 'AU' ? 'Australia' : 'Germany'),
+        'Score band | ' + (score.band || 'Not informed'),
+        'Dimension scores | Language/Area: ' + (dims.d1 ?? 'N/A') + ', Decision maturity: ' + (dims.d2 ?? 'N/A') + ', Behavioral profile: ' + (dims.d3 ?? 'N/A') + ', Market knowledge: ' + (dims.d4 ?? 'N/A'),
+        ...steps.map(step => step.replace(/<[^>]+>/g, ' '))
+      ].join('\n');
+
+      document.getElementById('fullName').value = lead.nome || 'Candidate from CIA';
+      document.getElementById('targetRole').value = targetRole;
+      document.getElementById('targetCountry').value = targetCountry;
+      document.getElementById('documentLanguage').value = documentLanguage;
+      document.getElementById('seniority').value = seniority;
+      document.getElementById('englishLevel').value = englishLevel || 'Not informed';
+      document.getElementById('germanLevel').value = germanLevel || 'Not informed';
+      document.getElementById('visaStatus').value = visaStatus;
+      document.getElementById('profileSummaryRaw').value = profileSummaryRaw;
+      document.getElementById('companyName').value = companyName;
+      document.getElementById('oldCvText').value = oldCvText;
+      document.getElementById('jobDescription').value = jobDescription;
+      document.getElementById('experienceLines').value = experienceLines;
+      document.getElementById('status').textContent = 'CIA payload imported. Testing with real final-report data.';
+      return true;
     }
 
     function generateArtifact() {
