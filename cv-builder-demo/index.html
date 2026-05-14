@@ -193,9 +193,31 @@
           </div>
         </div>
 
-        <div class="row3">
-          <div><label>English</label><input id="englishLevel" value="Advanced" /></div>
-          <div><label>German</label><input id="germanLevel" value="Intermediate" /></div>
+        <div class="row3" id="languageRow">
+          <div>
+            <label>English</label>
+            <select id="englishLevel">
+              <option value="does-not-speak">Does not speak</option>
+              <option value="A1">A1</option>
+              <option value="A2">A2</option>
+              <option value="B1">B1</option>
+              <option value="B2">B2</option>
+              <option value="C1">C1</option>
+              <option value="C2">C2</option>
+            </select>
+          </div>
+          <div id="germanFieldWrap">
+            <label>German</label>
+            <select id="germanLevel">
+              <option value="does-not-speak">Does not speak</option>
+              <option value="A1">A1</option>
+              <option value="A2">A2</option>
+              <option value="B1">B1</option>
+              <option value="B2">B2</option>
+              <option value="C1">C1</option>
+              <option value="C2">C2</option>
+            </select>
+          </div>
           <div><label>Visa / work auth</label><input id="visaStatus" value="Sponsorship required" /></div>
         </div>
 
@@ -310,6 +332,32 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       generateArtifact();
     }
 
+
+    function mapCiaLanguageToCefr(label) {
+      const value = String(label || '').trim().toLowerCase();
+      if (!value) return 'does-not-speak';
+      if (/nao fala|não fala|nenhum|does not speak|not applicable/.test(value)) return 'does-not-speak';
+      if (/a1/.test(value)) return 'A1';
+      if (/a2/.test(value)) return 'A2';
+      if (/b1/.test(value)) return 'B1';
+      if (/b2/.test(value)) return 'B2';
+      if (/c1|avancad|advanced|fluente|fluent/.test(value)) return 'C1';
+      if (/c2|nativo|native|bilingue|bilingual/.test(value)) return 'C2';
+      if (/basico|basic|consigo.*ajuda|precisaria.*ajuda/.test(value)) return 'A2';
+      if (/intermedi/.test(value)) return 'B1';
+      if (/upper|consigo.*sozinho|independent/.test(value)) return 'B2';
+      return 'does-not-speak';
+    }
+
+    function updateLanguageVisibility() {
+      const targetCountry = document.getElementById('targetCountry').value;
+      const germanWrap = document.getElementById('germanFieldWrap');
+      if (germanWrap) germanWrap.style.display = targetCountry === 'DE' ? 'block' : 'none';
+      const docLang = document.getElementById('documentLanguage');
+      if (targetCountry === 'AU' && docLang.value === 'de') docLang.value = 'en';
+      if (targetCountry === 'DE' && !docLang.value) docLang.value = 'de';
+    }
+
     function safeJsonParse(value) {
       try { return JSON.parse(value); } catch (error) { return null; }
     }
@@ -356,8 +404,8 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       const documentLanguage = trilha === 'DE' ? 'de' : 'en';
       const targetRole = answers.p3 ? answers.p3.l : (trilha === 'DE' ? 'Specialist / Manager role in Germany' : 'Specialist / Manager role in Australia');
       const seniority = score.final >= 86 ? 'Senior / High-potential' : score.final >= 66 ? 'Mid-Senior' : 'Developing';
-      const englishLevel = answers.p1 ? answers.p1.l : 'Not informed';
-      const germanLevel = trilha === 'DE' ? (answers.p2 ? answers.p2.l : 'Not informed') : 'Not applicable';
+      const englishLevel = mapCiaLanguageToCefr(answers.p1 ? answers.p1.l : '');
+      const germanLevel = trilha === 'DE' ? mapCiaLanguageToCefr(answers.p2 ? answers.p2.l : '') : 'does-not-speak';
       const visaStatus = trilha === 'AU' ? 'Work rights to be confirmed for Australia' : 'Work rights to be confirmed for Germany';
       const companyName = '';
       const email = lead.email || '';
@@ -394,8 +442,9 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       document.getElementById('targetCountry').value = targetCountry;
       document.getElementById('documentLanguage').value = documentLanguage;
       document.getElementById('seniority').value = seniority;
-      document.getElementById('englishLevel').value = englishLevel || 'Not informed';
-      document.getElementById('germanLevel').value = germanLevel || 'Not informed';
+      document.getElementById('englishLevel').value = englishLevel || 'does-not-speak';
+      document.getElementById('germanLevel').value = germanLevel || 'does-not-speak';
+      updateLanguageVisibility();
       document.getElementById('visaStatus').value = visaStatus;
       document.getElementById('profileSummaryRaw').value = profileSummaryRaw;
       document.getElementById('companyName').value = companyName;
@@ -416,6 +465,7 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       const seniority = document.getElementById('seniority').value.trim();
       const englishLevel = document.getElementById('englishLevel').value.trim();
       const germanLevel = document.getElementById('germanLevel').value.trim();
+      updateLanguageVisibility();
       const visaStatus = document.getElementById('visaStatus').value.trim();
       const profileSummaryRaw = document.getElementById('profileSummaryRaw').value.trim();
       const companyName = document.getElementById('companyName').value.trim();
@@ -463,6 +513,13 @@ Strengthened follow-up routines between frontline and support teams | Supported 
       `;
       document.getElementById('status').textContent = 'Artifact generated locally. This is the simple testable version.';
     }
+
+    document.getElementById('targetCountry').addEventListener('change', () => {
+      updateLanguageVisibility();
+      generateArtifact();
+    });
+
+    updateLanguageVisibility();
     const importedPayload = getCiaPayload();
     const didImport = applyCiaPayload(importedPayload);
     generateArtifact();
