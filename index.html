@@ -68,12 +68,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .trilha-nome{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-0.01em}
 .trilha-btn-sub{font-size:11px;color:var(--muted);margin-top:-4px;font-family:'DM Mono',monospace;letter-spacing:0.5px}
 
-/* ALTERAR DESTINO */
-.route-switch-wrap{display:flex;justify-content:flex-start;margin:14px 0 4px}
-.route-switch-btn{display:inline-flex;align-items:center;gap:6px;padding:0;border:none;background:transparent;color:var(--text2);font-family:'Geist',sans-serif;font-size:13px;font-weight:400;letter-spacing:0.01em;cursor:pointer;transition:color .18s ease,opacity .18s ease;text-decoration:none;box-shadow:none;opacity:.9}
-.route-switch-btn:hover{color:var(--text);opacity:1;text-decoration:underline;text-underline-offset:3px;background:transparent;transform:none}
-.route-switch-btn::before{content:'←';font-size:12px;color:var(--muted)}
-
 /* PROGRESSO */
 .prog-wrap{margin-bottom:28px}
 .prog-meta{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px}
@@ -246,17 +240,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .share-icon{font-size:16px;opacity:0.6}
 .share-beta{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:1px;background:#f0c44a15;border:1px solid #f0c44a30;border-radius:4px;padding:2px 6px}
 
+/* ALTERAR DESTINO */
+.route-switch-wrap{display:flex;justify-content:flex-start;margin:14px 0 4px}
+.route-switch-btn{display:inline-flex;align-items:center;gap:6px;padding:0;border:none;background:transparent;color:var(--text2);font-family:'Geist',sans-serif;font-size:13px;font-weight:400;letter-spacing:0.01em;cursor:pointer;transition:color .18s ease,opacity .18s ease;text-decoration:none;box-shadow:none;opacity:.9}
+.route-switch-btn:hover{color:var(--text);opacity:1;text-decoration:underline;text-underline-offset:3px;background:transparent;transform:none}
+.route-switch-btn::before{content:'←';font-size:12px;color:var(--muted)}
+
 .restart{text-align:center;padding:8px 0 4px}
 .restart-btn{background:transparent;border:1px solid var(--border);border-radius:var(--r2);color:var(--muted);font-size:13px;padding:12px 28px;cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s;width:100%;letter-spacing:0.02em}
 .restart-btn:hover{border-color:var(--accent);color:var(--text);background:#5b9cf610}
-
-.cv-builder-card{background:linear-gradient(135deg,#12172a 0%,#0f1424 100%);border:1px solid #8b5cf640;border-radius:var(--r);padding:22px 20px;margin:16px 0}
-.cv-builder-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin-bottom:10px;font-weight:600}
-.cv-builder-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:8px}
-.cv-builder-sub{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
-.cv-builder-sub strong{color:var(--text)}
-.cv-builder-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:none;border-radius:var(--r2);background:#8b5cf6;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none}
-.cv-builder-btn:hover{filter:brightness(1.05)}
 
 /* CARD MENTORIA ELITE */
 .mentoria-card{background:linear-gradient(135deg,#0d1a0d 0%,#0a1a10 50%,#0d1500 100%);border:1px solid #3ecf8e40;border-radius:var(--r);padding:24px 22px;margin:14px 0;position:relative;overflow:hidden}
@@ -270,6 +262,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .mentoria-card-btn.de{background:#D4AF37;color:#0d0d00}
 .mentoria-card-btn.au{background:#2B5EA7;color:#fff}
 .mentoria-card-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+
+.cv-builder-card{background:linear-gradient(135deg,#12172a 0%,#0f1424 100%);border:1px solid #8b5cf640;border-radius:var(--r);padding:22px 20px;margin:16px 0}
+.cv-builder-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin-bottom:10px;font-weight:600}
+.cv-builder-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:8px}
+.cv-builder-sub{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.cv-builder-sub strong{color:var(--text)}
+.cv-builder-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:none;border-radius:var(--r2);background:#8b5cf6;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none}
+.cv-builder-btn:hover{filter:brightness(1.05)}
 
 @media(max-width:400px){
   .bands{grid-template-columns:repeat(2,1fr)}
@@ -314,17 +314,17 @@ const EBOOK_URL     = 'https://pay.hotmart.com/S76741696B';
 const CURSO_URL     = 'https://hotmart.com/pt-br/marketplace/produtos/emprego-na-alemanha/S95826105M';
 const CURSO_ALEMAO  = '';
 const SEGURO_URL    = '';
-const APP_CV_URL    = '';
+const APP_CV_URL    = 'https://jonathan-mathias.github.io/cia-app/cv-builder-demo/index.html?source=cia';
 const APP_CARTA_URL = '';
 const APP_LI_URL    = '';
 
 /* =======================================================
    BREVO — Email automation
-   MODO TESTE: Email 2 em 2 min, Email 3 em 5 min
-   PRODUÇÃO: trocar para E2_DELAY=3 e E3_DELAY=10 (dias)
+   MODO PRODUÇÃO: Email 2 em 2 dias, Email 3 em 5 dias
+   TESTE: trocar para E2_DELAY=2 e E3_DELAY=5 (minutos)
 ========================================================= */
-const E2_DELAY_MIN  = 2;   // minutos — TESTE
-const E3_DELAY_MIN  = 5;   // minutos — TESTE
+const E2_DELAY_MIN  = 2880; // minutos — PRODUÇÃO (2 dias)
+const E3_DELAY_MIN  = 7200; // minutos — PRODUÇÃO (5 dias)
 
 /* ---- helpers de email ---- */
 function _eWrap(preheader,tag,body){
@@ -351,26 +351,43 @@ a{color:#0D1B3E}
 <div class="wrap">
   <div class="hdr"><div class="hdr-tag">${tag}</div><div class="hdr-title">Apex Career</div></div>
   <div class="body">${body}</div>
-  <div class="ftr">Jonathan Mathias · Apex Career · Sydney, AU<br>Brasil → Alemanha (18 anos) → Austrália<br>
+  <div class="ftr">Jonathan Mathias · Apex Career · Sydney, AU<br>Brasil → Alemanha → Austrália<br>
   <a href="https://jonathan-mathias.github.io/cia-app" style="color:#888">Refazer avaliação</a></div>
-</div>
-
-</body></html>`;
+</div></body></html>`;
 }
 
 /* ---- renders DE ---- */
-function _renderE1_DE(nome,score){
+function _renderE1_DE(nome,score,band){
   const n=nome.split(' ')[0];
-  return _eWrap('Seu resultado está pronto','Career Intelligence Assessment · Alemanha',`
-<h2>Olá ${n},</h2>
-<p>Você completou o CIA App. Aqui está o que sua análise revela.</p>
-<div class="sb"><div class="sl">Sua pontuação</div><div class="sn">${score}</div><div class="sm">Explorador</div></div>
+  const b=band||'Explorador';
+  const bodies={
+    'Explorador':`
 <p>Esse resultado não é um julgamento. É um diagnóstico de onde você está agora.</p>
 <p>Significa que você tem interesse real em construir uma carreira na Alemanha, mas ainda faltam elementos estratégicos que o mercado alemão exige antes de reconhecer o seu valor.</p>
 <div class="qt">"Na Alemanha, intenção não substitui estrutura. O mercado recompensa quem sabe se posicionar, não apenas quem se esforça."</div>
 <p>Nos próximos dias vou te enviar dois conteúdos práticos sobre os dois maiores gargalos que profissionais brasileiros enfrentam nessa fase.</p>
 <p>Enquanto isso, se quiser dar um próximo passo concreto agora:</p>
-<a href="${EBOOK_URL}" class="btn">Ver o guia #partiu_Alemanha →</a>`);
+<a href="${EBOOK_URL}" class="btn">Ver o guia #partiu_Alemanha →</a>`,
+    'Em Rota':`
+<p>Você está à frente de boa parte dos profissionais brasileiros que cogitam essa transição. Tem fundamentos — mas o mercado alemão ainda não está te enxergando da forma que você merece.</p>
+<p>O gap entre Em Rota e Pronto Embarcar quase sempre é posicionamento, não competência. Nos próximos dias vou te mostrar exatamente onde está o bloqueio e como resolver.</p>
+<div class="qt">"Na Alemanha, intenção não substitui estrutura. O mercado recompensa quem sabe se posicionar, não apenas quem se esforça."</div>
+<a href="${EBOOK_URL}" class="btn">Ver o guia #partiu_Alemanha →</a>`,
+    'Pronto para Embarcar':`
+<p>Você está no percentil superior dos candidatos que passam por essa avaliação. Seu perfil tem os elementos que o mercado alemão reconhece.</p>
+<p>O que separa quem entra bem posicionado de quem perde meses é a execução: empresa certa, abordagem certa, timing certo. Nos próximos dias vou te falar sobre esse trabalho de arquitetura.</p>
+<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`,
+    'Elite':`
+<p>Você reúne os elementos que o mercado alemão mais valoriza. Esse score reflete um perfil que o mercado reconhece — o próximo passo é garantir que as empresas certas te encontrem.</p>
+<div class="qt">"Na Alemanha, intenção não substitui estrutura. O mercado recompensa quem sabe se posicionar, não apenas quem se esforça."</div>
+<p>Se quiser conversar sobre como acelerar esse processo:</p>
+<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`
+  };
+  return _eWrap('Seu resultado está pronto','Career Intelligence Assessment · Alemanha',`
+<h2>Olá ${n},</h2>
+<p>Você completou o CIA App. Aqui está o que sua análise revela.</p>
+<div class="sb"><div class="sl">Sua pontuação</div><div class="sn">${score}</div><div class="sm">${b}</div></div>
+${bodies[b]||bodies['Explorador']}`);
 }
 
 function _renderE2_DE(nome,temAlemao){
@@ -405,16 +422,34 @@ function _renderE3_DE(nome){
 }
 
 /* ---- renders AU ---- */
-function _renderE1_AU(nome,score){
+function _renderE1_AU(nome,score,band){
   const n=nome.split(' ')[0];
-  return _eWrap('Seu resultado está pronto','Career Intelligence Assessment · Austrália',`
-<h2>Olá ${n},</h2>
-<p>Você completou o CIA App. Aqui está o que sua análise revela.</p>
-<div class="sb"><div class="sl">Sua pontuação</div><div class="sn">${score}</div><div class="sm">Explorador</div></div>
+  const b=band||'Explorador';
+  const bodies={
+    'Explorador':`
 <p>Esse resultado é um diagnóstico — não um veredito. Ele mostra onde você está agora em relação ao que o mercado australiano exige.</p>
 <p>A Austrália tem um dos sistemas de imigração mais estruturados do mundo. Isso significa que o caminho existe, mas precisa ser percorrido com arquitetura, não com improviso.</p>
 <div class="qt">"Quando vim para a Austrália após 18 anos na Alemanha, entendi que cada transição exige uma leitura nova do mercado. Nada se transfere automaticamente."</div>
-<p>Nos próximos dias vou te enviar conteúdo prático sobre inglês profissional e o sistema de vistos australiano.</p>`);
+<p>Nos próximos dias vou te enviar conteúdo prático sobre inglês profissional e o sistema de vistos australiano.</p>`,
+    'Em Rota':`
+<p>Você está em movimento real no caminho certo. Mas o mercado australiano filtra antes da entrevista — e há gaps específicos entre onde você está e onde o mercado te encontra.</p>
+<p>Nos próximos dias vou te mostrar por que perfis qualificados não passam do filtro australiano e como resolver isso.</p>
+<div class="qt">"Quando vim para a Austrália após 18 anos na Alemanha, entendi que cada transição exige uma leitura nova do mercado. Nada se transfere automaticamente."</div>`,
+    'Pronto para Embarcar':`
+<p>Você está no percentil superior dos candidatos que passam por essa avaliação. Você passou pelo filtro mais difícil — ter o perfil real.</p>
+<p>O que falta agora é visibilidade estratégica no mercado australiano: aparecer para as empresas certas, do jeito certo. Vou te enviar mais detalhes sobre isso em breve.</p>
+<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`,
+    'Elite':`
+<p>Você reúne os elementos que o mercado australiano mais valoriza. Esse score reflete um perfil competitivo — o próximo passo é garantir que as empresas certas te encontrem.</p>
+<div class="qt">"Quando vim para a Austrália após 18 anos na Alemanha, entendi que cada transição exige uma leitura nova do mercado. Nada se transfere automaticamente."</div>
+<p>Se quiser conversar sobre como acelerar esse processo:</p>
+<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`
+  };
+  return _eWrap('Seu resultado está pronto','Career Intelligence Assessment · Austrália',`
+<h2>Olá ${n},</h2>
+<p>Você completou o CIA App. Aqui está o que sua análise revela.</p>
+<div class="sb"><div class="sl">Sua pontuação</div><div class="sn">${score}</div><div class="sm">${b}</div></div>
+${bodies[b]||bodies['Explorador']}`);
 }
 
 function _renderE2_AU(nome){
@@ -441,6 +476,67 @@ function _renderE3_AU(nome){
 </ul>
 <p>Entender esses três elementos muda completamente o horizonte de planejamento. A maioria dos brasileiros começa pelo lugar errado.</p>
 <p>Se quiser conversar sobre o seu perfil específico:</p>
+<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`);
+}
+
+/* ---- renders E2 Em Rota ---- */
+function _renderE2EmRota_DE(nome){
+  const n=nome.split(' ')[0];
+  return _eWrap('O que está travando sua candidatura alemã','Conteúdo: Posicionamento no Mercado Alemão',`
+<h2>O que está travando sua candidatura alemã</h2>
+<p>Olá ${n},</p>
+<p>Você tem movimento — e isso já te coloca à frente da maioria. Mas o mercado alemão ainda não está te enxergando da forma que você merece.</p>
+<p>O gap entre Em Rota e Pronto Embarcar quase sempre é <strong>posicionamento, não competência</strong>. Os três bloqueios mais comuns nessa fase:</p>
+<ul style="padding-left:20px;margin:16px 0;line-height:2.2">
+  <li>Currículo no padrão errado — Lebenslauf tem estrutura e expectativas específicas</li>
+  <li>LinkedIn sem palavras-chave alemãs — os sistemas ATS locais não te encontram</li>
+  <li>Candidaturas genéricas — o mercado alemão responde a abordagens diretas e específicas</li>
+</ul>
+<p>Esses três pontos explicam por que profissionais qualificados ficam meses sem resposta. Não é falta de perfil — é falta de arquitetura de candidatura.</p>
+<p>Se quiser resolver isso com estrutura:</p>
+<a href="${CURSO_URL}" class="btn" target="_blank">Emprego na Alemanha →</a>`);
+}
+
+function _renderE2EmRota_AU(nome){
+  const n=nome.split(' ')[0];
+  return _eWrap('Por que perfis qualificados não passam do filtro australiano','Conteúdo: Posicionamento no Mercado Australiano',`
+<h2>Por que perfis qualificados não passam do filtro australiano</h2>
+<p>Olá ${n},</p>
+<p>O mercado australiano tem uma característica que a maioria dos brasileiros subestima: <strong>ele filtra antes da entrevista</strong>. Um perfil qualificado com candidatura mal posicionada simplesmente não passa do primeiro crivo.</p>
+<p>Os três bloqueios mais comuns nessa fase:</p>
+<ul style="padding-left:20px;margin:16px 0;line-height:2.2">
+  <li>Resume fora do padrão — formato, linguagem e estrutura importam mais do que o conteúdo</li>
+  <li>LinkedIn sem visibilidade local — recrutadores australianos usam palavras-chave e sinais de rede diferentes</li>
+  <li>Ausência de rede ativa — o mercado australiano é fortemente baseado em referências e conexões diretas</li>
+</ul>
+<p>Se o inglês profissional ainda é um gap, essa é a parceira que indico para elevar o nível:</p>
+<a href="${VERBALIZE_URL}" class="btn" target="_blank">Conhecer a Verbalize Now →</a>
+<p style="margin-top:16px">Para quem quer conversar sobre posicionamento estratégico no mercado australiano:</p>
+<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`);
+}
+
+/* ---- renders E2 Pronto Embarcar ---- */
+function _renderE2ProntoEmbarcar_DE(nome){
+  const n=nome.split(' ')[0];
+  return _eWrap('Você está mais perto do que imagina','Conteúdo: Execução e Mentoria',`
+<h2>Você está mais perto do que imagina</h2>
+<p>Olá ${n},</p>
+<p>Seu perfil é competitivo. O que a análise mostra é que você tem os elementos que o mercado alemão reconhece.</p>
+<p>O que separa quem entra bem posicionado de quem perde meses tentando é a execução: <strong>empresa certa, abordagem certa, timing certo</strong>.</p>
+<p>Esse trabalho de arquitetura — mapear o mercado, identificar empresas que contratam perfis como o seu, construir a abordagem correta — é exatamente o que fazemos na mentoria.</p>
+<p>Se quiser entender como esse processo funciona para o seu perfil específico:</p>
+<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`);
+}
+
+function _renderE2ProntoEmbarcar_AU(nome){
+  const n=nome.split(' ')[0];
+  return _eWrap('Perfil competitivo. O próximo passo é aparecer para as empresas certas','Conteúdo: Visibilidade Estratégica',`
+<h2>Perfil competitivo. O próximo passo é aparecer para as empresas certas</h2>
+<p>Olá ${n},</p>
+<p>Você passou pelo filtro mais difícil: ter o perfil real. A maioria dos brasileiros para bem antes disso.</p>
+<p>O que falta agora não é competência — é <strong>visibilidade estratégica no mercado australiano</strong>. Aparecer para as empresas certas, no momento certo, com o posicionamento certo.</p>
+<p>Isso envolve saber onde seu perfil tem maior tração, como ativar a rede local mesmo sem estar lá ainda, e como construir presença antes da candidatura formal.</p>
+<p>Se quiser conversar sobre o seu perfil específico e o próximo passo concreto:</p>
 <a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`);
 }
 
@@ -481,27 +577,65 @@ async function dispararEmailsLead(email,nome,score,trilha,alemao){
   const firstName=nome.split(' ')[0];
   const band=score<=40?'Explorador':score<=65?'Em Rota':score<=85?'Pronto para Embarcar':'Elite';
 
-  // 1. Cadastra contato na lista Brevo
+  // 1. Cadastra contato na lista Brevo (sempre, independente de banda)
   await _addContactBrevo(email,nome,score,band,trilha);
 
-  // Só envia sequência completa para Explorador (score<=40)
-  if(score>40)return;
-
+  // 2. Sequência de emails por banda
   if(trilha==='de'){
     const alV=ANS['p2']?ANS['p2'].v:0;
     const temAlemao=alV>=2;
-    await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_DE(nome,score));
-    await _sendBrevoScheduled(email,firstName,
-      temAlemao?'Seu gargalo não é o idioma':'O primeiro travamento de quem quer trabalhar na Alemanha',
-      _renderE2_DE(nome,temAlemao),E2_DELAY_MIN);
-    await _sendBrevoScheduled(email,firstName,'Seu diploma brasileiro tem valor na Alemanha?',
-      _renderE3_DE(nome),E3_DELAY_MIN);
+
+    if(score<=40){
+      // Explorador: E1 + E2 + E3 com delays
+      await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_DE(nome,score,band));
+      await _sendBrevoScheduled(email,firstName,
+        temAlemao?'Seu gargalo não é o idioma':'O primeiro travamento de quem quer trabalhar na Alemanha',
+        _renderE2_DE(nome,temAlemao),E2_DELAY_MIN);
+      await _sendBrevoScheduled(email,firstName,'Seu diploma brasileiro tem valor na Alemanha?',
+        _renderE3_DE(nome),E3_DELAY_MIN);
+
+    } else if(score<=65){
+      // Em Rota: E1 imediato + E2 em 2 dias (posicionamento)
+      await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_DE(nome,score,band));
+      await _sendBrevoScheduled(email,firstName,'O que está travando sua candidatura alemã',
+        _renderE2EmRota_DE(nome),E2_DELAY_MIN);
+
+    } else if(score<=85){
+      // Pronto Embarcar: E1 imediato + E2 em 2 dias (mentoria/próximo passo)
+      await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_DE(nome,score,band));
+      await _sendBrevoScheduled(email,firstName,'Você está mais perto do que imagina',
+        _renderE2ProntoEmbarcar_DE(nome),E2_DELAY_MIN);
+
+    } else {
+      // Elite: só E1 imediato (CTA direto para LinkedIn)
+      await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_DE(nome,score,band));
+    }
+
   } else {
-    await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_AU(nome,score));
-    await _sendBrevoScheduled(email,firstName,'Inglês profissional vs. inglês de sobrevivência',
-      _renderE2_AU(nome),E2_DELAY_MIN);
-    await _sendBrevoScheduled(email,firstName,'Como funciona o sistema de vistos australiano',
-      _renderE3_AU(nome),E3_DELAY_MIN);
+    if(score<=40){
+      // Explorador: E1 + E2 + E3 com delays
+      await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_AU(nome,score,band));
+      await _sendBrevoScheduled(email,firstName,'Inglês profissional vs. inglês de sobrevivência',
+        _renderE2_AU(nome),E2_DELAY_MIN);
+      await _sendBrevoScheduled(email,firstName,'Como funciona o sistema de vistos australiano',
+        _renderE3_AU(nome),E3_DELAY_MIN);
+
+    } else if(score<=65){
+      // Em Rota: E1 imediato + E2 em 2 dias (posicionamento)
+      await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_AU(nome,score,band));
+      await _sendBrevoScheduled(email,firstName,'Por que perfis qualificados não passam do filtro australiano',
+        _renderE2EmRota_AU(nome),E2_DELAY_MIN);
+
+    } else if(score<=85){
+      // Pronto Embarcar: E1 imediato + E2 em 2 dias (visibilidade estratégica)
+      await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_AU(nome,score,band));
+      await _sendBrevoScheduled(email,firstName,'Perfil competitivo. O próximo passo é aparecer para as empresas certas',
+        _renderE2ProntoEmbarcar_AU(nome),E2_DELAY_MIN);
+
+    } else {
+      // Elite: só E1 imediato (CTA direto para LinkedIn)
+      await _sendBrevo(email,firstName,`${firstName}, seu resultado no CIA App está aqui`,_renderE1_AU(nome,score,band));
+    }
   }
 }
 
@@ -1539,7 +1673,7 @@ function renderCadastro(){
         </div>
         <div id="cad-err" style="display:none;font-size:12px;color:#e85555;text-align:center;padding:4px 0">Selecione sua faixa etária e país atual para continuar.</div>
         ${routeSwitchInline()}
-        <button id="cad-btn" style="width:100%;margin-top:18px;padding:15px;border:none;border-radius:var(--r2);background:${cor};color:${corTxt};font-size:15px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:opacity .15s;letter-spacing:0.01em">Iniciar avaliação →</button>
+        <button id="cad-btn" style="width:100%;padding:15px;border:none;border-radius:var(--r2);background:${cor};color:${corTxt};font-size:15px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:opacity .15s;letter-spacing:0.01em">Iniciar avaliação →</button>
       </div>
     </div>`;
 
@@ -1608,12 +1742,10 @@ function renderQ(){
     : '';
 
   const wrap=document.createElement('div');
-  const routeLabel=T==='de'?'Alemanha':'Austrália';
-  const canSwitchRoute=step===0;
   wrap.innerHTML=`
     ${badgeDestino}
     <div style="text-align:center;padding:${isNoDestino()?'8px':'20px'} 0 16px">
-      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${cor}">${routeLabel} · Pergunta ${step+1} de ${total}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${cor}">${T==='de'?'Alemanha':'Austrália'} · Pergunta ${step+1} de ${total}</div>
     </div>
     <div class="prog-wrap">
       <div class="prog-meta"><span style="opacity:0">&nbsp;</span><span>${pct}%</span></div>
@@ -1997,10 +2129,9 @@ function renderResults(){
       <div class="cv-builder-sub">Use os <strong>dados reais gerados no CIA</strong> para abrir o CV Builder já pré-preenchido para teste. O acesso continua protegido.</div>
       <button class="cv-builder-btn" id="btn-open-cv-builder">Abrir CV Builder com meus dados →</button>
     </div>
-
     <div class="social" style="display:flex;flex-direction:column;gap:10px">
       <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Jonathan Mathias</div>
-      <p style="font-size:13px;color:var(--text2);line-height:1.7">Brasil → Alemanha (18 anos) → Austrália. Mentor de carreira internacional para gestores e especialistas que levam a decisão a sério. Conteúdo toda semana no <a href="https://linkedin.com/in/jonathan-mathias" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">LinkedIn</a> e no <a href="https://instagram.com/jmnomundo" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">Instagram</a>.</p>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">Brasil → Alemanha → Austrália. Mentor de carreira internacional para gestores e especialistas que levam a decisão a sério. Conteúdo toda semana no <a href="https://linkedin.com/in/jonathan-mathias" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">LinkedIn</a> e no <a href="https://instagram.com/jmnomundo" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">Instagram</a>.</p>
     </div>
     <div class="sec-label-main">Compartilhar</div>
     <div class="share-wrap">
@@ -2124,9 +2255,9 @@ function renderResults(){
       window.open('https://www.linkedin.com/sharing/share-offsite/?url='+url,'_blank');
     },400);
   });
-
-
-
+  document.getElementById('shr-ig').addEventListener('click',()=>{
+    generateIGCard();
+  });
 
   const npsGrid=document.getElementById('nps-grid');
   if(npsGrid){
@@ -2178,36 +2309,23 @@ function renderResults(){
     card.addEventListener('click',()=>{card.classList.toggle('collapsed');});
   });
 
-
   const cvBuilderBtn=document.getElementById('btn-open-cv-builder');
   if(cvBuilderBtn){
     cvBuilderBtn.addEventListener('click',()=>{
       const payload={
         source:'cia-final-report',
         generatedAt:new Date().toISOString(),
-        lead:{...LEAD},
-        geo:{...GEO},
-        trilha:T,
-        answers:ANS,
-        counters:CTR,
-        score:{
-          final:result.final,
-          band:band.lb,
-          dimensions:result.dims
-        },
-        alerts,
-        insights,
-        steps,
-        summary:buildSummary(result,insights,steps)
+        lead:{...LEAD},geo:{...GEO},trilha:T,answers:ANS,counters:CTR,
+        score:{final:result.final,band:band.lb,dimensions:result.dims},
+        alerts,insights,steps,summary:buildSummary(result,insights,steps)
       };
-      try{localStorage.setItem('ciaCvBuilderPayload', JSON.stringify(payload));}catch(e){}
-      try{sessionStorage.setItem('ciaCvBuilderPayload', JSON.stringify(payload));}catch(e){}
-      window.open('./cv-builder-demo/index.html?source=cia','_blank');
+      try{localStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
+      try{sessionStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
+      window.open(APP_CV_URL,'_blank');
     });
   }
 
   document.getElementById('btn-restart').addEventListener('click',()=>{
-    // Preserve LEAD data for refazer flow — user can edit at lead gate
     const savedLead={...LEAD};
     const savedGEO={...GEO};
     T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;
@@ -2223,13 +2341,10 @@ function switchRoute(){
 
 function routeSwitchInline(){
   if(!T) return '';
-  const routeLabel=T==='de'?'Alemanha':'Austrália';
   return `<div class="route-switch-wrap"><button class="route-switch-btn" onclick="switchRoute()">Escolher outro destino</button></div>`;
 }
 
 renderTrilha();
 </script>
-
-
 </body>
 </html>
