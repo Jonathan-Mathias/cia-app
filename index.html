@@ -328,32 +328,89 @@ const E3_DELAY_MIN  = 7200; // minutos — PRODUÇÃO (5 dias)
 
 /* ---- helpers de email ---- */
 function _eWrap(preheader,tag,body){
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${preheader}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#f4f4f4;font-family:Georgia,serif;color:#1a1a1a}
-.wrap{max-width:600px;margin:32px auto;background:#ffffff;border-radius:4px;overflow:hidden}
-.hdr{background:#0D1B3E;padding:28px 40px 20px}
-.hdr-tag{font-family:Arial,sans-serif;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#D4AF37;margin-bottom:8px}
-.hdr-title{font-size:22px;font-weight:700;color:#ffffff;line-height:1.3}
-.body{padding:36px 40px}
-h2{font-size:18px;font-weight:700;color:#0D1B3E;margin-bottom:16px}
-p{font-size:15px;line-height:1.8;color:#333;margin-bottom:16px}
-.sb{background:#f8f6f0;border-left:3px solid #D4AF37;padding:16px 20px;margin:20px 0;border-radius:0 4px 4px 0}
-.sl{font-family:Arial,sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:4px}
-.sn{font-size:32px;font-weight:700;color:#0D1B3E}
-.sm{font-size:13px;color:#D4AF37;font-family:Arial,sans-serif;margin-top:2px}
-.qt{border-left:3px solid #D4AF37;padding:14px 18px;margin:24px 0;font-style:italic;color:#444;font-size:15px;line-height:1.7}
-.btn{display:inline-block;background:#D4AF37;color:#0D1B3E;font-family:Arial,sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:14px 28px;border-radius:3px;text-decoration:none;margin:8px 0}
-.ftr{background:#f4f4f4;padding:20px 40px;font-family:Arial,sans-serif;font-size:11px;color:#888;line-height:1.6}
-a{color:#0D1B3E}
+body{background:#08080f;font-family:Georgia,'Times New Roman',serif;color:#1a1a1a;-webkit-font-smoothing:antialiased}
+.wrap{max-width:600px;margin:0 auto;background:#08080f}
+
+/* ── TOPO: barra dourada ── */
+.top-bar{background:#D4AF37;padding:7px 36px;display:table;width:100%;table-layout:fixed}
+.top-bar-label{font-family:Arial,sans-serif;font-size:8px;letter-spacing:3.5px;text-transform:uppercase;color:#0a0900;font-weight:700;display:table-cell;text-align:right}
+
+/* ── HEADER ── */
+.hdr{background:#08080f;padding:28px 36px 0;border-left:2px solid #D4AF3730}
+.hdr-coords{font-family:'Courier New',Courier,monospace;font-size:8px;color:#D4AF3745;letter-spacing:0.8px;line-height:2;margin-bottom:18px}
+.hdr-brand{font-family:Arial,sans-serif;font-size:21px;font-weight:900;color:#ffffff;letter-spacing:-0.3px;text-transform:uppercase;line-height:1.1}
+.hdr-brand em{color:#D4AF37;font-style:normal}
+.hdr-cities{font-family:'Courier New',Courier,monospace;font-size:7.5px;letter-spacing:3px;color:#D4AF3755;margin-top:9px;text-transform:uppercase}
+.hdr-divider{height:1px;background:linear-gradient(90deg,#D4AF3740,#D4AF3710,transparent);margin:18px 0 16px}
+.hdr-tag{font-family:Arial,sans-serif;font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;color:#D4AF37;padding-bottom:24px}
+
+/* ── CORPO ── */
+.body{background:#ffffff;padding:40px 36px}
+h2{font-family:Arial,sans-serif;font-size:19px;font-weight:800;color:#08080f;margin-bottom:18px;letter-spacing:-0.3px;line-height:1.25;text-transform:uppercase}
+p{font-size:15px;line-height:1.85;color:#2a2a2a;margin-bottom:16px}
+strong{color:#08080f;font-weight:700}
+ul{padding-left:0;margin:16px 0;list-style:none}
+ul li{font-size:14px;line-height:1.8;color:#2a2a2a;padding:6px 0 6px 18px;border-bottom:1px solid #f0f0f0;position:relative}
+ul li::before{content:'→';position:absolute;left:0;color:#D4AF37;font-size:11px;top:8px}
+a{color:#08080f;font-weight:600}
+
+/* ── SCORE BLOCK ── */
+.sb{background:#08080f;padding:20px 22px;margin:22px 0;border-left:3px solid #D4AF37}
+.sl{font-family:'Courier New',Courier,monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:#D4AF3790;margin-bottom:6px}
+.sn{font-family:Arial,sans-serif;font-size:36px;font-weight:900;color:#ffffff;letter-spacing:-1px;line-height:1}
+.sm{font-family:Arial,sans-serif;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#D4AF37;margin-top:5px}
+
+/* ── QUOTE ── */
+.qt{border-left:2px solid #D4AF37;padding:14px 20px;margin:24px 0;font-style:italic;color:#444;font-size:14.5px;line-height:1.75;background:#fafaf8}
+
+/* ── CTA BUTTON ── */
+.btn{display:inline-block;background:#D4AF37;color:#08080f !important;font-family:Arial,sans-serif;font-weight:800;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:15px 32px;text-decoration:none;margin:10px 0}
+
+/* ── RODAPÉ ── */
+.ftr{background:#08080f;padding:28px 36px;border-top:1px solid #D4AF3720;border-left:2px solid #D4AF3330}
+.ftr-name{font-family:Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;margin-bottom:10px;font-weight:700}
+.ftr-coords{font-family:'Courier New',Courier,monospace;font-size:7.5px;color:#D4AF3545;letter-spacing:0.8px;line-height:1.9;margin-bottom:10px}
+.ftr-cities{font-family:'Courier New',Courier,monospace;font-size:7px;letter-spacing:2.5px;color:#D4AF3540;text-transform:uppercase;margin-bottom:14px}
+.ftr-links{font-family:Arial,sans-serif;font-size:10px;color:#555;line-height:1.7}
+.ftr-links a{color:#D4AF37;text-decoration:none}
 </style></head><body>
 <div class="wrap">
-  <div class="hdr"><div class="hdr-tag">${tag}</div><div class="hdr-title">Apex Career</div></div>
+
+  <!-- Barra superior dourada -->
+  <div class="top-bar">
+    <div class="top-bar-label">CARREIRA INTERNACIONAL</div>
+  </div>
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-coords">23°33'S 46°38'O&nbsp;&nbsp;SÃO PAULO<br>48°8'N 11°34'E&nbsp;&nbsp;&nbsp;&nbsp;MUNICH<br>33°51'S 151°12'E&nbsp;&nbsp;SYDNEY</div>
+    <div class="hdr-brand">ELITE <em>MIGRATION</em></div>
+    <div class="hdr-cities">SÃO PAULO · MUNICH · SYDNEY</div>
+    <div class="hdr-divider"></div>
+    <div class="hdr-tag">${tag}</div>
+  </div>
+
+  <!-- Corpo -->
   <div class="body">${body}</div>
-  <div class="ftr">Jonathan Mathias · Apex Career · Sydney, AU<br>Brasil → Alemanha → Austrália<br>
-  <a href="https://jonathan-mathias.github.io/cia-app" style="color:#888">Refazer avaliação</a></div>
-</div></body></html>`;
+
+  <!-- Rodapé -->
+  <div class="ftr">
+    <div class="ftr-name">JONATHAN MATHIAS</div>
+    <div class="ftr-coords">23°33'S 46°38'O · 48°8'N 11°34'E · 33°51'S 151°12'E</div>
+    <div class="ftr-cities">SÃO PAULO · MUNICH · SYDNEY</div>
+    <div class="ftr-links">
+      Brasil → Alemanha → Austrália&nbsp;&nbsp;·&nbsp;&nbsp;
+      <a href="https://linkedin.com/in/jonathan-mathias">LinkedIn</a>&nbsp;&nbsp;·&nbsp;&nbsp;
+      <a href="https://jonathan-mathias.github.io/cia-app">Refazer avaliação</a>
+    </div>
+  </div>
+
+</div>
+</body></html>`;
 }
 
 /* ---- renders DE ---- */
