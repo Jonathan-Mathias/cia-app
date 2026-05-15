@@ -335,62 +335,68 @@ function _eWrap(preheader,tag,body){
 body{background:#08080f;font-family:Georgia,'Times New Roman',serif;color:#1a1a1a;-webkit-font-smoothing:antialiased}
 .wrap{max-width:600px;margin:0 auto;background:#08080f}
 
-/* ── TOPO: barra dourada ── */
-.top-bar{background:#D4AF37;padding:7px 36px;display:table;width:100%;table-layout:fixed}
-.top-bar-label{font-family:Arial,sans-serif;font-size:8px;letter-spacing:3.5px;text-transform:uppercase;color:#0a0900;font-weight:700;display:table-cell;text-align:right}
+/* ── TOPO ── */
+.top-bar{background:#D4AF37;padding:6px 36px 6px 36px;width:100%}
+.top-bar-inner{display:flex;justify-content:space-between;align-items:center}
+.top-bar-left{font-family:'Courier New',Courier,monospace;font-size:7px;letter-spacing:1px;color:#3a2f00;opacity:.7}
+.top-bar-right{font-family:Arial,sans-serif;font-size:7.5px;letter-spacing:3.5px;text-transform:uppercase;color:#0a0900;font-weight:700}
 
 /* ── HEADER ── */
-.hdr{background:#08080f;padding:28px 36px 0;border-left:2px solid #D4AF3730}
-.hdr-coords{font-family:'Courier New',Courier,monospace;font-size:8px;color:#D4AF3745;letter-spacing:0.8px;line-height:2;margin-bottom:18px}
-.hdr-brand{font-family:Arial,sans-serif;font-size:21px;font-weight:900;color:#ffffff;letter-spacing:-0.3px;text-transform:uppercase;line-height:1.1}
+.hdr{background:#08080f;padding:32px 36px 0}
+.hdr-coords{font-family:'Courier New',Courier,monospace;font-size:8px;color:#D4AF3738;letter-spacing:0.5px;line-height:2;margin-bottom:22px}
+.hdr-eyebrow{font-family:Arial,sans-serif;font-size:8px;letter-spacing:4px;text-transform:uppercase;color:#D4AF37;margin-bottom:10px;font-weight:600}
+.hdr-brand{font-family:Arial,sans-serif;font-size:28px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;text-transform:uppercase;line-height:1.05}
 .hdr-brand em{color:#D4AF37;font-style:normal}
-.hdr-cities{font-family:'Courier New',Courier,monospace;font-size:7.5px;letter-spacing:3px;color:#D4AF3755;margin-top:9px;text-transform:uppercase}
-.hdr-divider{height:1px;background:linear-gradient(90deg,#D4AF3740,#D4AF3710,transparent);margin:18px 0 16px}
-.hdr-tag{font-family:Arial,sans-serif;font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;color:#D4AF37;padding-bottom:24px}
+.hdr-sub{font-family:Arial,sans-serif;font-size:9px;font-weight:400;color:#D4AF37;letter-spacing:0.5px;margin-top:6px;text-transform:uppercase;opacity:.7}
+.hdr-rule{border:none;border-top:1px solid #D4AF3722;margin:22px 0 18px}
+.hdr-tag{font-family:Arial,sans-serif;font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;color:#D4AF3799;padding-bottom:28px}
 
 /* ── CORPO ── */
 .body{background:#ffffff;padding:40px 36px}
-h2{font-family:Arial,sans-serif;font-size:19px;font-weight:800;color:#08080f;margin-bottom:18px;letter-spacing:-0.3px;line-height:1.25;text-transform:uppercase}
-p{font-size:15px;line-height:1.85;color:#2a2a2a;margin-bottom:16px}
+h2{font-family:Arial,sans-serif;font-size:18px;font-weight:800;color:#08080f;margin-bottom:18px;letter-spacing:-0.2px;line-height:1.25;text-transform:uppercase}
+p{font-size:15px;line-height:1.9;color:#2a2a2a;margin-bottom:16px}
 strong{color:#08080f;font-weight:700}
-ul{padding-left:0;margin:16px 0;list-style:none}
-ul li{font-size:14px;line-height:1.8;color:#2a2a2a;padding:6px 0 6px 18px;border-bottom:1px solid #f0f0f0;position:relative}
-ul li::before{content:'→';position:absolute;left:0;color:#D4AF37;font-size:11px;top:8px}
+ul{padding-left:20px;margin:16px 0}
+ul li{font-size:14px;line-height:1.85;color:#2a2a2a;margin-bottom:4px}
 a{color:#08080f;font-weight:600}
 
 /* ── SCORE BLOCK ── */
-.sb{background:#08080f;padding:20px 22px;margin:22px 0;border-left:3px solid #D4AF37}
-.sl{font-family:'Courier New',Courier,monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:#D4AF3790;margin-bottom:6px}
-.sn{font-family:Arial,sans-serif;font-size:36px;font-weight:900;color:#ffffff;letter-spacing:-1px;line-height:1}
-.sm{font-family:Arial,sans-serif;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#D4AF37;margin-top:5px}
+.sb{background:#08080f;padding:22px 24px;margin:22px 0;border-left:3px solid #D4AF37}
+.sl{font-family:'Courier New',Courier,monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#D4AF3780;margin-bottom:8px}
+.sn{font-family:Arial,sans-serif;font-size:40px;font-weight:900;color:#ffffff;letter-spacing:-1.5px;line-height:1}
+.sm{font-family:Arial,sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#D4AF37;margin-top:7px;font-weight:600}
 
 /* ── QUOTE ── */
-.qt{border-left:2px solid #D4AF37;padding:14px 20px;margin:24px 0;font-style:italic;color:#444;font-size:14.5px;line-height:1.75;background:#fafaf8}
+.qt{border-left:2px solid #D4AF37;padding:14px 20px;margin:24px 0;font-style:italic;color:#555;font-size:14px;line-height:1.8;background:#fafaf8}
 
 /* ── CTA BUTTON ── */
-.btn{display:inline-block;background:#D4AF37;color:#08080f !important;font-family:Arial,sans-serif;font-weight:800;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:15px 32px;text-decoration:none;margin:10px 0}
+.btn{display:inline-block;background:#D4AF37;color:#08080f !important;font-family:Arial,sans-serif;font-weight:800;font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;padding:16px 34px;text-decoration:none;margin:10px 0}
 
 /* ── RODAPÉ ── */
-.ftr{background:#08080f;padding:28px 36px;border-top:1px solid #D4AF3720;border-left:2px solid #D4AF3330}
-.ftr-name{font-family:Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#ffffff;margin-bottom:10px;font-weight:700}
-.ftr-coords{font-family:'Courier New',Courier,monospace;font-size:7.5px;color:#D4AF3545;letter-spacing:0.8px;line-height:1.9;margin-bottom:10px}
-.ftr-cities{font-family:'Courier New',Courier,monospace;font-size:7px;letter-spacing:2.5px;color:#D4AF3540;text-transform:uppercase;margin-bottom:14px}
-.ftr-links{font-family:Arial,sans-serif;font-size:10px;color:#555;line-height:1.7}
-.ftr-links a{color:#D4AF37;text-decoration:none}
+.ftr{background:#08080f;padding:30px 36px 28px;border-top:1px solid #D4AF3718}
+.ftr-rule{border:none;border-top:1px solid #D4AF3718;margin-bottom:22px}
+.ftr-tagline{font-family:Georgia,'Times New Roman',serif;font-size:13px;font-style:italic;color:#D4AF3799;line-height:1.7;margin-bottom:20px}
+.ftr-sig{font-family:Arial,sans-serif;font-size:8.5px;letter-spacing:3.5px;text-transform:uppercase;color:#ffffff;font-weight:700;margin-bottom:16px}
+.ftr-links{font-family:Arial,sans-serif;font-size:10px;color:#3a3a3a;line-height:1.8}
+.ftr-links a{color:#D4AF3799;text-decoration:none}
 </style></head><body>
 <div class="wrap">
 
-  <!-- Barra superior dourada -->
-  <div class="top-bar">
-    <div class="top-bar-label">CARREIRA INTERNACIONAL</div>
-  </div>
+  <!-- Barra superior -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#D4AF37">
+    <tr>
+      <td style="padding:6px 36px;font-family:'Courier New',monospace;font-size:7px;letter-spacing:1px;color:#5a4500;opacity:.8">23°33'S · 48°8'N · 33°51'S</td>
+      <td style="padding:6px 36px;font-family:Arial,sans-serif;font-size:7.5px;letter-spacing:3.5px;text-transform:uppercase;color:#0a0900;font-weight:700;text-align:right">CARREIRA INTERNACIONAL</td>
+    </tr>
+  </table>
 
   <!-- Header -->
   <div class="hdr">
-    <div class="hdr-coords">23°33'S 46°38'O&nbsp;&nbsp;SÃO PAULO<br>48°8'N 11°34'E&nbsp;&nbsp;&nbsp;&nbsp;MUNICH<br>33°51'S 151°12'E&nbsp;&nbsp;SYDNEY</div>
+    <div class="hdr-coords">23°33'S 46°38'O &nbsp;·&nbsp; SÃO PAULO<br>48°8'N 11°34'E &nbsp;·&nbsp; MUNICH<br>33°51'S 151°12'E &nbsp;·&nbsp; SYDNEY</div>
+    <div class="hdr-eyebrow">DO BRASIL PARA O MUNDO</div>
     <div class="hdr-brand">ELITE <em>MIGRATION</em></div>
-    <div class="hdr-cities">SÃO PAULO · MUNICH · SYDNEY</div>
-    <div class="hdr-divider"></div>
+    <div class="hdr-sub">COM ESTRATÉGIA.</div>
+    <hr class="hdr-rule">
     <div class="hdr-tag">${tag}</div>
   </div>
 
@@ -399,14 +405,17 @@ a{color:#08080f;font-weight:600}
 
   <!-- Rodapé -->
   <div class="ftr">
-    <div class="ftr-name">JONATHAN MATHIAS</div>
-    <div class="ftr-coords">23°33'S 46°38'O · 48°8'N 11°34'E · 33°51'S 151°12'E</div>
-    <div class="ftr-cities">SÃO PAULO · MUNICH · SYDNEY</div>
+    <div class="ftr-tagline">"Estratégia é o que separa quem entra posicionado de quem perde os primeiros meses recomeçando do zero."</div>
+    <div class="ftr-sig">JONATHAN MATHIAS</div>
     <div class="ftr-links">
-      Brasil → Alemanha → Austrália&nbsp;&nbsp;·&nbsp;&nbsp;
-      <a href="https://linkedin.com/in/jonathan-mathias">LinkedIn</a>&nbsp;&nbsp;·&nbsp;&nbsp;
+      <a href="https://linkedin.com/in/jonathan-mathias">linkedin.com/in/jonathan-mathias</a>&nbsp;&nbsp;·&nbsp;&nbsp;
       <a href="https://jonathan-mathias.github.io/cia-app">Refazer avaliação</a>
     </div>
+  </div>
+
+</div>
+</body></html>`;
+}
   </div>
 
 </div>
