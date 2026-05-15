@@ -324,8 +324,9 @@ const APP_IG_URL    = 'https://instagram.com/jmnomundo';
    MODO PRODUÇÃO: Email 2 em 2 dias, Email 3 em 5 dias
    TESTE: trocar para E2_DELAY=2 e E3_DELAY=5 (minutos)
 ========================================================= */
-const E2_DELAY_MIN  = 2880; // minutos — PRODUÇÃO (2 dias)
-const E3_DELAY_MIN  = 7200; // minutos — PRODUÇÃO (5 dias)
+const TEST_MODE     = false; // true = delays curtos para testar emails (2 min / 5 min)
+const E2_DELAY_MIN  = TEST_MODE ? 2    : 2880; // PRODUÇÃO: 2 dias
+const E3_DELAY_MIN  = TEST_MODE ? 5    : 7200; // PRODUÇÃO: 5 dias
 
 /* ---- helpers de email ---- */
 function _eWrap(preheader,tag,body){
