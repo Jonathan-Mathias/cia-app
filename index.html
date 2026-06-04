@@ -18,8 +18,9 @@
   --muted:#7070a0;
   --accent:#D4AF37;
   --accent2:#b8920e;
-  --au:#2B5EA7;
-  --au2:#1a3a6b;
+  --au:#173528;
+  --functional:#2B5EA7;
+  --au2:#0E1714;
   --orange:#f07a4a;
   --red:#e85555;
   --gold:#f0c44a;
@@ -52,7 +53,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .trilha-btn-wrap:nth-child(1){animation-delay:.1s}
 .trilha-btn-wrap:nth-child(2){animation-delay:.2s}
 .trilha-btn-wrap.de{background:linear-gradient(135deg,#D4AF37,#6a4e10,#1a1a27,#D4AF37);background-size:300% 300%;animation:trilhaReveal .5s cubic-bezier(.34,1.2,.64,1) both, gradientSpin 5s linear infinite}
-.trilha-btn-wrap.au{background:linear-gradient(135deg,#2B5EA7,#0a2a5c,#1a1a27,#2B5EA7);background-size:300% 300%;animation:trilhaReveal .5s cubic-bezier(.34,1.2,.64,1) both, gradientSpin 5s linear infinite}
+.trilha-btn-wrap.au{background:linear-gradient(135deg,#173528,#0E1714,#1a1a27,#173528);background-size:300% 300%;animation:trilhaReveal .5s cubic-bezier(.34,1.2,.64,1) both, gradientSpin 5s linear infinite}
 .trilha-btn-wrap:nth-child(1){animation-delay:.1s,.1s}
 .trilha-btn-wrap:nth-child(2){animation-delay:.2s,.2s}
 @keyframes gradientSpin{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
@@ -61,8 +62,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .trilha-btn-wrap:hover{transform:translateY(-3px)}
 .trilha-btn-wrap.de:hover .trilha-btn{background:linear-gradient(160deg,#1c1600 0%,#231a00 100%)}
 .trilha-btn-wrap.de:hover{box-shadow:0 12px 40px #D4AF3725}
-.trilha-btn-wrap.au:hover .trilha-btn{background:linear-gradient(160deg,#080e1c 0%,#0d1830 100%)}
-.trilha-btn-wrap.au:hover{box-shadow:0 12px 40px #2B5EA725}
+.trilha-btn-wrap.au:hover .trilha-btn{background:linear-gradient(160deg,#07120d 0%,#0E1714 100%)}
+.trilha-btn-wrap.au:hover{box-shadow:0 12px 40px #17352855}
 .trilha-flag{width:68px;height:68px;display:flex;align-items:center;justify-content:center;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(0,0,0,.6));transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
 .trilha-btn-wrap:hover .trilha-flag{transform:scale(1.1)}
 .trilha-nome{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-0.01em}
@@ -74,15 +75,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .prog-bar{height:2px;background:var(--border);border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;transition:width .4s ease}
 .prog-fill.de{background:linear-gradient(90deg,#8b6a00,#D4AF37,#f5d060);background-size:200% 100%;animation:shimmer 2s ease infinite}
-.prog-fill.au{background:linear-gradient(90deg,#1a3a6b,#2B5EA7,#5b8ed4);background-size:200% 100%;animation:shimmer 2s ease infinite}
+.prog-fill.au{background:linear-gradient(90deg,#0E1714,#173528,#2d634b);background-size:200% 100%;animation:shimmer 2s ease infinite}
 
 /* BADGE JA NO DESTINO - FIX THAÍS */
 .destino-badge{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:10px;font-weight:600}
 .destino-badge.de{background:#D4AF3720;color:#D4AF37;border:1px solid #D4AF3440}
-.destino-badge.au{background:#2B5EA720;color:#6ea8f7;border:1px solid #2B5EA740}
+.destino-badge.au{background:#17352830;color:#78b896;border:1px solid #17352880}
 .destino-badge-dot{width:5px;height:5px;border-radius:50%;animation:pulse 2s ease-in-out infinite}
 .destino-badge.de .destino-badge-dot{background:#D4AF37}
-.destino-badge.au .destino-badge-dot{background:#6ea8f7}
+.destino-badge.au .destino-badge-dot{background:#78b896}
 
 /* CARD */
 .q-card{background:var(--grad-surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 22px;margin-bottom:14px;box-shadow:0 2px 20px rgba(0,0,0,.18)}
@@ -100,8 +101,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .opt.sel.de{border-color:#D4AF37;background:#1a1500}
 .opt.sel.de .opt-key{background:#D4AF37;color:#0d0d00;border-color:#D4AF37}
 .opt.sel.de .opt-lbl{color:var(--text);font-weight:500}
-.opt.sel.au{border-color:#2B5EA7;background:#0a1020}
-.opt.sel.au .opt-key{background:#2B5EA7;color:#fff;border-color:#2B5EA7}
+.opt.sel.au{border-color:#173528;background:#07120d}
+.opt.sel.au .opt-key{background:#173528;color:#F7F3EA;border-color:#173528}
 .opt.sel.au .opt-lbl{color:var(--text);font-weight:500}
 
 /* FAMÍLIA - só contadores */
@@ -120,7 +121,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .nav{display:flex;gap:10px;margin-top:4px}
 .btn-next{flex:1;padding:15px 20px;border-radius:var(--r2);font-size:15px;font-weight:500;cursor:pointer;border:none;font-family:'Geist',sans-serif;color:#fff;transition:opacity .15s,background .15s}
 .btn-next.de{background:#D4AF37;color:#0d0d00}
-.btn-next.au{background:#2B5EA7;color:#fff}
+.btn-next.au{background:#173528;color:#F7F3EA}
 .btn-next:disabled{background:#252538;color:#4a4a68;cursor:not-allowed}
 .btn-back{width:48px;flex-shrink:0;padding:14px;border-radius:var(--r2);font-size:18px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Geist',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center}
 .btn-back:hover{border-color:var(--border2);color:var(--text)}
@@ -223,6 +224,18 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .promo.curso .promo-btn{background:var(--accent);color:#fff}
 .promo.curso[style*="1a1500"] .promo-btn{background:#D4AF37;color:#0d0d00}
 
+/* CTA PRINCIPAL */
+.primary-cta{border-radius:var(--r);padding:24px 22px;margin:18px 0;background:linear-gradient(135deg,#0E1714 0%,#0B1114 52%,#111120 100%);border:1px solid #C9A46A35;box-shadow:0 10px 35px rgba(0,0,0,.22)}
+.primary-cta-kicker{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;color:#C9A46A;margin-bottom:9px;font-weight:600}
+.primary-cta-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);line-height:1.25;margin-bottom:8px;letter-spacing:-.02em}
+.primary-cta-copy{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:17px}
+.primary-cta-btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 20px;border:none;border-radius:var(--r2);font-size:14px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;transition:all .18s;min-width:210px}
+.primary-cta-btn.de{background:linear-gradient(135deg,#C9A46A,#B87942);color:#0B1114}
+.primary-cta-btn.au{background:linear-gradient(135deg,#173528,#0E1714);color:#F7F3EA;border:1px solid #2d634b}
+.primary-cta-btn:hover{transform:translateY(-1px);filter:brightness(1.04)}
+.primary-cta-note{font-size:11px;color:var(--muted);line-height:1.55;margin-top:10px}
+.secondary-resources-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:22px 0 10px;text-align:center}
+
 /* SOCIAL */
 .social{padding:18px 20px;background:#0d0d1a;border:1px solid var(--border);border-radius:var(--r2);margin:8px 0 16px}
 .social p{font-size:13px;color:var(--text2);line-height:1.65}
@@ -260,7 +273,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .mentoria-card-sub strong{color:var(--text)}
 .mentoria-card-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border:none;border-radius:var(--r2);font-size:14px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;transition:all .2s}
 .mentoria-card-btn.de{background:#D4AF37;color:#0d0d00}
-.mentoria-card-btn.au{background:#2B5EA7;color:#fff}
+.mentoria-card-btn.au{background:#173528;color:#F7F3EA}
 .mentoria-card-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
 
 .cv-builder-card{background:linear-gradient(135deg,#12172a 0%,#0f1424 100%);border:1px solid #8b5cf640;border-radius:var(--r);padding:22px 20px;margin:16px 0}
@@ -285,11 +298,103 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
    CIA App v2.1 · Elite Migration
    Fixes: VerbalizeNow, badge destino, lógica AU, bugs
 ========================================================= */
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzs484zhRqNListUyj_85eNp0gUhYQdhbfP4AAI0PfnZxm8aQMD3KgHENo0loqxpRey4A/exec';
+const APP_CONFIG = Object.freeze({
+  env: 'production',
+  version: '2.2-supabase-ready',
+  integrations: {
+    // Google Apps Script continua como proxy seguro para Sheets/Brevo.
+    // Não colocar chaves Brevo ou service_role do Supabase no frontend.
+    gasUrl: 'https://script.google.com/macros/s/AKfycbzs484zhRqNListUyj_85eNp0gUhYQdhbfP4AAI0PfnZxm8aQMD3KgHENo0loqxpRey4A/exec',
+    supabase: {
+      enabled: false,
+      url: '',        // ex: https://xxxxx.supabase.co
+      anonKey: '',    // apenas anon public key, com RLS ativo
+      schema: 'public',
+      tables: {
+        events: 'cia_events',
+        leads: 'cia_leads',
+        results: 'cia_results',
+        ctaClicks: 'cia_cta_clicks',
+        nps: 'cia_nps'
+      }
+    }
+  },
+  links: {
+    products: {
+      ebookPartiuAlemanha: 'https://pay.hotmart.com/S76741696B',
+      cursoEmpregoAlemanha: 'https://hotmart.com/pt-br/marketplace/produtos/emprego-na-alemanha/S95826105M',
+      ebookNaoComeceZero: '',
+      cvBuilder: 'https://jonathan-mathias.github.io/cia-app/cv-builder-demo/index.html?source=cia',
+      cartaApp: '',
+      linkedinOptimizer: ''
+    },
+    partners: {
+      verbalizeNow: 'https://api.whatsapp.com/send/?phone=5535998611407&text=Eu%20cheguei%20aqui%20pelo%20Jonathan%20Mathias%20e%20gostaria%20de%20saber%20mais%20sobre%20aulas%20de%20ingl%C3%AAs.&type=phone_number&app_absent=0',
+      alemaoDeVerdade: '',
+      barmer: '',
+      kanzleiHamburg: ''
+    },
+    owned: {
+      whatsappGroup: 'https://chat.whatsapp.com/CkQq013Z0llBMn1UqdMxTY',
+      linkedinJonathan: 'https://linkedin.com/in/jonathan-mathias',
+      instagramJonathan: 'https://instagram.com/jmnomundo',
+      privacyPolicy: 'privacy.html',
+      premiumWaitlist: ''
+    }
+  },
+  email: {
+    testMode: false,
+    routes: {
+      de: { enabled: true, status: 'implemented' },
+      au: { enabled: false, status: 'plugin_pending_review' }
+    }
+  }
+});
+
+const SHEETS_URL = APP_CONFIG.integrations.gasUrl;
+
+function esc(v){
+  return String(v ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+}
+
+function firstNameSafe(nome){
+  return esc(String(nome||'').trim().split(/\s+/)[0]||'');
+}
+
+function emailBtn(url,label){
+  return url ? `<a href="${url}" class="btn" target="_blank">${label}</a>` : '';
+}
+
+function publicLeadId(){
+  if(!LEAD._id){
+    LEAD._id = (typeof crypto!=='undefined'&&crypto.randomUUID) ? crypto.randomUUID() : `lead_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  }
+  return LEAD._id;
+}
+
+async function supabaseInsert(tableKey, record){
+  const sb=APP_CONFIG.integrations.supabase;
+  if(!sb.enabled||!sb.url||!sb.anonKey) return;
+  const table=sb.tables[tableKey];
+  if(!table) return;
+  try{
+    await fetch(`${sb.url.replace(/\/$/,'')}/rest/v1/${table}`,{
+      method:'POST',
+      headers:{
+        apikey: sb.anonKey,
+        Authorization: `Bearer ${sb.anonKey}`,
+        'Content-Type':'application/json',
+        Prefer:'return=minimal'
+      },
+      body:JSON.stringify(record)
+    });
+  }catch(e){console.warn('Supabase insert skipped/error', tableKey, e);}
+}
 
 async function logEvent(type, data){
-  const payload = {type, ts: new Date().toISOString(), ...data};
+  const payload = {type, ts: new Date().toISOString(), app_version: APP_CONFIG.version, lead_id: LEAD&&LEAD._id?LEAD._id:null, ...data};
   console.log('[CIA App]', type, payload);
+  supabaseInsert('events', {lead_id:payload.lead_id,ts:payload.ts,type,app_version:APP_CONFIG.version,payload});
   if(!SHEETS_URL) return;
   try {
     await fetch(SHEETS_URL, {
@@ -310,21 +415,21 @@ async function logEvent(type, data){
 /* =======================================================
    LINKS
 ========================================================= */
-const EBOOK_URL     = 'https://pay.hotmart.com/S76741696B';
-const CURSO_URL     = 'https://hotmart.com/pt-br/marketplace/produtos/emprego-na-alemanha/S95826105M';
-const CURSO_ALEMAO  = '';
-const SEGURO_URL    = '';
-const APP_CV_URL    = 'https://jonathan-mathias.github.io/cia-app/cv-builder-demo/index.html?source=cia';
-const APP_CARTA_URL = '';
-const APP_LI_URL    = '';
-const APP_IG_URL    = 'https://instagram.com/jmnomundo';
+const EBOOK_URL     = APP_CONFIG.links.products.ebookPartiuAlemanha;
+const CURSO_URL     = APP_CONFIG.links.products.cursoEmpregoAlemanha;
+const CURSO_ALEMAO  = APP_CONFIG.links.partners.alemaoDeVerdade;
+const SEGURO_URL    = APP_CONFIG.links.partners.barmer;
+const APP_CV_URL    = APP_CONFIG.links.products.cvBuilder;
+const APP_CARTA_URL = APP_CONFIG.links.products.cartaApp;
+const APP_LI_URL    = APP_CONFIG.links.products.linkedinOptimizer;
+const APP_IG_URL    = APP_CONFIG.links.owned.instagramJonathan;
 
 /* =======================================================
    BREVO — Email automation
    MODO PRODUÇÃO: Email 2 em 2 dias, Email 3 em 5 dias
    TESTE: trocar para E2_DELAY=2 e E3_DELAY=5 (minutos)
 ========================================================= */
-const TEST_MODE     = false; // true = delays curtos para testar emails (2 min / 5 min)
+const TEST_MODE     = APP_CONFIG.email.testMode; // true = delays curtos para testar emails (2 min / 5 min)
 const E2_DELAY_MIN  = TEST_MODE ? 2    : 2880; // PRODUÇÃO: 2 dias
 const E3_DELAY_MIN  = TEST_MODE ? 5    : 7200; // PRODUÇÃO: 5 dias
 
@@ -409,7 +514,7 @@ a{color:#08080f;font-weight:600}
     <div class="ftr-tagline">"Estratégia é o que separa quem entra posicionado de quem perde os primeiros meses recomeçando do zero."</div>
     <div class="ftr-sig">JONATHAN MATHIAS</div>
     <div class="ftr-links">
-      <a href="https://linkedin.com/in/jonathan-mathias">LinkedIn</a>&nbsp;&nbsp;·&nbsp;&nbsp;${APP_IG_URL?`<a href="${APP_IG_URL}">Instagram</a>&nbsp;&nbsp;·&nbsp;&nbsp;`:''}<a href="https://jonathan-mathias.github.io/cia-app">Refazer avaliação</a>
+      <a href="${APP_CONFIG.links.owned.linkedinJonathan}">LinkedIn</a>&nbsp;&nbsp;·&nbsp;&nbsp;${APP_IG_URL?`<a href="${APP_IG_URL}">Instagram</a>&nbsp;&nbsp;·&nbsp;&nbsp;`:''}<a href="https://jonathan-mathias.github.io/cia-app">Refazer avaliação</a>
     </div>
   </div>
 
@@ -419,7 +524,7 @@ a{color:#08080f;font-weight:600}
 
 /* ---- renders DE ---- */
 function _renderE1_DE(nome,score,band){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   const b=band||'Explorador';
   const bodies={
     'Explorador':`
@@ -437,12 +542,12 @@ function _renderE1_DE(nome,score,band){
     'Pronto para Embarcar':`
 <p>Você está no percentil superior dos candidatos que passam por essa avaliação. Seu perfil tem os elementos que o mercado alemão reconhece.</p>
 <p>O que separa quem entra bem posicionado de quem perde meses é a execução: empresa certa, abordagem certa, timing certo. Nos próximos dias vou te falar sobre esse trabalho de arquitetura.</p>
-<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`,
+<a href="${APP_CONFIG.links.owned.linkedinJonathan}" class="btn" target="_blank">Falar com Jonathan →</a>`,
     'Elite':`
 <p>Você reúne os elementos que o mercado alemão mais valoriza. Esse score reflete um perfil que o mercado reconhece — o próximo passo é garantir que as empresas certas te encontrem.</p>
 <div class="qt">"Na Alemanha, intenção não substitui estrutura. O mercado recompensa quem sabe se posicionar, não apenas quem se esforça."</div>
 <p>Se quiser conversar sobre como acelerar esse processo:</p>
-<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`
+<a href="${APP_CONFIG.links.owned.linkedinJonathan}" class="btn" target="_blank">Falar com Jonathan →</a>`
   };
   return _eWrap('Seu resultado está pronto','Career Intelligence Assessment · Alemanha',`
 <h2>Olá ${n},</h2>
@@ -452,7 +557,7 @@ ${bodies[b]||bodies['Explorador']}`);
 }
 
 function _renderE2_DE(nome,temAlemao){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   const titulo=temAlemao?'Seu gargalo não é o idioma — mas você ainda precisa dele':'O primeiro travamento de quem quer trabalhar na Alemanha';
   const corpo=temAlemao
     ?`<p>Você já tem algum nível de alemão. Isso te coloca à frente de boa parte dos brasileiros que cogitam essa transição.</p>
@@ -460,13 +565,12 @@ function _renderE2_DE(nome,temAlemao){
 <p>O que constrói credibilidade profissional em alemão não é só vocabulário. É a capacidade de estruturar argumentos com a clareza e diretividade que o mercado alemão espera.</p>`
     :`<p>O alemão é, na maioria dos casos, o primeiro filtro do mercado alemão. Não porque os empregadores não valorizem inglês, mas porque o idioma é onde a maioria dos candidatos brasileiros para na primeira barreira.</p>
 <p>A boa notícia: com um horizonte de 18 a 24 meses, partir do zero e chegar ao B2 é completamente viável. A chave não é intensidade — é consistência e método certo desde o início.</p>
-<p>Uma parceira que recomendo para quem está nessa fase:</p>
-<a href="https://alem.aoverdade.com.br" class="btn" target="_blank">Alemão de Verdade →</a>`;
+${CURSO_ALEMAO?`<p>Uma parceira que recomendo para quem está nessa fase:</p>${emailBtn(CURSO_ALEMAO,'Alemão de Verdade →')}`:''}`;
   return _eWrap(titulo,'Conteúdo: Idioma e Mercado Alemão',`<h2>${titulo}</h2>${corpo}`);
 }
 
 function _renderE3_DE(nome){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   return _eWrap('Seu diploma vale na Alemanha?','Conteúdo: Reconhecimento de Diploma',`
 <h2>Seu diploma brasileiro tem valor na Alemanha?</h2>
 <p>Essa é uma das perguntas mais frequentes — e uma das mais mal respondidas na internet.</p>
@@ -484,7 +588,7 @@ function _renderE3_DE(nome){
 
 /* ---- renders AU ---- */
 function _renderE1_AU(nome,score,band){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   const b=band||'Explorador';
   const bodies={
     'Explorador':`
@@ -499,12 +603,12 @@ function _renderE1_AU(nome,score,band){
     'Pronto para Embarcar':`
 <p>Você está no percentil superior dos candidatos que passam por essa avaliação. Você passou pelo filtro mais difícil — ter o perfil real.</p>
 <p>O que falta agora é visibilidade estratégica no mercado australiano: aparecer para as empresas certas, do jeito certo. Vou te enviar mais detalhes sobre isso em breve.</p>
-<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`,
+<a href="${APP_CONFIG.links.owned.linkedinJonathan}" class="btn" target="_blank">Falar com Jonathan →</a>`,
     'Elite':`
 <p>Você reúne os elementos que o mercado australiano mais valoriza. Esse score reflete um perfil competitivo — o próximo passo é garantir que as empresas certas te encontrem.</p>
 <div class="qt">"Quando vim para a Austrália após 18 anos na Alemanha, entendi que cada transição exige uma leitura nova do mercado. Nada se transfere automaticamente."</div>
 <p>Se quiser conversar sobre como acelerar esse processo:</p>
-<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`
+<a href="${APP_CONFIG.links.owned.linkedinJonathan}" class="btn" target="_blank">Falar com Jonathan →</a>`
   };
   return _eWrap('Seu resultado está pronto','Career Intelligence Assessment · Austrália',`
 <h2>Olá ${n},</h2>
@@ -514,7 +618,7 @@ ${bodies[b]||bodies['Explorador']}`);
 }
 
 function _renderE2_AU(nome){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   return _eWrap('Inglês profissional vs. inglês de sobrevivência','Conteúdo: Idioma no Mercado Australiano',`
 <h2>Inglês de sobrevivência não basta no mercado australiano</h2>
 <p>Existe uma diferença grande entre inglês que te permite viver na Austrália e inglês que te permite <strong>ser percebido como profissional competente</strong> no mercado australiano.</p>
@@ -525,7 +629,7 @@ function _renderE2_AU(nome){
 }
 
 function _renderE3_AU(nome){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   return _eWrap('Como funciona o sistema de vistos australiano','Conteúdo: Vistos e Skills Assessment',`
 <h2>O sistema de vistos australiano: o que você precisa entender antes de planejar</h2>
 <p>A Austrália opera com um sistema de imigração baseado em pontos e ocupações elegíveis. Isso é diferente da maioria dos países — e muda completamente a forma como você precisa planejar a transição.</p>
@@ -537,12 +641,12 @@ function _renderE3_AU(nome){
 </ul>
 <p>Entender esses três elementos muda completamente o horizonte de planejamento. A maioria dos brasileiros começa pelo lugar errado.</p>
 <p>Se quiser conversar sobre o seu perfil específico:</p>
-<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`);
+<a href="${APP_CONFIG.links.owned.linkedinJonathan}" class="btn" target="_blank">Falar com Jonathan →</a>`);
 }
 
 /* ---- renders E2 Em Rota ---- */
 function _renderE2EmRota_DE(nome){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   return _eWrap('O que está travando sua candidatura alemã','Conteúdo: Posicionamento no Mercado Alemão',`
 <h2>O que está travando sua candidatura alemã</h2>
 <p>Olá ${n},</p>
@@ -559,7 +663,7 @@ function _renderE2EmRota_DE(nome){
 }
 
 function _renderE2EmRota_AU(nome){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   return _eWrap('Por que perfis qualificados não passam do filtro australiano','Conteúdo: Posicionamento no Mercado Australiano',`
 <h2>Por que perfis qualificados não passam do filtro australiano</h2>
 <p>Olá ${n},</p>
@@ -573,12 +677,12 @@ function _renderE2EmRota_AU(nome){
 <p>Se o inglês profissional ainda é um gap, essa é a parceira que indico para elevar o nível:</p>
 <a href="${VERBALIZE_URL}" class="btn" target="_blank">Conhecer a Verbalize Now →</a>
 <p style="margin-top:16px">Para quem quer conversar sobre posicionamento estratégico no mercado australiano:</p>
-<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`);
+<a href="${APP_CONFIG.links.owned.linkedinJonathan}" class="btn" target="_blank">Falar com Jonathan →</a>`);
 }
 
 /* ---- renders E2 Pronto Embarcar ---- */
 function _renderE2ProntoEmbarcar_DE(nome){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   return _eWrap('Você está mais perto do que imagina','Conteúdo: Execução e Mentoria',`
 <h2>Você está mais perto do que imagina</h2>
 <p>Olá ${n},</p>
@@ -586,11 +690,11 @@ function _renderE2ProntoEmbarcar_DE(nome){
 <p>O que separa quem entra bem posicionado de quem perde meses tentando é a execução: <strong>empresa certa, abordagem certa, timing certo</strong>.</p>
 <p>Esse trabalho de arquitetura — mapear o mercado, identificar empresas que contratam perfis como o seu, construir a abordagem correta — é exatamente o que fazemos na mentoria.</p>
 <p>Se quiser entender como esse processo funciona para o seu perfil específico:</p>
-<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`);
+<a href="${APP_CONFIG.links.owned.linkedinJonathan}" class="btn" target="_blank">Falar com Jonathan →</a>`);
 }
 
 function _renderE2ProntoEmbarcar_AU(nome){
-  const n=nome.split(' ')[0];
+  const n=firstNameSafe(nome);
   return _eWrap('Perfil competitivo. O próximo passo é aparecer para as empresas certas','Conteúdo: Visibilidade Estratégica',`
 <h2>Perfil competitivo. O próximo passo é aparecer para as empresas certas</h2>
 <p>Olá ${n},</p>
@@ -598,7 +702,7 @@ function _renderE2ProntoEmbarcar_AU(nome){
 <p>O que falta agora não é competência — é <strong>visibilidade estratégica no mercado australiano</strong>. Aparecer para as empresas certas, no momento certo, com o posicionamento certo.</p>
 <p>Isso envolve saber onde seu perfil tem maior tração, como ativar a rede local mesmo sem estar lá ainda, e como construir presença antes da candidatura formal.</p>
 <p>Se quiser conversar sobre o seu perfil específico e o próximo passo concreto:</p>
-<a href="https://linkedin.com/in/jonathan-mathias" class="btn" target="_blank">Falar com Jonathan →</a>`);
+<a href="${APP_CONFIG.links.owned.linkedinJonathan}" class="btn" target="_blank">Falar com Jonathan →</a>`);
 }
 
 /* ---- proxy via Apps Script (chave Brevo nunca exposta no frontend) ---- */
@@ -635,11 +739,18 @@ async function _addContactBrevo(email,nome,score,banda,trilha){
 /* ---- gatilho principal ---- */
 async function dispararEmailsLead(email,nome,score,trilha,alemao){
   if(!email||!nome)return;
-  const firstName=nome.split(' ')[0];
+  const firstName=String(nome||'').trim().split(/\s+/)[0]||'';
   const band=score<=40?'Explorador':score<=65?'Em Rota':score<=85?'Pronto para Embarcar':'Elite';
+  const routeCfg=APP_CONFIG.email.routes[trilha]||{enabled:false,status:'plugin_missing'};
 
   // 1. Cadastra contato na lista Brevo (sempre, independente de banda)
   await _addContactBrevo(email,nome,score,band,trilha);
+
+  if(!routeCfg.enabled){
+    await _gasPost({type:'email_plugin_pending',email,nome,score,banda:band,trilha,status:routeCfg.status});
+    logEvent('email_plugin_pending',{email,trilha,score,banda:band,status:routeCfg.status});
+    return;
+  }
 
   // 2. Sequência de emails por banda
   if(trilha==='de'){
@@ -701,7 +812,7 @@ async function dispararEmailsLead(email,nome,score,trilha,alemao){
 }
 
 /* FIX: VerbalizeNow - parceira de inglês */
-const VERBALIZE_URL = 'https://api.whatsapp.com/send/?phone=5535998611407&text=Eu%20cheguei%20aqui%20pelo%20Jonathan%20Mathias%20e%20gostaria%20de%20saber%20mais%20sobre%20aulas%20de%20ingl%C3%AAs.&type=phone_number&app_absent=0';
+const VERBALIZE_URL = APP_CONFIG.links.partners.verbalizeNow;
 
 /* Helpers VerbalizeNow */
 function verbalizeLink(contexto){
@@ -1526,7 +1637,7 @@ const INS_COLORS={d1:'#6e8ef7',d2:'#f0c44a',d3:'#3ecf8e',d4:'#a98ef7',familia:'#
 
 /* IG CARD GENERATOR */
 function generateIGCard(){
-  const cor=T==='de'?'#D4AF37':'#2B5EA7';
+  const cor=T==='de'?'#D4AF37':'#173528';
   const dest=T==='de'?'Alemanha':'Austrália';
   const corTxt=T==='de'?'#0d0d00':'#ffffff';
   const appUrl='jonathan-mathias.github.io/cia-app';
@@ -1580,9 +1691,9 @@ function generateIGCard(){
 function renderTrilha(){
   document.getElementById('app').innerHTML=`
     <div class="trilha-wrap">
-      <div class="trilha-tag">Career Intelligence Assessment <span style="background:#D4AF3722;color:#D4AF37;border:1px solid #D4AF3740;border-radius:4px;padding:1px 7px;font-size:9px;letter-spacing:1px;margin-left:6px;vertical-align:middle">BETA</span></div>
-      <h1 class="trilha-h1">Descubra onde você realmente está</h1>
-      <p class="trilha-sub">Para gestores, especialistas e líderes que levam carreira internacional a sério. Não como aventura: como decisão estratégica.</p>
+      <div class="trilha-tag">Elite Migration · Career Intelligence Assessment <span style="background:#D4AF3722;color:#D4AF37;border:1px solid #D4AF3740;border-radius:4px;padding:1px 7px;font-size:9px;letter-spacing:1px;margin-left:6px;vertical-align:middle">BETA</span></div>
+      <h1 class="trilha-h1">Ser bom não basta se o mercado não entende seu valor</h1>
+      <p class="trilha-sub">Um diagnóstico para gestores, especialistas e líderes brasileiros que querem ser lidos como candidatos competitivos no mercado internacional, começando pela Alemanha.</p>
       <div style="display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
         <span style="display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;background:#3ecf8e12;color:#3ecf8e;border:1px solid #3ecf8e30"><span style="font-size:12px">✓</span> Gratuito</span>
         <span style="display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;background:#6e8ef712;color:#6e8ef7;border:1px solid #6e8ef730"><span style="font-size:12px">✓</span> Sem compromisso</span>
@@ -1591,7 +1702,7 @@ function renderTrilha(){
       <div class="trilha-context">
         <div class="trilha-proof">
           <div class="trilha-proof-icon" style="background:#D4AF3720;color:#D4AF37">⏱</div>
-          <div class="trilha-proof-text">Avaliação completa em <strong>5 minutos</strong>. Pontuação 0-100, análise por dimensão e próximos passos priorizados por impacto real no seu perfil.</div>
+          <div class="trilha-proof-text">Avaliação completa em <strong>5 minutos</strong>. Pontuação 0-100, análise por dimensão e próximos passos priorizados pelo gargalo que mais reduz sua percepção de valor.</div>
         </div>
         <div class="trilha-proof">
           <div class="trilha-proof-icon" style="background:#D4AF3718;color:#D4AF37;font-size:18px;font-family:Georgia,serif">"</div>
@@ -1599,7 +1710,7 @@ function renderTrilha(){
         </div>
         <div class="trilha-proof">
           <div class="trilha-proof-icon" style="background:#3ecf8e18;color:#3ecf8e">◎</div>
-          <div class="trilha-proof-text"><strong>Diagnóstico, não quiz.</strong> O resultado mostra exatamente onde está o gap que está travando sua candidatura. E o próximo movimento.</div>
+          <div class="trilha-proof-text"><strong>Diagnóstico, não quiz.</strong> O resultado mostra onde sua candidatura perde força e qual movimento faz mais sentido agora.</div>
         </div>
       </div>
       <div class="trilha-divider"><span class="trilha-divider-txt">Escolha seu destino</span></div>
@@ -1613,6 +1724,7 @@ function renderTrilha(){
   <rect x="0" y="37" width="56" height="19" fill="#D4AF37" clip-path="url(#cde)"/>
 </svg></div>
           <div class="trilha-nome">Alemanha</div>
+          <div class="trilha-btn-sub">rota principal EML</div>
         </button></div>
         <div class="trilha-btn-wrap au"><button class="trilha-btn" id="btn-au">
           <div class="trilha-flag"><svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
@@ -1638,6 +1750,7 @@ function renderTrilha(){
   </g>
 </svg></div>
           <div class="trilha-nome">Austrália</div>
+          <div class="trilha-btn-sub">segunda rota</div>
         </button></div>
       </div>
     </div>`;
@@ -1679,7 +1792,7 @@ const PAISES_CADASTRO=[
 
 function renderCadastro(){
   const app=document.getElementById('app');
-  const cor=T==='de'?'#D4AF37':'#2B5EA7';
+  const cor=T==='de'?'#D4AF37':'#173528';
   const corTxt=T==='de'?'#0d0d00':'#fff';
   const pais=T==='de'?'Alemanha':'Austrália';
   const paisOpts='<option value="">Selecione seu país atual</option>'+
@@ -1795,7 +1908,7 @@ function renderQ(){
   const total=vis.length,pct=Math.round((step/total)*100),keys=['A','B','C','D','E','F','G'];
   const isLast=step===total-1;
   const app=document.getElementById('app');
-  const cor=T==='de'?'#D4AF37':'#2B5EA7';
+  const cor=T==='de'?'#D4AF37':'#173528';
 
   /* FIX THAÍS: badge visível quando usuário já está no destino */
   const badgeDestino=isNoDestino()
@@ -1857,7 +1970,7 @@ function renderQ(){
       const v=sel.value;
       const l=q.selectOpts.find(o=>o.v===v)?.l||v;
       ANS[q.id]={v,l};
-      sel.style.borderColor=T==='de'?'#D4AF37':'#2B5EA7';
+      sel.style.borderColor=T==='de'?'#D4AF37':'#173528';
       setTimeout(()=>{
         if(!isLast){step++;renderQ();window.scrollTo(0,0);}
         else{const nb=document.getElementById('btn-next');if(nb)nb.disabled=false;}
@@ -1933,7 +2046,7 @@ function renderQ(){
 /* LEAD GATE — aparece depois do quiz, antes do resultado */
 function renderLeadGate(){
   const app=document.getElementById('app');
-  const cor=T==='de'?'#D4AF37':'#2B5EA7';
+  const cor=T==='de'?'#D4AF37':'#173528';
   const corTxt=T==='de'?'#0d0d00':'#fff';
   const dest=T==='de'?'Alemanha':'Austrália';
   // Pré-selecionar DDI com base no país que o usuário informou no início
@@ -1952,7 +2065,7 @@ function renderLeadGate(){
       <div style="text-align:center;padding:28px 0 16px">
         <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${cor}">${dest} · Avaliação concluída</div>
         <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(20px,5vw,26px);color:var(--text);line-height:1.25;margin:10px 0 8px;font-weight:400">Seu resultado está pronto</h2>
-        <p style="font-size:13px;color:var(--muted);line-height:1.6;max-width:320px;margin:0 auto">Para liberar seu relatório personalizado, confirme seus dados abaixo. Não vendemos nem compartilhamos seus dados com terceiros.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;max-width:340px;margin:0 auto">Para liberar seu relatório personalizado, confirme seus dados abaixo. Usamos essas informações para entregar o diagnóstico, enviar próximos passos relevantes e melhorar o CIA App.</p>
         ${LEAD.nome?`<div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:#3ecf8e;background:#3ecf8e12;border:1px solid #3ecf8e30;border-radius:20px;padding:4px 12px"><span>✓</span> Dados salvos — confirme ou edite abaixo</div>`:''}
       </div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;margin-bottom:14px">
@@ -1960,14 +2073,14 @@ function renderLeadGate(){
           <div>
             <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">Nome completo <span style="color:#e85555">*</span></label>
             <input id="gate-nome" type="text" placeholder="Seu nome e sobrenome" autocomplete="name"
-              value="${LEAD.nome||''}"
+              value="${esc(LEAD.nome||'')}"
               style="width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s">
             <div id="gate-err-nome" style="display:none;font-size:12px;color:#e85555;margin-top:5px">Informe seu nome e sobrenome completos.</div>
           </div>
           <div>
             <label style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px">E-mail <span style="color:#e85555">*</span></label>
             <input id="gate-email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email"
-              value="${LEAD.email||''}"
+              value="${esc(LEAD.email||'')}"
               style="width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s">
             <div id="gate-err-email" style="display:none;font-size:12px;color:#e85555;margin-top:5px">Informe um e-mail válido.</div>
           </div>
@@ -1981,7 +2094,7 @@ function renderLeadGate(){
                 <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none;font-size:12px">&#9660;</span>
               </div>
               <input id="gate-wa" type="tel" placeholder="Somente números" autocomplete="tel-national" inputmode="numeric"
-                value="${LEAD.waNum||''}"
+                value="${esc(LEAD.waNum||'')}"
                 style="flex:1;padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:15px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;transition:border-color .15s;min-width:0">
             </div>
             <div id="gate-err-wa" style="display:none;font-size:12px;color:#e85555;margin-top:5px">Informe seu WhatsApp com pelo menos 8 dígitos.</div>
@@ -1991,12 +2104,12 @@ function renderLeadGate(){
             <div style="font-size:12px;color:var(--text2);line-height:1.65">Este resultado tem caráter exclusivamente <strong style="color:var(--text)">educacional e informativo</strong>. Não constitui assessoria jurídica, de imigração, financeira ou profissional. O uso das informações aqui contidas é de inteira responsabilidade do usuário. ${dest==='Austrália'?'Consulte um agente MARA registrado.':'Consulte uma consultoria de imigração credenciada.'} Jonathan Mathias e Elite Migration não se responsabilizam por decisões tomadas com base exclusivamente neste conteúdo.</div>
             <label style="display:flex;align-items:flex-start;gap:10px;margin-top:12px;cursor:pointer">
               <input type="checkbox" id="gate-check" style="margin-top:2px;flex-shrink:0;accent-color:${cor};width:16px;height:16px;cursor:pointer">
-              <span style="font-size:12px;color:var(--text2);line-height:1.5">Li e entendi que este relatório é educacional. Estou ciente de que devo consultar profissionais habilitados antes de tomar qualquer decisão.</span>
+              <span style="font-size:12px;color:var(--text2);line-height:1.5">Li e entendi que este relatório é educacional. Concordo que a Elite Migration use minhas respostas e dados de contato para entregar meu diagnóstico, enviar próximos passos relevantes e melhorar o CIA App. <a href="${APP_CONFIG.links.owned.privacyPolicy}" target="_blank" style="color:${cor};text-decoration:none">Ver política de privacidade</a>.</span>
             </label>
             <div id="gate-err-check" style="display:none;font-size:12px;color:#e85555;margin-top:6px">Confirme que leu o aviso legal para continuar.</div>
           </div>
           <button id="gate-btn" style="width:100%;padding:15px;border:none;border-radius:var(--r2);background:${cor};color:${corTxt};font-size:15px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;letter-spacing:0.01em;transition:opacity .15s">Ver meu resultado →</button>
-          <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">Podemos enviar conteúdos e próximos passos sobre carreira internacional pelo WhatsApp. Sem spam.</div>
+          <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">Não vendemos seus dados. Você pode pedir remoção ou parar comunicações a qualquer momento.</div>
         </div>
       </div>
     </div>`;
@@ -2017,7 +2130,7 @@ function renderLeadGate(){
     return words.length>=2 && words.every(w=>w.length>=2);
   };
 
-  const go=()=>{
+  const go=async()=>{
     let ok=true;
     const nm=(nomeEl?nomeEl.value:'').trim();
     const em=(emailEl?emailEl.value:'').trim();
@@ -2041,10 +2154,19 @@ function renderLeadGate(){
 
     LEAD.nome=nm;LEAD.email=em;
     LEAD.waDDI=ddiVal[0]||'55';LEAD.waNum=wa;LEAD.waDDIPais=ddiVal[1]||'Brasil';
+    publicLeadId();
     btnEl.disabled=true;btnEl.textContent='Carregando...';
-    logEvent('lead',{nome:nm,email:em,whatsapp:`+${LEAD.waDDI}${wa}`,trilha:T,origem:'lead_gate',
-      score_preview:'pending',idade:LEAD.idade,pais:GEO.paisLabel||GEO.pais||''});
     const _sc=calcScore();
+    const _band=getBand(_sc.final);
+    const leadPayload={
+      lead_id:LEAD._id,nome:nm,email:em,whatsapp:`+${LEAD.waDDI}${wa}`,whatsapp_ddi:LEAD.waDDI,
+      trilha:T,origem:'lead_gate',idade:LEAD.idade,pais_atual:GEO.paisLabel||GEO.pais||'',
+      tempo_fora:GEO.tempoLabel||GEO.tempo||'',score:_sc.final,banda:_band.lb,
+      d1:_sc.dims.d1,d2:_sc.dims.d2,d3:_sc.dims.d3,d4:_sc.dims.d4,
+      created_at:new Date().toISOString()
+    };
+    logEvent('lead',leadPayload);
+    supabaseInsert('leads',leadPayload);
     dispararEmailsLead(em,nm,_sc.final,T,ANS['p2']?ANS['p2'].v:0).catch(()=>{});
     renderResults();window.scrollTo(0,0);
   };
@@ -2055,11 +2177,42 @@ function renderLeadGate(){
 
 
 /* RESULTADOS */
+function getPrimaryCta(result,band){
+  const score=result.final;
+  const route=T==='de'?'Alemanha':'Austrália';
+  const cvWeak=(ANS['p11']?ANS['p11'].v:0)<2;
+  const emailAutomatic='Você já confirmou seus dados. A trilha por email fica conectada ao seu diagnóstico e evita mandar o mesmo próximo passo para todo mundo.';
+  if(score<=40){
+    return {id:'community_foundation',label:'Entrar no grupo gratuito',url:APP_CONFIG.links.owned.whatsappGroup,title:'Construa a base antes de gastar energia com candidatura',copy:`Seu resultado mostra que ainda existe preparação importante antes de uma candidatura séria para ${route}. O próximo passo é organizar idioma, mercado e direção. O grupo gratuito ajuda você a amadurecer essa decisão sem entrar cedo demais em produto ou mentoria.`,note:emailAutomatic};
+  }
+  if(score<=65){
+    return {id:'cv_builder',label:'Ajustar meu CV para o mercado-alvo',url:APP_CV_URL,title:cvWeak?'Seu gargalo mais caro agora é como o mercado lê seu perfil':'Transforme sua experiência em candidatura legível',copy:`Você já saiu da fase de curiosidade, mas ainda existe diferença entre ter experiência e ser entendido por um recrutador na ${route}. O CV é o primeiro lugar onde essa diferença aparece.`,note:'Este caminho prepara o terreno para Carta, LinkedIn e candidatura estratégica quando os módulos estiverem conectados.'};
+  }
+  if(score<=85){
+    return {id:'strategic_application',label:'Preparar minha candidatura estratégica',url:APP_CV_URL,title:'Você tem sinais competitivos, agora o risco está nos detalhes',copy:`Seu perfil já tem elementos que podem funcionar na ${route}. O próximo ganho não vem de consumir mais conteúdo solto, mas de organizar CV, carta, LinkedIn, empresas-alvo e abordagem como uma arquitetura de candidatura.`,note:'Por enquanto, o CV Builder é o primeiro módulo prático desse caminho. Carta e LinkedIn entram na sequência da Plataforma EM.'};
+  }
+  return {id:'premium_waitlist',label:APP_CONFIG.links.owned.premiumWaitlist?'Entrar na lista premium futura':'Registrar interesse premium futuro',url:APP_CONFIG.links.owned.premiumWaitlist||APP_CONFIG.links.owned.linkedinJonathan,title:'Seu perfil merece filtro, não funil genérico',copy:`Seu resultado indica alta prontidão. Esse tipo de caso pode fazer sentido para uma análise mais próxima no futuro, desde que exista fit real, timing correto e clareza sobre o que precisa ser construído antes da entrada no mercado.`,note:'Enquanto a mentoria premium não estiver aberta comercialmente, este CTA registra intenção e preserva o filtro.'};
+}
+
+function renderPrimaryCta(result,band){
+  const cta=getPrimaryCta(result,band);
+  const cls=T==='de'?'de':'au';
+  return `<div class="primary-cta" data-cta-id="${cta.id}">
+    <div class="primary-cta-kicker">Próximo passo recomendado</div>
+    <div class="primary-cta-title">${cta.title}</div>
+    <div class="primary-cta-copy">${cta.copy}</div>
+    <a href="${cta.url}" target="_blank" class="primary-cta-btn ${cls}" data-primary-cta="${cta.id}">${cta.label}</a>
+    <div class="primary-cta-note">${cta.note}</div>
+  </div>`;
+}
+
 function renderResults(){
   const result=calcScore(),band=getBand(result.final),alerts=getAlerts(),insights=getInsights(result),steps=getSteps(result);
 
   GEO.pais=GEO.pais||'Brasil';
-  logEvent('quiz_complete',{
+  publicLeadId();
+  const resultPayload={
+    lead_id:LEAD._id,
     trilha:T,score:result.final,banda:band.lb,
     d1:result.dims.d1,d2:result.dims.d2,d3:result.dims.d3,d4:result.dims.d4,
     pais_atual:GEO.paisLabel||GEO.pais||'Brasil',tempo_fora:GEO.tempoLabel||GEO.tempo||'',area:ANS['p3']?ANS['p3'].l:'',ingles:ANS['p1']?ANS['p1'].l:'',
@@ -2067,13 +2220,17 @@ function renderResults(){
     prazo:ANS['p8']?ANS['p8'].l:'',investimento:ANS['p9']?ANS['p9'].l:'',
     dependentes:CTR.adultos+CTR.criancas+CTR.jovens,
     criancas:CTR.criancas,jovens:CTR.jovens,
-  });
+    answers:ANS,counters:CTR,alerts:alerts.map(a=>a.text),insights:insights.map(i=>({cat:i.cat,title:i.title})),
+    created_at:new Date().toISOString()
+  };
+  logEvent('quiz_complete',resultPayload);
+  supabaseInsert('results',resultPayload);
 
   const circ=2*Math.PI*80,off=circ-(result.final/100)*circ;
   const wrap=document.createElement('div');wrap.className='res';
   wrap.innerHTML=`
     <div style="text-align:center;padding:20px 0 8px">
-      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${T==='de'?'#D4AF37':'#2B5EA7'}">${T==='de'?'Alemanha':'Austrália'} · Resultado</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:${T==='de'?'#D4AF37':'#173528'}">${T==='de'?'Alemanha':'Austrália'} · Resultado</div>
     </div>
     <div class="score-hero">
       <div class="score-ring-wrap">
@@ -2125,9 +2282,11 @@ function renderResults(){
     })()}
     <div class="sec-label-main" style="margin-top:24px">Próximos passos</div>
     <div class="steps">${steps.map((s,i)=>`<div class="step"><span class="step-n">0${i+1}</span><div class="step-t">${s}</div></div>`).join('')}</div>
+    ${renderPrimaryCta(result,band)}
+    <div class="secondary-resources-label">Recursos complementares</div>
     ${(()=>{
       const inv=ANS['p9']?ANS['p9'].v:0;
-      const primeiroNome=LEAD.nome?LEAD.nome.split(' ')[0]:'';
+      const primeiroNome=firstNameSafe(LEAD.nome);
       const vocativo=primeiroNome?primeiroNome+', ':'';
       let html='';
       if(T==='de'&&result.final>=41&&result.final<86){
@@ -2172,27 +2331,10 @@ function renderResults(){
       }
       return html;
     })()}
-    ${result.final>=86?(()=>{
-      const primeiroNome=LEAD.nome?LEAD.nome.split(' ')[0]:'';
-      const vocMentoria=primeiroNome?primeiroNome+', você':'Você';
-      const destMentoria=T==='de'?'Alemanha':'Austrália';
-      const corBtn=T==='de'?'de':'au';
-      return `<div class="mentoria-card">
-        <div class="mentoria-card-tag">Próximo nível</div>
-        <div class="mentoria-card-title">${vocMentoria} chegou até aqui com um perfil que a maioria não tem.</div>
-        <div class="mentoria-card-sub">O que separa profissionais nesse estágio de uma entrada bem posicionada na ${destMentoria} não é mais preparação técnica. É saber escolher a empresa certa, com a abordagem certa, no timing certo.<br><br>Esse trabalho de arquitetura de candidatura é o que faço na mentoria com quem já tem o perfil e não quer desperdiçar tempo chegando desposicionado.</div>
-        <a href="https://linkedin.com/in/jonathan-mathias" target="_blank" class="mentoria-card-btn ${corBtn}">Falar com Jonathan →</a>
-      </div>`;
-    })():''}
-    <div class="cv-builder-card">
-      <div class="cv-builder-tag">Próximo passo prático</div>
-      <div class="cv-builder-title">Levar meu diagnóstico para o CV Builder</div>
-      <div class="cv-builder-sub">Use os <strong>dados reais gerados no CIA</strong> para abrir o CV Builder já pré-preenchido para teste. O acesso continua protegido.</div>
-      <button class="cv-builder-btn" id="btn-open-cv-builder">Abrir CV Builder com meus dados →</button>
-    </div>
+    ${result.final>=86?`<div class="secondary-resources-label">Interesse premium registrado pelo CTA principal</div>`:''}
     <div class="social" style="display:flex;flex-direction:column;gap:10px">
       <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Jonathan Mathias</div>
-      <p style="font-size:13px;color:var(--text2);line-height:1.7">Brasil → Alemanha → Austrália. Mentor de carreira internacional para gestores e especialistas que levam a decisão a sério. Conteúdo toda semana no <a href="https://linkedin.com/in/jonathan-mathias" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">LinkedIn</a> e no <a href="https://instagram.com/jmnomundo" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">Instagram</a>.</p>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">Brasil → Alemanha → Austrália. Mentor de carreira internacional para gestores e especialistas que levam a decisão a sério. Conteúdo toda semana no <a href="${APP_CONFIG.links.owned.linkedinJonathan}" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">LinkedIn</a> e no <a href="${APP_IG_URL}" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">Instagram</a>.</p>
     </div>
     <div class="sec-label-main">Compartilhar</div>
     <div class="share-wrap">
@@ -2206,7 +2348,7 @@ function renderResults(){
     <div class="sec-label-main">Avalie esta experiência</div>
     <div id="nps-block" style="background:#0d0d1a;border:1px solid var(--border);border-radius:var(--r);padding:22px 20px;margin:8px 0 16px">
       <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">De 0 a 10, qual a probabilidade de você recomendar essa avaliação?</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5">0 = certamente não recomendaria · 10 = recomendaria com certeza<br><span style="font-size:11px;opacity:0.6">Avaliação anônima. Seu nome não será associado a esta resposta.</span></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5">0 = certamente não recomendaria · 10 = recomendaria com certeza<br><span style="font-size:11px;opacity:0.6">Usaremos este feedback principalmente de forma agregada para melhorar o diagnóstico.</span></div>
       <div id="nps-grid" style="display:grid;grid-template-columns:repeat(11,1fr);gap:6px;margin-bottom:12px"></div>
       <div id="nps-comment-wrap" style="display:none;margin-top:12px">
         <textarea id="nps-comment" placeholder="Comentário opcional: o que poderia ser melhor? O que mais gostou?" rows="3"
@@ -2219,8 +2361,34 @@ function renderResults(){
   document.getElementById('app').innerHTML='';
   document.getElementById('app').appendChild(wrap);
 
+  function logCtaClick(ctaId, ctaLabel, ctaUrl, source){
+    const payload={lead_id:LEAD._id,trilha:T,score:result.final,banda:band.lb,cta_id:ctaId,cta_label:ctaLabel,cta_url:ctaUrl,source,created_at:new Date().toISOString()};
+    logEvent('cta_click',payload);
+    supabaseInsert('ctaClicks',payload);
+  }
+
+  function storeCvBuilderPayload(){
+    const payload={
+      source:'cia-final-report',
+      generatedAt:new Date().toISOString(),
+      lead:{...LEAD},geo:{...GEO},trilha:T,answers:ANS,counters:CTR,
+      score:{final:result.final,band:band.lb,dimensions:result.dims},
+      alerts,insights,steps,summary:buildSummary(result,insights,steps)
+    };
+    try{localStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
+    try{sessionStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
+  }
+
+  document.querySelectorAll('.primary-cta-btn,.promo-btn,.mentoria-card-btn').forEach((el,idx)=>{
+    el.addEventListener('click',()=>{
+      const ctaId=el.dataset.primaryCta || (el.classList.contains('mentoria-card-btn')?'premium_link':'promo_link');
+      logCtaClick(ctaId,el.textContent.trim(),el.href||'',`result_card_${idx}`);
+      if(['cv_builder','strategic_application'].includes(ctaId)) storeCvBuilderPayload();
+    });
+  });
+
   requestAnimationFrame(()=>{
-    document.documentElement.style.setProperty('--ring-glow', T==='de'?'#D4AF37':'#2B5EA7');
+    document.documentElement.style.setProperty('--ring-glow', T==='de'?'#D4AF37':'#173528');
     const ring=document.getElementById('score-ring');
     if(ring){ring.style.transition='stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)';ring.style.strokeDashoffset=off.toFixed(2);}
     let cur=0;const el=document.getElementById('score-n'),st=Math.max(1,Math.ceil(result.final/55));
@@ -2326,7 +2494,7 @@ function renderResults(){
     const npsConfirm=document.createElement('button');
     npsConfirm.id='nps-confirm';
     npsConfirm.textContent='Enviar avaliação';
-    const corTrilha=T==='de'?'#D4AF37':'#2B5EA7';
+    const corTrilha=T==='de'?'#D4AF37':'#173528';
     const corTxt2=T==='de'?'#0d0d00':'#fff';
     npsConfirm.style.cssText=`display:none;width:100%;padding:13px;border:none;border-radius:var(--r2);background:${corTrilha};color:${corTxt2};font-size:14px;font-weight:500;cursor:pointer;font-family:Geist,sans-serif;margin-top:12px;transition:opacity .15s`;
     npsConfirm.addEventListener('click',()=>{
@@ -2336,7 +2504,9 @@ function renderResults(){
       if(thanks)thanks.style.display='block';
       const npsCommentEl=document.getElementById('nps-comment');
       const npsComment=(npsCommentEl?npsCommentEl.value:'').trim();
-      logEvent('nps',{trilha:T,score:result.final,banda:band.lb,nps:NPS,comentario:npsComment||''});
+      const npsPayload={lead_id:LEAD._id,trilha:T,score:result.final,banda:band.lb,nps:NPS,comentario:npsComment||'',created_at:new Date().toISOString()};
+      logEvent('nps',npsPayload);
+      supabaseInsert('nps',npsPayload);
     });
     if(npsBlock){npsBlock.appendChild(npsConfirm);}
     for(let i=0;i<=10;i++){
@@ -2373,15 +2543,8 @@ function renderResults(){
   const cvBuilderBtn=document.getElementById('btn-open-cv-builder');
   if(cvBuilderBtn){
     cvBuilderBtn.addEventListener('click',()=>{
-      const payload={
-        source:'cia-final-report',
-        generatedAt:new Date().toISOString(),
-        lead:{...LEAD},geo:{...GEO},trilha:T,answers:ANS,counters:CTR,
-        score:{final:result.final,band:band.lb,dimensions:result.dims},
-        alerts,insights,steps,summary:buildSummary(result,insights,steps)
-      };
-      try{localStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
-      try{sessionStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
+      logCtaClick('cv_builder','Abrir CV Builder com meus dados',APP_CV_URL,'result_card_cv_builder');
+      storeCvBuilderPayload();
       window.open(APP_CV_URL,'_blank');
     });
   }
