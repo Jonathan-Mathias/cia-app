@@ -25,11 +25,13 @@
 - [ ] Links vazios de parceiros/produtos não aparecem como CTA ativo.
 
 ### 4. Dados e Supabase
+- [ ] `session_id` é gerado no carregamento para conectar eventos pré-lead.
 - [ ] `lead_id` é gerado antes de salvar lead/resultado.
-- [ ] Payload de lead contém nome, email, WhatsApp, rota, score, banda e dimensões.
-- [ ] Payload de resultado contém answers/counters/alerts/insights.
+- [ ] Payload de lead contém `session_id`, nome, email, WhatsApp, rota, score, banda e dimensões.
+- [ ] Payload de resultado contém `session_id`, answers/counters/alerts/insights.
 - [ ] Supabase desligado não quebra fluxo.
-- [ ] Com Supabase ligado, inserts usam anon key + RLS e não exigem service role.
+- [ ] Migration `supabase/migrations/2026-06-23_cia_tracking_foundation.sql` roda sem erro em projeto novo.
+- [ ] Com Supabase ligado, inserts usam anon key + RLS insert-only e não exigem service role.
 
 ### 5. Privacidade e segurança
 - [ ] Copy não chama dados identificáveis de anônimos.

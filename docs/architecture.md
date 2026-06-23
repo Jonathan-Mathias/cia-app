@@ -27,7 +27,10 @@ Manter o CIA App como HTML estático por enquanto, mas organizado para virar mó
 3. **Tracking e dados**
    - `logEvent(type, data)` continua enviando para o Google Apps Script.
    - A função já está preparada para enviar eventos ao Supabase quando `APP_CONFIG.integrations.supabase.enabled = true`.
+   - `session_id` é gerado no navegador e salvo em `sessionStorage` para conectar eventos anônimos antes do lead gate.
    - `lead_id` público é gerado no navegador para conectar lead, resultado, eventos, NPS e cliques.
+   - Taxonomia de eventos: `docs/tracking/events-taxonomy.md`.
+   - Migration Supabase: `supabase/migrations/2026-06-23_cia_tracking_foundation.sql`.
 
 4. **Emails**
    - Alemanha: rota habilitada para disparo.

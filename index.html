@@ -300,7 +300,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 ========================================================= */
 const APP_CONFIG = Object.freeze({
   env: 'production',
-  version: '2.2-supabase-ready',
+  version: '2.3-tracking-foundation',
   integrations: {
     // Google Apps Script continua como proxy seguro para Sheets/Brevo.
     // Não colocar chaves Brevo ou service_role do Supabase no frontend.
@@ -311,6 +311,7 @@ const APP_CONFIG = Object.freeze({
       anonKey: '',    // apenas anon public key, com RLS ativo
       schema: 'public',
       tables: {
+        sessions: 'cia_sessions',
         events: 'cia_events',
         leads: 'cia_leads',
         results: 'cia_results',
@@ -365,9 +366,47 @@ function emailBtn(url,label){
   return url ? `<a href="${url}" class="btn" target="_blank">${label}</a>` : '';
 }
 
+function safeUuid(prefix){
+  return (typeof crypto!=='undefined'&&crypto.randomUUID) ? crypto.randomUUID() : `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
+function getSessionId(){
+  try{
+    const key='cia_session_id';
+    let id=sessionStorage.getItem(key);
+    if(!id){id=safeUuid('session');sessionStorage.setItem(key,id);}
+    return id;
+  }catch(e){
+    if(!window.__CIA_SESSION_ID__) window.__CIA_SESSION_ID__=safeUuid('session');
+    return window.__CIA_SESSION_ID__;
+  }
+}
+
+const SESSION_ID=getSessionId();
+
+function getUtm(){
+  try{
+    const params=new URLSearchParams(window.location.search||'');
+    return ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','source'].reduce((acc,k)=>{
+      const v=params.get(k);
+      if(v) acc[k]=v;
+      return acc;
+    },{});
+  }catch(e){return {};}
+}
+
+function baseTrackingContext(){
+  return {
+    session_id: SESSION_ID,
+    path: window.location ? window.location.pathname : '',
+    referrer: document.referrer || '',
+    utm: getUtm()
+  };
+}
+
 function publicLeadId(){
   if(!LEAD._id){
-    LEAD._id = (typeof crypto!=='undefined'&&crypto.randomUUID) ? crypto.randomUUID() : `lead_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    LEAD._id = safeUuid('lead');
   }
   return LEAD._id;
 }
@@ -378,7 +417,7 @@ async function supabaseInsert(tableKey, record){
   const table=sb.tables[tableKey];
   if(!table) return;
   try{
-    await fetch(`${sb.url.replace(/\/$/,'')}/rest/v1/${table}`,{
+    const res = await fetch(`${sb.url.replace(/\/$/,'')}/rest/v1/${table}`,{
       method:'POST',
       headers:{
         apikey: sb.anonKey,
@@ -388,13 +427,26 @@ async function supabaseInsert(tableKey, record){
       },
       body:JSON.stringify(record)
     });
+    if(!res.ok && res.status!==409) console.warn('Supabase insert failed', tableKey, res.status);
   }catch(e){console.warn('Supabase insert skipped/error', tableKey, e);}
 }
 
-async function logEvent(type, data){
-  const payload = {type, ts: new Date().toISOString(), app_version: APP_CONFIG.version, lead_id: LEAD&&LEAD._id?LEAD._id:null, ...data};
+async function logEvent(type, data={}){
+  const payload = {
+    ...baseTrackingContext(),
+    type,
+    ts: new Date().toISOString(),
+    app_version: APP_CONFIG.version,
+    lead_id: LEAD&&LEAD._id?LEAD._id:null,
+    trilha: T || null,
+    step,
+    ...data
+  };
   console.log('[CIA App]', type, payload);
-  supabaseInsert('events', {lead_id:payload.lead_id,ts:payload.ts,type,app_version:APP_CONFIG.version,payload});
+  if(type==='app_loaded'){
+    supabaseInsert('sessions', {session_id:payload.session_id,app_version:APP_CONFIG.version,landing_path:payload.path,referrer:payload.referrer,utm:payload.utm});
+  }
+  supabaseInsert('events', {session_id:payload.session_id,lead_id:payload.lead_id,ts:payload.ts,type,app_version:APP_CONFIG.version,trilha:payload.trilha,step:payload.step,payload});
   if(!SHEETS_URL) return;
   try {
     await fetch(SHEETS_URL, {
@@ -1760,6 +1812,7 @@ function renderTrilha(){
 
 function startTrilha(t){
   T=t;QS=getQuestions(t);step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};
+  logEvent('route_selected',{trilha:t});
   // LEAD data preserved for refazer flow — only reset GEO if starting fresh
   renderCadastro();
 }
@@ -1890,6 +1943,7 @@ function renderCadastro(){
       return;
     }
     if(err)err.style.display='none';
+    logEvent('profile_started',{idade:LEAD.idade,pais_atual:GEO.paisLabel||GEO.pais||'',tempo_fora:GEO.tempoLabel||GEO.tempo||''});
     renderQ();window.scrollTo(0,0);
   });
 }
@@ -1984,6 +2038,7 @@ function renderQ(){
       b.innerHTML=`<span class="opt-key">${keys[i]}</span><span class="opt-lbl">${o.l}</span>`;
       b.addEventListener('click',()=>{
         ANS[q.id]={v:o.v,l:o.l};
+        logEvent('question_answered',{question_id:q.id,answer_value:o.v,answer_label:o.l});
         od.querySelectorAll('.opt').forEach(x=>{x.className='opt';});
         b.className='opt sel '+T;
         if(!isLast){step++;renderQ();window.scrollTo(0,0);}
@@ -2021,7 +2076,7 @@ function renderQ(){
   } else if(isLast){
     const nx=document.createElement('button');nx.id='btn-next';nx.className=`btn-next ${T}`;
     nx.textContent='Ver minha pontuação';nx.disabled=!ANS[q.id];
-    nx.addEventListener('click',()=>{if(!ANS[q.id])return;renderLeadGate();window.scrollTo(0,0);});
+    nx.addEventListener('click',()=>{if(!ANS[q.id])return;logEvent('lead_gate_view',{questions_answered:Object.keys(ANS).length});renderLeadGate();window.scrollTo(0,0);});
     nav.appendChild(nx);
   }
   wrap.appendChild(nav);
@@ -2159,6 +2214,7 @@ function renderLeadGate(){
     const _sc=calcScore();
     const _band=getBand(_sc.final);
     const leadPayload={
+      session_id:SESSION_ID,
       lead_id:LEAD._id,nome:nm,email:em,whatsapp:`+${LEAD.waDDI}${wa}`,whatsapp_ddi:LEAD.waDDI,
       trilha:T,origem:'lead_gate',idade:LEAD.idade,pais_atual:GEO.paisLabel||GEO.pais||'',
       tempo_fora:GEO.tempoLabel||GEO.tempo||'',score:_sc.final,banda:_band.lb,
@@ -2212,6 +2268,7 @@ function renderResults(){
   GEO.pais=GEO.pais||'Brasil';
   publicLeadId();
   const resultPayload={
+    session_id:SESSION_ID,
     lead_id:LEAD._id,
     trilha:T,score:result.final,banda:band.lb,
     d1:result.dims.d1,d2:result.dims.d2,d3:result.dims.d3,d4:result.dims.d4,
@@ -2362,7 +2419,7 @@ function renderResults(){
   document.getElementById('app').appendChild(wrap);
 
   function logCtaClick(ctaId, ctaLabel, ctaUrl, source){
-    const payload={lead_id:LEAD._id,trilha:T,score:result.final,banda:band.lb,cta_id:ctaId,cta_label:ctaLabel,cta_url:ctaUrl,source,created_at:new Date().toISOString()};
+    const payload={session_id:SESSION_ID,lead_id:LEAD._id,trilha:T,score:result.final,banda:band.lb,cta_id:ctaId,cta_label:ctaLabel,cta_url:ctaUrl,source,created_at:new Date().toISOString()};
     logEvent('cta_click',payload);
     supabaseInsert('ctaClicks',payload);
   }
@@ -2504,7 +2561,7 @@ function renderResults(){
       if(thanks)thanks.style.display='block';
       const npsCommentEl=document.getElementById('nps-comment');
       const npsComment=(npsCommentEl?npsCommentEl.value:'').trim();
-      const npsPayload={lead_id:LEAD._id,trilha:T,score:result.final,banda:band.lb,nps:NPS,comentario:npsComment||'',created_at:new Date().toISOString()};
+      const npsPayload={session_id:SESSION_ID,lead_id:LEAD._id,trilha:T,score:result.final,banda:band.lb,nps:NPS,comentario:npsComment||'',created_at:new Date().toISOString()};
       logEvent('nps',npsPayload);
       supabaseInsert('nps',npsPayload);
     });
@@ -2559,6 +2616,7 @@ function renderResults(){
 }
 
 function switchRoute(){
+  logEvent('route_switch_click',{from:T||null});
   T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;
   renderTrilha();window.scrollTo(0,0);
 }
@@ -2569,6 +2627,7 @@ function routeSwitchInline(){
 }
 
 renderTrilha();
+logEvent('app_loaded');
 </script>
 </body>
 </html>
