@@ -1,0 +1,30 @@
+{
+  "lead_id": "lead_demo_001",
+  "route": "Alemanha",
+  "band": "Pronto para Embarcar",
+  "score": 72,
+  "profile": {
+    "seniority_level": "Senior"
+  },
+  "materials": {
+    "cv": true,
+    "linkedin": true,
+    "portfolio": false,
+    "github": false
+  },
+  "questionnaire": {
+    "goal_for_next_12_months": "Quero reposicionar meu perfil para o mercado alemao com narrativa mais forte e candidatura mais inteligente.",
+    "target_market_logic": "A Alemanha faz sentido pela aderencia da minha experiencia industrial e pela demanda do setor.",
+    "evidence_of_results": "Tenho historico de lideranca, melhoria operacional e resultados medidos.",
+    "availability_for_execution": "media",
+    "urgency_window": "3-6 meses",
+    "target_role_hypotheses": [
+      "Operations Manager",
+      "Project Manager"
+    ],
+    "has_meaningful_tradeoffs": true,
+    "high_ambiguity_case": false,
+    "story_inconsistent": false,
+    "language_structural_block": false
+  }
+}

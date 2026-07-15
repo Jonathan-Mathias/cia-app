@@ -1,7 +1,7 @@
 # CIA App — Product Brief EML
 
 Status: working draft
-Last updated: 2026-06-04
+Last updated: 2026-07-07
 
 ## Product role
 
@@ -79,12 +79,19 @@ Current CTA: `Registrar interesse premium futuro`.
 - Functional blue remains available for data/score states, not as emotional brand color.
 - Copy avoids “quiz motivation” and frames the result as diagnosis.
 
+## Product direction update — 2026-07-07
+
+Jonathan confirmed the product direction around a more general recorded course, with specific Germany or Australia modules only where the market context requires it. This affects the route after the CIA App: the course should not be framed as a narrow country course first. It should teach international legibility across CV, cover letter, LinkedIn, interview and application system, then add market-specific adaptations.
+
+Jonathan also indicated the Australia email route had already been approved. The local app config now marks AU emails as enabled for local build/QA, but production still needs controlled testing before publish.
+
 ## Current blockers
 
 The app can continue evolving without Jonathan for most implementation tasks. Human input is still needed for:
 
 - final product and partner links;
+- final URLs and commercialization decision for `Dossiê Lite` and `Dossiê Completo`;
 - final Supabase project/keys or backend decision;
 - final EML contact email for privacy/support;
-- AU email review and approval;
+- controlled QA of AU and DE email dispatch before publishing;
 - final approval before publishing.

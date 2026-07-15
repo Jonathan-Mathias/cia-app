@@ -2,6 +2,7 @@
 
 Status: em desenvolvimento
 Versão base: `index.html` estático no GitHub Pages
+Última atualização operacional: 2026-07-07
 
 ## Objetivo
 
@@ -32,11 +33,34 @@ Manter o CIA App como HTML estático por enquanto, mas organizado para virar mó
    - Taxonomia de eventos: `docs/tracking/events-taxonomy.md`.
    - Migration Supabase: `supabase/migrations/2026-06-23_cia_tracking_foundation.sql`.
 
-4. **Emails**
-   - Alemanha: rota habilitada para disparo.
-   - Austrália: rota mantida como plugin pendente de revisão (`plugin_pending_review`). O lead ainda é salvo/adicionado ao contato, mas a sequência de emails AU não dispara até aprovação.
+4. **Fronteira com o motor do Dossiê**
+   - O CIA App continua calculando score, banda e CTA fallback no frontend.
+   - Quando a Plataforma EM começar a devolver uma decisão externa do motor, o app deve consumi-la sem criar uma segunda verdade de roteamento.
+   - A fundação atual aceita uma decisão externa via `window.__CIA_DOSSIER_DECISION__` ou `sessionStorage/localStorage` com a chave configurada em `APP_CONFIG.integrations.dossierMotor.storageKey`.
+   - Em ambiente controlado, o app também pode:
+     - chamar um endpoint de decisão configurado em `window.__CIA_DOSSIER_CONFIG__`;
+     - persistir a decisão retornada para o CTA principal obedecer o motor;
+     - montar o payload do motor por dois caminhos:
+       - `window.__CIA_DOSSIER_INPUT__` para QA/controlado;
+       - triagem estratégica curta no próprio resultado do app para um fluxo mais real.
+   - O novo fluxo real usa:
+     - base já existente do quiz (`route`, `score`, `band`, `lead_id`, área);
+     - triagem curta só para elegíveis (`score >= 55`);
+     - campos mínimos de decisão: senioridade, disponibilidade, prazo, CV, LinkedIn, objetivo, lógica do mercado, evidência de resultado e hipótese de cargo-alvo.
+   - Se existir decisão válida e houver URL configurada para o produto correspondente, o CTA principal pode ser dirigido pelo motor.
+   - Se não houver decisão válida ou link de produto pronto, o app preserva o fallback atual por score.
+   - A primeira versão local do juiz externo foi iniciada em `tools/dossier-motor/`, com:
+     - `engine.mjs` para a lógica pura;
+     - `server.mjs` para a fronteira HTTP `/decide`;
+     - `test.mjs` para regras mínimas automatizadas.
+     - `qa-dossier-motor-cdp.mjs` para smoke test ponta a ponta com browser.
+     - `qa-dossier-motor-real-intake-cdp.mjs` para smoke test do fluxo real sem depender do stub global.
 
-5. **Produtos e partners**
+5. **Emails**
+   - Alemanha: rota habilitada para disparo.
+   - Austrália: Jonathan indicou em 2026-07-07 que a rota já estava aprovada. No `index.html` local, AU foi habilitada como `approved_local_needs_qa_before_publish`. Antes de publicar, ainda precisa de teste controlado de disparo, checagem de links e validação de que CTAs ausentes não aparecem.
+
+6. **Produtos e partners**
    - Links atuais vivem em `APP_CONFIG.links`.
    - Placeholders vazios não devem renderizar CTA futuro como se já existisse produto.
 
@@ -55,6 +79,7 @@ Quando migrar para Next.js/Supabase/Vercel:
 
 - Nunca expor chave Brevo ou Supabase service role no frontend.
 - Supabase só com anon key + RLS.
+- O motor do dossiê não deve nascer dentro do `index.html`; o app só consome a decisão quando ela existir.
 - Não prometer emprego, visto, assessoria jurídica/imigratória ou mentoria paga pré-PR.
 - Não chamar dados identificáveis de anônimos.
 - Para análises agregadas, remover nome, email, telefone e links pessoais.

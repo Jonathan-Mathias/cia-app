@@ -300,7 +300,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 ========================================================= */
 const APP_CONFIG = Object.freeze({
   env: 'production',
-  version: '2.3-tracking-foundation',
+  version: '2.5-dossier-motor-foundation',
   integrations: {
     // Google Apps Script continua como proxy seguro para Sheets/Brevo.
     // Não colocar chaves Brevo ou service_role do Supabase no frontend.
@@ -318,6 +318,13 @@ const APP_CONFIG = Object.freeze({
         ctaClicks: 'cia_cta_clicks',
         nps: 'cia_nps'
       }
+    },
+    dossierMotor: {
+      enabled: false,
+      decisionUrl: '',
+      timeoutMs: 4000,
+      storageKey: 'ciaDossierDecision',
+      inputStorageKey: 'ciaDossierInput'
     }
   },
   links: {
@@ -326,6 +333,8 @@ const APP_CONFIG = Object.freeze({
       cursoEmpregoAlemanha: 'https://hotmart.com/pt-br/marketplace/produtos/emprego-na-alemanha/S95826105M',
       ebookNaoComeceZero: '',
       cvBuilder: 'https://jonathan-mathias.github.io/cia-app/cv-builder-demo/index.html?source=cia',
+      dossieLite: '',
+      dossieCompleto: '',
       cartaApp: '',
       linkedinOptimizer: ''
     },
@@ -347,7 +356,7 @@ const APP_CONFIG = Object.freeze({
     testMode: false,
     routes: {
       de: { enabled: true, status: 'implemented' },
-      au: { enabled: false, status: 'plugin_pending_review' }
+      au: { enabled: true, status: 'approved_local_needs_qa_before_publish' }
     }
   }
 });
@@ -356,6 +365,185 @@ const SHEETS_URL = APP_CONFIG.integrations.gasUrl;
 
 function esc(v){
   return String(v ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+}
+
+function safeJsonParse(raw){
+  try{return JSON.parse(raw);}catch(e){return null;}
+}
+
+function getRuntimeQueryParams(){
+  try{
+    return new URLSearchParams(window.location.search||'');
+  }catch(e){
+    return new URLSearchParams('');
+  }
+}
+
+function getDossierMotorConfig(){
+  const base=APP_CONFIG.integrations.dossierMotor||{};
+  const runtime=(typeof window!=='undefined'&&window.__CIA_DOSSIER_CONFIG__)||{};
+  const params=getRuntimeQueryParams();
+  const urlParam=params.get('dossierMotorUrl')||'';
+  const enableLocal=params.get('dossierMotor')==='local';
+  return {
+    enabled: runtime.enabled ?? (enableLocal||!!urlParam||base.enabled||false),
+    decisionUrl: runtime.decisionUrl || urlParam || (enableLocal?'http://127.0.0.1:8788/decide':'') || base.decisionUrl || '',
+    timeoutMs: runtime.timeoutMs || base.timeoutMs || 4000,
+    storageKey: runtime.storageKey || base.storageKey || 'ciaDossierDecision',
+    inputStorageKey: runtime.inputStorageKey || base.inputStorageKey || 'ciaDossierInput'
+  };
+}
+
+function getDossierProductLinks(){
+  const runtime=(typeof window!=='undefined'&&window.__CIA_DOSSIER_LINKS__)||{};
+  const params=getRuntimeQueryParams();
+  return {
+    lite: runtime.dossieLite || params.get('dossieLiteUrl') || APP_CONFIG.links.products.dossieLite || '',
+    completo: runtime.dossieCompleto || params.get('dossieCompletoUrl') || APP_CONFIG.links.products.dossieCompleto || ''
+  };
+}
+
+function getStoredMotorDecision(){
+  const key=getDossierMotorConfig().storageKey;
+  const globalDecision=(typeof window!=='undefined'&&window.__CIA_DOSSIER_DECISION__)||null;
+  if(globalDecision&&typeof globalDecision==='object') return globalDecision;
+  try{
+    const raw=sessionStorage.getItem(key)||localStorage.getItem(key);
+    return raw?safeJsonParse(raw):null;
+  }catch(e){
+    return null;
+  }
+}
+
+function storeMotorDecision(decision){
+  const key=getDossierMotorConfig().storageKey;
+  try{sessionStorage.setItem(key,JSON.stringify(decision));}catch(e){}
+  try{localStorage.setItem(key,JSON.stringify(decision));}catch(e){}
+}
+
+function clearMotorDecision(){
+  const key=getDossierMotorConfig().storageKey;
+  try{sessionStorage.removeItem(key);}catch(e){}
+  try{localStorage.removeItem(key);}catch(e){}
+}
+
+function storeMotorInput(input){
+  const key=getDossierMotorConfig().inputStorageKey;
+  try{sessionStorage.setItem(key,JSON.stringify(input));}catch(e){}
+  try{localStorage.setItem(key,JSON.stringify(input));}catch(e){}
+}
+
+function getStoredMotorInput(){
+  const key=getDossierMotorConfig().inputStorageKey;
+  const globalInput=(typeof window!=='undefined'&&window.__CIA_DOSSIER_INPUT__)||null;
+  if(globalInput&&typeof globalInput==='object') return globalInput;
+  try{
+    const raw=sessionStorage.getItem(key)||localStorage.getItem(key);
+    return raw?safeJsonParse(raw):null;
+  }catch(e){
+    return null;
+  }
+}
+
+function getMotorDecisionSummary(decision){
+  if(!decision||typeof decision!=='object') return null;
+  const d=decision.decision||{};
+  const status=d.status||null;
+  const offer=d.recommended_offer||null;
+  const nextStep=d.next_step||null;
+  if(!['Lite','Completo','Recusa','Faltam dados'].includes(status)) return null;
+  return {status,recommendedOffer:offer,nextStep};
+}
+
+function buildMotorDrivenPrimaryCta(result,band){
+  const decision=getMotorDecisionSummary(getStoredMotorDecision());
+  if(!decision) return null;
+
+  const route=T==='de'?'Alemanha':'Austrália';
+  const links=getDossierProductLinks();
+  const liteUrl=links.lite;
+  const completoUrl=links.completo;
+
+  if(decision.nextStep==='offer_lite'&&liteUrl){
+    return {
+      id:'dossier_lite_offer',
+      label:'Ver meu Dossiê Lite',
+      url:liteUrl,
+      title:'Seu caso foi liberado para um próximo passo mais estratégico',
+      copy:`Seu diagnóstico no CIA App indica base suficiente para avançar para uma leitura mais estruturada de candidatura para ${route}. O próximo passo não é conteúdo solto: é um direcionamento mais organizado.`,
+      note:'Esta recomendação veio da lógica do motor da Plataforma EM. O produto continua sujeito a validação e disponibilidade.'
+    };
+  }
+
+  if(decision.nextStep==='offer_completo'&&completoUrl){
+    return {
+      id:'dossier_completo_offer',
+      label:'Ver meu Dossiê Completo',
+      url:completoUrl,
+      title:'Seu caso pede uma leitura estratégica mais profunda',
+      copy:`Seu diagnóstico indica um caso com mais densidade, trade-offs ou risco de leitura errada. O próximo passo recomendado é uma arquitetura de candidatura mais robusta para ${route}.`,
+      note:'Esta recomendação veio da lógica do motor da Plataforma EM. O produto continua sujeito a validação e disponibilidade.'
+    };
+  }
+
+  return null;
+}
+
+function buildMotorRequest(result,band){
+  const extra=getStoredMotorInput();
+  if(!extra||typeof extra!=='object') return null;
+  const profile=extra.profile&&typeof extra.profile==='object' ? extra.profile : {};
+  const materials=extra.materials&&typeof extra.materials==='object' ? extra.materials : {};
+  const questionnaire=extra.questionnaire&&typeof extra.questionnaire==='object' ? extra.questionnaire : null;
+  return {
+    lead_id: LEAD&&LEAD._id?LEAD._id:null,
+    route: T==='de'?'Alemanha':'Austrália',
+    band: band.lb,
+    score: result.final,
+    profile: {
+      seniority_level: profile.seniority_level || null,
+      area: ANS['p3'] ? ANS['p3'].v : null
+    },
+    materials: {
+      cv: !!materials.cv,
+      linkedin: typeof materials.linkedin==='boolean' ? materials.linkedin : ((ANS['p11']?ANS['p11'].v:0) >= 2),
+      portfolio: !!materials.portfolio,
+      github: !!materials.github
+    },
+    questionnaire: questionnaire ? {
+      ...questionnaire,
+      target_role_hypotheses: Array.isArray(questionnaire.target_role_hypotheses)
+        ? questionnaire.target_role_hypotheses.filter(Boolean)
+        : []
+    } : null
+  };
+}
+
+async function requestMotorDecision(result,band){
+  const cfg=getDossierMotorConfig();
+  if(!cfg.enabled||!cfg.decisionUrl) return {decision:getStoredMotorDecision(),source:'stored_or_disabled'};
+
+  const requestBody=buildMotorRequest(result,band);
+  if(!requestBody) return {decision:getStoredMotorDecision(),source:'awaiting_intake'};
+
+  const controller=typeof AbortController!=='undefined' ? new AbortController() : null;
+  const timeoutId=controller ? setTimeout(()=>controller.abort(), cfg.timeoutMs) : null;
+  try{
+    const res=await fetch(cfg.decisionUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(requestBody),
+      signal:controller?controller.signal:undefined
+    });
+    if(timeoutId) clearTimeout(timeoutId);
+    if(!res.ok) throw new Error(`Motor HTTP ${res.status}`);
+    const decision=await res.json();
+    storeMotorDecision(decision);
+    return {decision,source:'remote'};
+  }catch(e){
+    if(timeoutId) clearTimeout(timeoutId);
+    return {decision:getStoredMotorDecision(),source:'fallback_after_error',error:e&&e.message?e.message:String(e)};
+  }
 }
 
 function firstNameSafe(nome){
@@ -2233,7 +2421,7 @@ function renderLeadGate(){
 
 
 /* RESULTADOS */
-function getPrimaryCta(result,band){
+function getFallbackPrimaryCta(result,band){
   const score=result.final;
   const route=T==='de'?'Alemanha':'Austrália';
   const cvWeak=(ANS['p11']?ANS['p11'].v:0)<2;
@@ -2250,6 +2438,217 @@ function getPrimaryCta(result,band){
   return {id:'premium_waitlist',label:APP_CONFIG.links.owned.premiumWaitlist?'Entrar na lista premium futura':'Registrar interesse premium futuro',url:APP_CONFIG.links.owned.premiumWaitlist||APP_CONFIG.links.owned.linkedinJonathan,title:'Seu perfil merece filtro, não funil genérico',copy:`Seu resultado indica alta prontidão. Esse tipo de caso pode fazer sentido para uma análise mais próxima no futuro, desde que exista fit real, timing correto e clareza sobre o que precisa ser construído antes da entrada no mercado.`,note:'Enquanto a mentoria premium não estiver aberta comercialmente, este CTA registra intenção e preserva o filtro.'};
 }
 
+function getPrimaryCta(result,band){
+  return buildMotorDrivenPrimaryCta(result,band) || getFallbackPrimaryCta(result,band);
+}
+
+function shouldOfferDossierIntake(result,motorDecision){
+  const cfg=getDossierMotorConfig();
+  if(!cfg.enabled||!cfg.decisionUrl) return false;
+  if(result.final < 55) return false;
+  return !(motorDecision&&['Lite','Completo'].includes(motorDecision.status));
+}
+
+function getDossierIntakeTone(rawDecision,motorSource){
+  if(rawDecision&&rawDecision.decision&&rawDecision.decision.status==='Faltam dados'){
+    return {
+      title:'Faltam poucos dados para liberar uma recomendação mais precisa',
+      copy:'O CIA App já fez o diagnóstico base. Se você quiser um próximo passo mais inteligente, complete a triagem curta abaixo.'
+    };
+  }
+  if(rawDecision&&rawDecision.decision&&rawDecision.decision.status==='Recusa'){
+    return {
+      title:'Seu caso ainda não libera o Dossiê automaticamente',
+      copy:'Isso não significa “fim de linha”. Significa só que ainda falta base ou clareza para uma decisão séria. Se quiser, refine a triagem abaixo.'
+    };
+  }
+  if(motorSource==='awaiting_intake'){
+    return {
+      title:'Destrave uma leitura mais estratégica sem inflar o fluxo',
+      copy:'O quiz faz o diagnóstico base. A triagem abaixo adiciona só o mínimo que o motor precisa para decidir entre Lite, Completo, Recusa ou Faltam dados.'
+    };
+  }
+  return {
+    title:'Se quiser um próximo passo mais preciso, complete a triagem curta',
+    copy:'Ela existe para reduzir chute e evitar te mandar para o CTA errado.'
+  };
+}
+
+function renderDossierIntakeCard(result,rawDecision,motorSource){
+  if(!shouldOfferDossierIntake(result,getMotorDecisionSummary(rawDecision))) return '';
+  const tone=getDossierIntakeTone(rawDecision,motorSource);
+  const stored=getStoredMotorInput()||{};
+  const profile=stored.profile||{};
+  const materials=stored.materials||{};
+  const questionnaire=stored.questionnaire||{};
+  const roles=Array.isArray(questionnaire.target_role_hypotheses)?questionnaire.target_role_hypotheses.join(', '):'';
+  const showForm=motorSource!=='awaiting_intake';
+  const decisionSummary=rawDecision&&rawDecision.decision&&rawDecision.decision.decision_summary
+    ? `<div style="font-size:12px;color:var(--text2);line-height:1.65;margin-top:10px"><strong style="color:var(--text)">Leitura atual:</strong> ${esc(rawDecision.decision.decision_summary)}</div>`
+    : '';
+  return `<div class="primary-cta" id="dossier-intake-card">
+    <div class="primary-cta-kicker">Triagem estratégica</div>
+    <div class="primary-cta-title">${tone.title}</div>
+    <div class="primary-cta-copy">${tone.copy}</div>
+    ${decisionSummary}
+    <button type="button" id="dossier-intake-toggle" class="primary-cta-btn ${T==='de'?'de':'au'}" style="max-width:320px;margin-top:14px">
+      ${showForm?'Revisar triagem estratégica':'Completar triagem estratégica'}
+    </button>
+    <div id="dossier-intake-form-wrap" style="display:${showForm?'block':'none'};margin-top:18px;text-align:left">
+      <div style="display:grid;gap:14px">
+        <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+          <label style="display:grid;gap:6px">
+            <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Senioridade</span>
+            <select id="dossier-seniority" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
+              <option value="">Selecione</option>
+              <option value="Pleno"${profile.seniority_level==='Pleno'?' selected':''}>Pleno</option>
+              <option value="Senior"${profile.seniority_level==='Senior'?' selected':''}>Senior</option>
+              <option value="Especialista"${profile.seniority_level==='Especialista'?' selected':''}>Especialista</option>
+              <option value="Lideranca"${profile.seniority_level==='Lideranca'?' selected':''}>Liderança</option>
+              <option value="Executivo"${profile.seniority_level==='Executivo'?' selected':''}>Executivo</option>
+            </select>
+          </label>
+          <label style="display:grid;gap:6px">
+            <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Disponibilidade</span>
+            <select id="dossier-availability" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
+              <option value="">Selecione</option>
+              <option value="baixa"${questionnaire.availability_for_execution==='baixa'?' selected':''}>Baixa</option>
+              <option value="media"${questionnaire.availability_for_execution==='media'?' selected':''}>Média</option>
+              <option value="alta"${questionnaire.availability_for_execution==='alta'?' selected':''}>Alta</option>
+            </select>
+          </label>
+          <label style="display:grid;gap:6px">
+            <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Prazo</span>
+            <select id="dossier-urgency" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
+              <option value="">Selecione</option>
+              <option value="0-3 meses"${questionnaire.urgency_window==='0-3 meses'?' selected':''}>0-3 meses</option>
+              <option value="3-6 meses"${questionnaire.urgency_window==='3-6 meses'?' selected':''}>3-6 meses</option>
+              <option value="6-12 meses"${questionnaire.urgency_window==='6-12 meses'?' selected':''}>6-12 meses</option>
+              <option value="12+ meses"${questionnaire.urgency_window==='12+ meses'?' selected':''}>12+ meses</option>
+            </select>
+          </label>
+        </div>
+        <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+          <label style="display:flex;align-items:center;gap:10px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
+            <input id="dossier-cv" type="checkbox"${materials.cv?' checked':''} style="accent-color:var(--accent)">
+            <span style="font-size:13px;color:var(--text2)">Tenho um CV atual para enviar</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
+            <input id="dossier-linkedin" type="checkbox"${materials.linkedin?' checked':''} style="accent-color:var(--accent)">
+            <span style="font-size:13px;color:var(--text2)">Tenho LinkedIn utilizável</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
+            <input id="dossier-portfolio" type="checkbox"${materials.portfolio?' checked':''} style="accent-color:var(--accent)">
+            <span style="font-size:13px;color:var(--text2)">Tenho portfólio</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
+            <input id="dossier-github" type="checkbox"${materials.github?' checked':''} style="accent-color:var(--accent)">
+            <span style="font-size:13px;color:var(--text2)">Tenho GitHub relevante</span>
+          </label>
+        </div>
+        <label style="display:grid;gap:6px">
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Objetivo nos próximos 12 meses</span>
+          <textarea id="dossier-goal" rows="3" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.goal_for_next_12_months||'')}</textarea>
+        </label>
+        <label style="display:grid;gap:6px">
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Por que ${T==='de'?'a Alemanha':'a Austrália'} faz sentido para você?</span>
+          <textarea id="dossier-market-logic" rows="3" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.target_market_logic||'')}</textarea>
+        </label>
+        <label style="display:grid;gap:6px">
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Sua melhor evidência de resultado</span>
+          <textarea id="dossier-results-evidence" rows="3" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.evidence_of_results||'')}</textarea>
+        </label>
+        <label style="display:grid;gap:6px">
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Hipóteses de cargo-alvo</span>
+          <input id="dossier-target-roles" type="text" value="${esc(roles)}" placeholder="Ex.: Operations Manager, Project Manager" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
+          <input id="dossier-tradeoffs" type="checkbox"${questionnaire.has_meaningful_tradeoffs?' checked':''} style="accent-color:var(--accent)">
+          <span style="font-size:13px;color:var(--text2)">Meu caso tem trade-offs reais, não é só “arrumar CV”</span>
+        </label>
+        <div id="dossier-intake-error" style="display:none;font-size:12px;color:#e85555"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <button type="button" id="dossier-intake-submit" class="primary-cta-btn ${T==='de'?'de':'au'}" style="max-width:320px">Atualizar recomendação</button>
+          <div id="dossier-intake-status" style="font-size:12px;color:var(--text2)">Essa etapa só existe para evitar CTA errado.</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function bindDossierIntakeCard(result,band){
+  const card=document.getElementById('dossier-intake-card');
+  if(!card) return;
+  const toggle=document.getElementById('dossier-intake-toggle');
+  const wrap=document.getElementById('dossier-intake-form-wrap');
+  const errorEl=document.getElementById('dossier-intake-error');
+  const statusEl=document.getElementById('dossier-intake-status');
+  const submitBtn=document.getElementById('dossier-intake-submit');
+  if(toggle&&wrap){
+    toggle.addEventListener('click',()=>{
+      const open=wrap.style.display!=='none';
+      wrap.style.display=open?'none':'block';
+      toggle.textContent=open?'Completar triagem estratégica':'Fechar triagem estratégica';
+    });
+  }
+  if(!submitBtn) return;
+  submitBtn.addEventListener('click',async()=>{
+    const seniority=(document.getElementById('dossier-seniority')||{}).value||'';
+    const availability=(document.getElementById('dossier-availability')||{}).value||'';
+    const urgency=(document.getElementById('dossier-urgency')||{}).value||'';
+    const goal=((document.getElementById('dossier-goal')||{}).value||'').trim();
+    const marketLogic=((document.getElementById('dossier-market-logic')||{}).value||'').trim();
+    const evidence=((document.getElementById('dossier-results-evidence')||{}).value||'').trim();
+    const rolesRaw=((document.getElementById('dossier-target-roles')||{}).value||'').trim();
+    const targetRoles=rolesRaw.split(/[,\n]/).map(v=>v.trim()).filter(Boolean);
+    const materials={
+      cv:!!((document.getElementById('dossier-cv')||{}).checked),
+      linkedin:!!((document.getElementById('dossier-linkedin')||{}).checked),
+      portfolio:!!((document.getElementById('dossier-portfolio')||{}).checked),
+      github:!!((document.getElementById('dossier-github')||{}).checked)
+    };
+    const questionnaire={
+      goal_for_next_12_months: goal,
+      target_market_logic: marketLogic,
+      evidence_of_results: evidence,
+      availability_for_execution: availability,
+      urgency_window: urgency,
+      target_role_hypotheses: targetRoles,
+      has_meaningful_tradeoffs: !!((document.getElementById('dossier-tradeoffs')||{}).checked),
+      high_ambiguity_case: false,
+      story_inconsistent: false,
+      language_structural_block: false
+    };
+    const errors=[];
+    if(!seniority) errors.push('Selecione sua senioridade.');
+    if(!availability) errors.push('Selecione sua disponibilidade.');
+    if(!urgency) errors.push('Selecione seu prazo.');
+    if(goal.length<12) errors.push('Explique melhor seu objetivo para os próximos 12 meses.');
+    if(marketLogic.length<12) errors.push('Explique por que esse mercado faz sentido para você.');
+    if(evidence.length<12) errors.push('Traga pelo menos uma evidência concreta de resultado.');
+    if(targetRoles.length<1) errors.push('Informe ao menos uma hipótese de cargo-alvo.');
+    if(errors.length){
+      if(errorEl){errorEl.style.display='block';errorEl.textContent=errors[0];}
+      if(statusEl) statusEl.textContent='A triagem ainda está incompleta.';
+      return;
+    }
+    if(errorEl){errorEl.style.display='none';errorEl.textContent='';}
+    if(statusEl) statusEl.textContent='Atualizando recomendação...';
+    submitBtn.disabled=true;
+    submitBtn.textContent='Processando...';
+    clearMotorDecision();
+    storeMotorInput({
+      profile:{seniority_level:seniority},
+      materials,
+      questionnaire,
+      meta:{submitted_at:new Date().toISOString(),source:'cia_real_intake'}
+    });
+    await requestMotorDecision(result,band);
+    await renderResults({skipAnalytics:true});
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+}
+
 function renderPrimaryCta(result,band){
   const cta=getPrimaryCta(result,band);
   const cls=T==='de'?'de':'au';
@@ -2262,8 +2661,11 @@ function renderPrimaryCta(result,band){
   </div>`;
 }
 
-function renderResults(){
+async function renderResults(opts={}){
+  const skipAnalytics=!!opts.skipAnalytics;
   const result=calcScore(),band=getBand(result.final),alerts=getAlerts(),insights=getInsights(result),steps=getSteps(result);
+  const motorResolution=await requestMotorDecision(result,band);
+  const motorDecision=getMotorDecisionSummary(motorResolution.decision);
 
   GEO.pais=GEO.pais||'Brasil';
   publicLeadId();
@@ -2275,13 +2677,19 @@ function renderResults(){
     pais_atual:GEO.paisLabel||GEO.pais||'Brasil',tempo_fora:GEO.tempoLabel||GEO.tempo||'',area:ANS['p3']?ANS['p3'].l:'',ingles:ANS['p1']?ANS['p1'].l:'',
     alemao:ANS['p2']?ANS['p2'].l:'',diploma:ANS['p4']?ANS['p4'].l:'',
     prazo:ANS['p8']?ANS['p8'].l:'',investimento:ANS['p9']?ANS['p9'].l:'',
+    motor_decision_status:motorDecision?motorDecision.status:null,
+    motor_recommended_offer:motorDecision?motorDecision.recommendedOffer:null,
+    motor_next_step:motorDecision?motorDecision.nextStep:null,
+    motor_decision_source:motorResolution.source||null,
     dependentes:CTR.adultos+CTR.criancas+CTR.jovens,
     criancas:CTR.criancas,jovens:CTR.jovens,
     answers:ANS,counters:CTR,alerts:alerts.map(a=>a.text),insights:insights.map(i=>({cat:i.cat,title:i.title})),
     created_at:new Date().toISOString()
   };
-  logEvent('quiz_complete',resultPayload);
-  supabaseInsert('results',resultPayload);
+  if(!skipAnalytics){
+    logEvent('quiz_complete',resultPayload);
+    supabaseInsert('results',resultPayload);
+  }
 
   const circ=2*Math.PI*80,off=circ-(result.final/100)*circ;
   const wrap=document.createElement('div');wrap.className='res';
@@ -2339,6 +2747,7 @@ function renderResults(){
     })()}
     <div class="sec-label-main" style="margin-top:24px">Próximos passos</div>
     <div class="steps">${steps.map((s,i)=>`<div class="step"><span class="step-n">0${i+1}</span><div class="step-t">${s}</div></div>`).join('')}</div>
+    ${renderDossierIntakeCard(result,motorResolution.decision,motorResolution.source)}
     ${renderPrimaryCta(result,band)}
     <div class="secondary-resources-label">Recursos complementares</div>
     ${(()=>{
@@ -2430,13 +2839,14 @@ function renderResults(){
       generatedAt:new Date().toISOString(),
       lead:{...LEAD},geo:{...GEO},trilha:T,answers:ANS,counters:CTR,
       score:{final:result.final,band:band.lb,dimensions:result.dims},
+      motorDecision,
       alerts,insights,steps,summary:buildSummary(result,insights,steps)
     };
     try{localStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
     try{sessionStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
   }
 
-  document.querySelectorAll('.primary-cta-btn,.promo-btn,.mentoria-card-btn').forEach((el,idx)=>{
+  document.querySelectorAll('a.primary-cta-btn,.promo-btn,.mentoria-card-btn').forEach((el,idx)=>{
     el.addEventListener('click',()=>{
       const ctaId=el.dataset.primaryCta || (el.classList.contains('mentoria-card-btn')?'premium_link':'promo_link');
       logCtaClick(ctaId,el.textContent.trim(),el.href||'',`result_card_${idx}`);
@@ -2596,6 +3006,8 @@ function renderResults(){
     card.style.cursor='pointer';
     card.addEventListener('click',()=>{card.classList.toggle('collapsed');});
   });
+
+  bindDossierIntakeCard(result,band);
 
   const cvBuilderBtn=document.getElementById('btn-open-cv-builder');
   if(cvBuilderBtn){
