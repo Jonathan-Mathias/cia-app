@@ -1707,9 +1707,9 @@ function getSteps(result){
   const pacoteDE=p11v>=2?null:`Prepare sua pacote de candidatura (Bewerbungsmappe) completa: ${appsPkg}`;
   const pacoteAU=p11v>=2?null:`Prepare seu pacote de candidatura no padrão australiano: ${appsPkg}`;
   const pacoteGen=p11v>=2?null:`Prepare seu pacote de candidatura: ${appsPkg}`;
-  const liStep=APP_LI_URL
+  const liStep=p11v>=3?null:(APP_LI_URL
     ?`Otimize seu perfil no LinkedIn para recrutadores ${T==='de'?'alemães':'australianos'}: <a href="${APP_LI_URL}" target="_blank">ajuste headline, resumo e experiências</a> com palavras-chave do mercado local`
-    :`Otimize seu perfil no LinkedIn para recrutadores ${T==='de'?'alemães':'australianos'}: ajuste headline, resumo e experiências com palavras-chave do mercado local`;
+    :`Otimize seu perfil no LinkedIn para recrutadores ${T==='de'?'alemães':'australianos'}: ajuste headline, resumo e experiências com palavras-chave do mercado local`);
   const idiomaDE=`Priorize o Alemão antes de qualquer outra ação: ${cursol}. Sem B1 iniciado, a maioria das candidaturas não passa da triagem inicial`;
 
   /* FIX: step de inglês AU com VerbalizeNow */
@@ -1754,11 +1754,11 @@ function getSteps(result){
     if(sc<=65) return[
       alemaoInsuf?idiomaDE:'Verifique seu diploma em <a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> e avance no processo de reconhecimento',
       ...(pacoteGen?[pacoteGen]:[]),
-      liStep
+      ...(liStep?[liStep]:[])
     ];
     if(sc<=85) return[
       ...(pacoteGen?[pacoteGen]:[]),
-      liStep,
+      ...(liStep?[liStep]:[]),
       (()=>{
         const rede6=ANS['p6']?ANS['p6'].v:0;
         const area6=ANS['p3']?ANS['p3'].v:'outro';
@@ -1785,7 +1785,7 @@ function getSteps(result){
         return 'Comece a aplicar agora, mas com cirurgia: 5 a 10 empresas-alvo bem escolhidas valem mais do que 100 candidaturas em job sites. Construa rede ativa em paralelo. É o canal com maior taxa de conversão para perfis competitivos';
       })(),
       ...(pacoteGen?[pacoteGen]:[]),
-      liStep
+      ...(liStep?[liStep]:[])
     ];
   }
 
@@ -1803,12 +1803,12 @@ function getSteps(result){
   if(sc<=65) return[
     inglesInsuf?idiomaAU:`Consulte um agente de imigração registrado (MARA agent) para entender qual rota se aplica ao seu perfil: <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>`,
     ...(pacoteGen?[pacoteGen]:[]),
-    liStep
+    ...(liStep?[liStep]:[])
   ];
   if(sc<=85) return[
     `Consulte um agente de imigração registrado (MARA agent) para entender qual rota se aplica ao seu perfil: <a href="https://immi.homeaffairs.gov.au" target="_blank">immi.homeaffairs.gov.au</a>`,
     ...(pacoteGen?[pacoteGen]:[]),
-    liStep
+    ...(liStep?[liStep]:[])
   ];
   return[
     (()=>{
@@ -1819,7 +1819,7 @@ function getSteps(result){
       return 'Comece a aplicar com foco: 5 a 10 empresas-alvo bem escolhidas no <a href="https://www.seek.com.au" target="_blank">Seek</a> e LinkedIn valem mais do que candidaturas em massa. Construa rede local em paralelo. É o canal com maior retorno para perfis competitivos';
     })(),
     ...(pacoteGen?[pacoteGen]:[]),
-    liStep
+    ...(liStep?[liStep]:[])
   ];
 }
 
@@ -2426,6 +2426,7 @@ function getFallbackPrimaryCta(result,band){
   const route=T==='de'?'Alemanha':'Austrália';
   const cvWeak=(ANS['p11']?ANS['p11'].v:0)<2;
   const emailAutomatic='Você já confirmou seus dados. A trilha por email fica conectada ao seu diagnóstico e evita mandar o mesmo próximo passo para todo mundo.';
+  const dossierEnabled=shouldOfferDossierIntake(result,getMotorDecisionSummary(getStoredMotorDecision()));
   if(score<=40){
     return {id:'community_foundation',label:'Entrar no grupo gratuito',url:APP_CONFIG.links.owned.whatsappGroup,title:'Construa a base antes de gastar energia com candidatura',copy:`Seu resultado mostra que ainda existe preparação importante antes de uma candidatura séria para ${route}. O próximo passo é organizar idioma, mercado e direção. O grupo gratuito ajuda você a amadurecer essa decisão sem entrar cedo demais em produto ou mentoria.`,note:emailAutomatic};
   }
@@ -2435,7 +2436,18 @@ function getFallbackPrimaryCta(result,band){
   if(score<=85){
     return {id:'strategic_application',label:'Preparar minha candidatura estratégica',url:APP_CV_URL,title:'Você tem sinais competitivos, agora o risco está nos detalhes',copy:`Seu perfil já tem elementos que podem funcionar na ${route}. O próximo ganho não vem de consumir mais conteúdo solto, mas de organizar CV, carta, LinkedIn, empresas-alvo e abordagem como uma arquitetura de candidatura.`,note:'Por enquanto, o CV Builder é o primeiro módulo prático desse caminho. Carta e LinkedIn entram na sequência da Plataforma EM.'};
   }
-  return {id:'premium_waitlist',label:APP_CONFIG.links.owned.premiumWaitlist?'Entrar na lista premium futura':'Registrar interesse premium futuro',url:APP_CONFIG.links.owned.premiumWaitlist||APP_CONFIG.links.owned.linkedinJonathan,title:'Seu perfil merece filtro, não funil genérico',copy:`Seu resultado indica alta prontidão. Esse tipo de caso pode fazer sentido para uma análise mais próxima no futuro, desde que exista fit real, timing correto e clareza sobre o que precisa ser construído antes da entrada no mercado.`,note:'Enquanto a mentoria premium não estiver aberta comercialmente, este CTA registra intenção e preserva o filtro.'};
+  if(dossierEnabled){
+    return {
+      id:'dossier_intake_start',
+      label:'Completar triagem estratégica',
+      url:'#dossier-intake-card',
+      target:'_self',
+      title:'Seu próximo passo aqui é o Dossiê, não a mentoria premium',
+      copy:`Seu resultado indica alta prontidão para ${route}, mas a recomendação certa ainda depende da triagem curta do Dossiê. Antes de qualquer oferta futura, o app precisa decidir se o melhor encaixe é Lite, Completo, Faltam dados ou Recusa.`,
+      note:'Complete a triagem estratégica abaixo para liberar a recomendação correta dentro do CIA App.'
+    };
+  }
+  return {id:'strategic_application',label:'Preparar minha candidatura estratégica',url:APP_CV_URL,title:'Você tem sinais competitivos, agora o risco está nos detalhes',copy:`Seu perfil já tem elementos que podem funcionar na ${route}. O próximo ganho não vem de consumir mais conteúdo solto, mas de organizar CV, carta, LinkedIn, empresas-alvo e abordagem como uma arquitetura de candidatura.`,note:'Sem motor ativo, o app cai no fluxo estratégico padrão e não oferta mentoria premium aqui.'};
 }
 
 function getPrimaryCta(result,band){
@@ -2512,13 +2524,14 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
             <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Disponibilidade</span>
             <select id="dossier-availability" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
               <option value="">Selecione</option>
-              <option value="baixa"${questionnaire.availability_for_execution==='baixa'?' selected':''}>Baixa</option>
-              <option value="media"${questionnaire.availability_for_execution==='media'?' selected':''}>Média</option>
-              <option value="alta"${questionnaire.availability_for_execution==='alta'?' selected':''}>Alta</option>
+              <option value="baixa"${questionnaire.availability_for_execution==='baixa'?' selected':''}>Baixa · quase sem tempo semanal</option>
+              <option value="media"${questionnaire.availability_for_execution==='media'?' selected':''}>Média · consigo executar com constância</option>
+              <option value="alta"${questionnaire.availability_for_execution==='alta'?' selected':''}>Alta · consigo priorizar isso agora</option>
             </select>
+            <span style="font-size:12px;color:var(--text2);line-height:1.5">Isso mede fôlego real para executar candidatura, networking e ajustes de material nas próximas semanas.</span>
           </label>
           <label style="display:grid;gap:6px">
-            <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Prazo</span>
+            <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Prazo para entrar no mercado com candidatura séria</span>
             <select id="dossier-urgency" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
               <option value="">Selecione</option>
               <option value="0-3 meses"${questionnaire.urgency_window==='0-3 meses'?' selected':''}>0-3 meses</option>
@@ -2526,6 +2539,7 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
               <option value="6-12 meses"${questionnaire.urgency_window==='6-12 meses'?' selected':''}>6-12 meses</option>
               <option value="12+ meses"${questionnaire.urgency_window==='12+ meses'?' selected':''}>12+ meses</option>
             </select>
+            <span style="font-size:12px;color:var(--text2);line-height:1.5">É a janela em que você quer estar pronto para se posicionar de verdade, não só “começar a pensar”.</span>
           </label>
         </div>
         <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
@@ -2546,30 +2560,32 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
             <span style="font-size:13px;color:var(--text2)">Tenho GitHub relevante</span>
           </label>
         </div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">Esses botões só informam qual material já existe hoje. Eles não avançam nada sozinhos. O único que bloqueia a decisão é CV ausente.</div>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Objetivo nos próximos 12 meses</span>
-          <textarea id="dossier-goal" rows="3" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.goal_for_next_12_months||'')}</textarea>
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Objetivo nos próximos 12 meses · obrigatório</span>
+          <textarea id="dossier-goal" rows="3" placeholder="Ex.: Quero me reposicionar para vagas de Operations Manager na Alemanha ainda neste ciclo." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.goal_for_next_12_months||'')}</textarea>
         </label>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Por que ${T==='de'?'a Alemanha':'a Austrália'} faz sentido para você?</span>
-          <textarea id="dossier-market-logic" rows="3" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.target_market_logic||'')}</textarea>
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Por que ${T==='de'?'a Alemanha':'a Austrália'} faz sentido para você? · obrigatório</span>
+          <textarea id="dossier-market-logic" rows="3" placeholder="Ex.: indústria, tipo de vaga, idioma, contexto familiar, timing ou mercado." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.target_market_logic||'')}</textarea>
         </label>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Sua melhor evidência de resultado</span>
-          <textarea id="dossier-results-evidence" rows="3" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.evidence_of_results||'')}</textarea>
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Sua melhor evidência de resultado · obrigatório</span>
+          <textarea id="dossier-results-evidence" rows="3" placeholder="Ex.: resultado com número, impacto financeiro, ganho operacional ou entrega relevante." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.evidence_of_results||'')}</textarea>
         </label>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Hipóteses de cargo-alvo</span>
-          <input id="dossier-target-roles" type="text" value="${esc(roles)}" placeholder="Ex.: Operations Manager, Project Manager" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Possíveis cargos-alvo (máximo 3) · obrigatório</span>
+          <input id="dossier-target-roles" type="text" value="${esc(roles)}" placeholder="Ex.: Operations Manager, Project Manager, Supply Chain Manager" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
         </label>
         <label style="display:flex;align-items:center;gap:10px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
           <input id="dossier-tradeoffs" type="checkbox"${questionnaire.has_meaningful_tradeoffs?' checked':''} style="accent-color:var(--accent)">
-          <span style="font-size:13px;color:var(--text2)">Meu caso tem trade-offs reais, não é só “arrumar CV”</span>
+          <span style="font-size:13px;color:var(--text2)">Meu caso envolve trade-offs de reposicionamento, timing, senioridade ou mercado-alvo</span>
         </label>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">Marque isso quando exista ambiguidade real no caso, como mudar de trilha, aceitar downgrade estratégico, reposicionar narrativa ou escolher entre mercados/cargos diferentes. Isso não bloqueia o avanço; só sinaliza caso com mais densidade.</div>
         <div id="dossier-intake-error" style="display:none;font-size:12px;color:#e85555"></div>
         <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
           <button type="button" id="dossier-intake-submit" class="primary-cta-btn ${T==='de'?'de':'au'}" style="max-width:320px">Atualizar recomendação</button>
-          <div id="dossier-intake-status" style="font-size:12px;color:var(--text2)">Essa etapa só existe para evitar CTA errado.</div>
+          <div id="dossier-intake-status" style="font-size:12px;color:var(--text2)">Campos obrigatórios: objetivo, lógica do mercado, evidência de resultado e cargos-alvo.</div>
         </div>
       </div>
     </div>
@@ -2627,6 +2643,7 @@ function bindDossierIntakeCard(result,band){
     if(marketLogic.length<12) errors.push('Explique por que esse mercado faz sentido para você.');
     if(evidence.length<12) errors.push('Traga pelo menos uma evidência concreta de resultado.');
     if(targetRoles.length<1) errors.push('Informe ao menos uma hipótese de cargo-alvo.');
+    if(targetRoles.length>3) errors.push('Informe no máximo 3 cargos-alvo.');
     if(errors.length){
       if(errorEl){errorEl.style.display='block';errorEl.textContent=errors[0];}
       if(statusEl) statusEl.textContent='A triagem ainda está incompleta.';
@@ -2652,11 +2669,12 @@ function bindDossierIntakeCard(result,band){
 function renderPrimaryCta(result,band){
   const cta=getPrimaryCta(result,band);
   const cls=T==='de'?'de':'au';
+  const target=cta.target||'_blank';
   return `<div class="primary-cta" data-cta-id="${cta.id}">
     <div class="primary-cta-kicker">Próximo passo recomendado</div>
     <div class="primary-cta-title">${cta.title}</div>
     <div class="primary-cta-copy">${cta.copy}</div>
-    <a href="${cta.url}" target="_blank" class="primary-cta-btn ${cls}" data-primary-cta="${cta.id}">${cta.label}</a>
+    <a href="${cta.url}" target="${target}" class="primary-cta-btn ${cls}" data-primary-cta="${cta.id}">${cta.label}</a>
     <div class="primary-cta-note">${cta.note}</div>
   </div>`;
 }
