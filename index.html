@@ -500,7 +500,39 @@ function clearDossierInterview(){
   try{localStorage.removeItem(key);}catch(e){}
 }
 
+function getDossierFulfillmentStorageKey(){
+  return `${getDossierMotorConfig().inputStorageKey}_fulfillment`;
+}
+
+function getStoredDossierFulfillment(){
+  const key=getDossierFulfillmentStorageKey();
+  try{
+    const raw=sessionStorage.getItem(key);
+    return raw?safeJsonParse(raw):null;
+  }catch(e){
+    return null;
+  }
+}
+
+function storeDossierFulfillment(state){
+  const key=getDossierFulfillmentStorageKey();
+  try{sessionStorage.setItem(key,JSON.stringify(state));}catch(e){}
+  try{localStorage.removeItem(key);}catch(e){}
+}
+
+function clearDossierFulfillment(){
+  const key=getDossierFulfillmentStorageKey();
+  try{sessionStorage.removeItem(key);}catch(e){}
+  try{localStorage.removeItem(key);}catch(e){}
+}
+
+function isDossierFulfillmentUnlocked(){
+  const state=getStoredDossierFulfillment();
+  return !!(state&&state.unlockedAt);
+}
+
 function clearDossierFlowState(){
+  clearDossierFulfillment();
   clearDossierInterview();
   clearMotorInput();
   clearMotorDecision();
@@ -633,6 +665,33 @@ function isUnrealisticTimeline(value){
   return ['0-3 meses','0-3 months','urgent_without_base'].includes(value.trim().toLowerCase());
 }
 
+function splitEvidencePoints(value){
+  return String(value||'')
+    .split(/[\n;]+|(?<=\.)\s+/)
+    .map(item=>item.trim())
+    .filter(Boolean);
+}
+
+function countDefendableEvidence(value){
+  return splitEvidencePoints(value).filter(item=>item.length>=18).length;
+}
+
+function hasConcreteProofSignal(value){
+  if(!dossierHasText(value,8)) return false;
+  const normalized=String(value||'').trim().toLowerCase();
+  return /(\d|%|r\$|usd|eur|\$|k\b|m\b|mil|milh)/.test(normalized) ||
+    /(reduz|reduc|aument|grow|grew|improv|saved|econom|revenue|custo|tempo|prazo|throughput|conversion)/.test(normalized);
+}
+
+function hasPremiumMarketAsset(materials){
+  const source=materials&&typeof materials==='object'?materials:{};
+  return !!(source.linkedin||source.portfolio||source.github);
+}
+
+function hasSpecificRoleHypothesis(value){
+  return Array.isArray(value)&&value.some(item=>dossierHasText(item,4));
+}
+
 function decideDossierInBrowser(input){
   const score=Number.isFinite(input&&input.score)?input.score:0;
   const materials=input&&input.materials&&typeof input.materials==='object'?input.materials:{};
@@ -749,6 +808,9 @@ function decideDossierInBrowser(input){
   if(!dossierHasText(questionnaire.evidence_of_results,12)){
     payload.lists.warning.push({code:'insufficient_evidence',message:'Evidência de resultados ainda está fraca.',source:'strategic_questionnaire'});
   }
+  if(!hasSpecificRoleHypothesis(questionnaire.target_role_hypotheses)){
+    payload.lists.required.push({code:'target_roles_unclear',message:'Hipótese de cargo-alvo ainda está vaga.',source:'strategic_questionnaire'});
+  }
   if(isLowAvailability(questionnaire.availability_for_execution)){
     payload.lists.warning.push({code:'availability_low',message:'Disponibilidade baixa para executar o plano.',source:'strategic_questionnaire'});
   }
@@ -790,14 +852,37 @@ function decideDossierInBrowser(input){
   if(dossierHasText(questionnaire.evidence_of_results,40)) densityScore+=1;
   if(questionnaire.high_ambiguity_case===true) densityScore+=1;
 
+  const defendableEvidenceCount=countDefendableEvidence(questionnaire.evidence_of_results);
+  const hasConcreteProof=hasConcreteProofSignal(questionnaire.evidence_of_results);
+  const hasPremiumAsset=hasPremiumMarketAsset(materials);
+  const hasRoleClarity=hasSpecificRoleHypothesis(questionnaire.target_role_hypotheses);
+  const scoreEligibleForCompleto=score>=70;
+
+  payload.audit.critical_facts.push(`density_score=${densityScore}`);
+  payload.audit.critical_facts.push(`defendable_evidence_count=${defendableEvidenceCount}`);
+  payload.audit.critical_facts.push(`has_concrete_proof=${hasConcreteProof}`);
+  payload.audit.critical_facts.push(`has_premium_market_asset=${hasPremiumAsset}`);
+  payload.audit.critical_facts.push(`score_eligible_for_completo=${scoreEligibleForCompleto}`);
+
+  if(defendableEvidenceCount<2){
+    payload.lists.warning.push({code:'evidence_pack_thin',message:'Ainda faltam pelo menos duas evidências defendíveis para sustentar um premium.',source:'strategic_questionnaire'});
+  }
+  if(!hasConcreteProof){
+    payload.lists.warning.push({code:'evidence_without_proof_signal',message:'A evidência ainda carece de número, impacto ou contexto concreto.',source:'strategic_questionnaire'});
+  }
+  if(!hasPremiumAsset){
+    payload.lists.warning.push({code:'market_assets_light',message:'Falta ao menos um ativo adicional de mercado para sustentar um premium.',source:'materials'});
+  }
+
   const warningCount=payload.lists.warning.length;
   const requiresHumanReview=densityScore>=4||[questionnaire.high_ambiguity_case,questionnaire.story_inconsistent,warningCount>=3].filter(Boolean).length>=2;
-  payload.audit.critical_facts.push(`density_score=${densityScore}`);
   if(requiresHumanReview){
     payload.lists.warning.push({code:'needs_manual_review',message:'Caso pede validação humana antes de maior automação.',source:'combined'});
   }
 
-  if(densityScore>=3){
+  const completoEligible=scoreEligibleForCompleto&&densityScore>=4&&defendableEvidenceCount>=2&&hasConcreteProof&&hasPremiumAsset&&hasRoleClarity;
+
+  if(completoEligible){
     payload.lists.warning.push({code:'high_complexity_case',message:'Caso com densidade estratégica mais alta.',source:'combined'});
     payload.lists.warning.push({code:'good_fit_completo',message:'Bom fit para Dossiê Completo.',source:'combined'});
     payload.audit.decision_reasons.push('caso com densidade estratégica suficiente para completo');
@@ -811,6 +896,10 @@ function decideDossierInBrowser(input){
       outputTemplate:'template-output-dossie-completo.md',
       intakeSchema:'schema-intake-dossie-completo.json'
     });
+  }
+
+  if(densityScore>=3){
+    payload.lists.warning.push({code:'premium_gate_not_met',message:'O caso tem potencial, mas ainda não sustenta Dossiê Completo com segurança.',source:'combined'});
   }
 
   payload.lists.warning.push({code:'good_fit_lite',message:'Bom fit para Dossiê Lite.',source:'combined'});
@@ -3431,6 +3520,20 @@ function exportDossierPreviewPdf(result,band,decision,motorInput,interviewState)
 function renderDossierInterviewCard(result,band,rawDecision){
   const decision=getMotorDecisionSummary(rawDecision);
   if(!decision||!['Lite','Completo'].includes(decision.status)) return '';
+  if(!isDossierFulfillmentUnlocked()){
+    return `<div class="primary-cta" id="dossier-interview-card" style="background:linear-gradient(135deg,#111120 0%,#141424 52%,#0d0d1a 100%)">
+      <div class="primary-cta-kicker">Etapa seguinte do dossiê</div>
+      <div class="primary-cta-title">${decision.status==='Lite'?'A entrevista estratégica do Dossiê Lite vem depois da compra':'A entrevista estratégica do Dossiê Completo vem depois da compra'}</div>
+      <div class="primary-cta-copy">A triagem curta já decidiu o produto. A partir daqui, a conversa mais profunda deixa de ser qualificação e passa a ser fulfillment: é onde o app coleta o contexto fino para gerar uma leitura realmente premium.</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:12px">
+        Em produção, esta etapa só abre depois do pagamento confirmado.
+        ${QA_MODE?'No QA, você pode simular essa compra para testar a jornada completa sem mexer na lógica comercial.':''}
+      </div>
+      ${QA_MODE?`<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px">
+        <button type="button" id="dossier-fulfillment-unlock" class="primary-cta-btn ${T==='de'?'de':'au'}">Simular compra e continuar para o dossiê</button>
+      </div>`:''}
+    </div>`;
+  }
   const state=getStoredDossierInterview()||{answers:{},confirmed:false,startedAt:null};
   const motorInput=getStoredMotorInput()||{};
   const progress=getInterviewProgress(decision,motorInput,state);
@@ -3688,6 +3791,24 @@ function bindDossierInterviewCard(result,band,rawDecision){
   if(!card) return;
   const decision=getMotorDecisionSummary(rawDecision);
   if(!decision) return;
+  const unlockBtn=document.getElementById('dossier-fulfillment-unlock');
+  if(unlockBtn){
+    unlockBtn.addEventListener('click',async()=>{
+      storeDossierFulfillment({
+        mode:'qa_simulated_purchase',
+        decision_status:decision.status,
+        unlockedAt:new Date().toISOString()
+      });
+      logEvent('dossier_fulfillment_unlocked',{
+        mode:'qa_simulated_purchase',
+        decision_status:decision.status
+      });
+      await renderResults({skipAnalytics:true});
+      const anchor=document.getElementById('dossier-interview-card');
+      if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+  if(!isDossierFulfillmentUnlocked()) return;
   const motorInput=getStoredMotorInput()||{};
   const state=getStoredDossierInterview()||{answers:{},confirmed:false,startedAt:null};
   const nextQuestion=getNextInterviewQuestion(decision,motorInput,state);

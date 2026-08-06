@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elite-migration.local/cia-app/schema-questionario-estrategico-complementar.json",
+  "title": "Questionario Estrategico Complementar",
+  "description": "Contrato canonico da triagem curta usada pelo CIA App antes da decisao do Dossier Motor.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal_for_next_12_months",
+    "target_market_logic",
+    "evidence_of_results",
+    "availability_for_execution",
+    "urgency_window",
+    "target_role_hypotheses",
+    "has_meaningful_tradeoffs",
+    "high_ambiguity_case",
+    "story_inconsistent",
+    "language_structural_block"
+  ],
+  "properties": {
+    "goal_for_next_12_months": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 600
+    },
+    "target_market_logic": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 600
+    },
+    "evidence_of_results": {
+      "type": "string",
+      "minLength": 12,
+      "maxLength": 600
+    },
+    "availability_for_execution": {
+      "type": "string",
+      "enum": ["baixa", "media", "alta"]
+    },
+    "urgency_window": {
+      "type": "string",
+      "enum": ["0-3 meses", "3-6 meses", "6-12 meses", "12+ meses"]
+    },
+    "target_role_hypotheses": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 120
+      }
+    },
+    "has_meaningful_tradeoffs": {
+      "type": "boolean"
+    },
+    "high_ambiguity_case": {
+      "type": "boolean"
+    },
+    "story_inconsistent": {
+      "type": "boolean"
+    },
+    "language_structural_block": {
+      "type": "boolean"
+    }
+  }
+}

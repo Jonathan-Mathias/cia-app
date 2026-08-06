@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { assertStrategicQuestionnaireContract } from './questionnaire-contract.mjs';
 
 function nowIso() {
   return new Date().toISOString();
@@ -16,6 +17,20 @@ function hasText(value, min = 1) {
   return typeof value === 'string' && value.trim().length >= min;
 }
 
+function isWeakStrategicAnswer(value) {
+  if (!hasText(value, 12)) return true;
+  const normalized = value.trim().toLowerCase();
+  return [
+    'muito cedo',
+    'ainda estou vendo',
+    'ainda estou avaliando',
+    'ainda nao sei',
+    'ainda não sei',
+    'qualquer mercado serve',
+    'qualquer vaga serve'
+  ].includes(normalized);
+}
+
 function isLowAvailability(value) {
   if (!hasText(value)) return false;
   const normalized = value.trim().toLowerCase();
@@ -26,6 +41,32 @@ function isUnrealisticTimeline(value) {
   if (!hasText(value)) return false;
   const normalized = value.trim().toLowerCase();
   return ['0-3 meses', '0-3 months', 'urgent_without_base'].includes(normalized);
+}
+
+function splitEvidencePoints(value) {
+  return String(value || '')
+    .split(/[\n;]+|(?<=\.)\s+/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function countDefendableEvidence(value) {
+  return splitEvidencePoints(value).filter(item => item.length >= 18).length;
+}
+
+function hasConcreteProofSignal(value) {
+  if (!hasText(value, 8)) return false;
+  const normalized = value.trim().toLowerCase();
+  return /(\d|%|r\$|usd|eur|\$|k\b|m\b|mil|milh)/.test(normalized) ||
+    /(reduz|reduc|aument|grow|grew|improv|saved|econom|revenue|custo|tempo|prazo|throughput|conversion)/.test(normalized);
+}
+
+function hasPremiumMarketAsset(materials = {}) {
+  return !!(materials.linkedin || materials.portfolio || materials.github);
+}
+
+function hasSpecificRoleHypothesis(value) {
+  return Array.isArray(value) && value.some(item => hasText(item, 4));
 }
 
 function countTruthy(values) {
@@ -117,7 +158,7 @@ function finalize(payload, status, config) {
 export function decideDossier(input = {}) {
   const payload = buildBasePayload(input);
   const score = payload.input_snapshot.cia_score;
-  const q = input.questionnaire || {};
+  const q = input.questionnaire ? assertStrategicQuestionnaireContract(input.questionnaire) : {};
   const materials = input.materials || {};
 
   if (!materials.cv) {
@@ -156,16 +197,20 @@ export function decideDossier(input = {}) {
     });
   }
 
-  if (!hasText(q.goal_for_next_12_months, 12)) {
+  if (isWeakStrategicAnswer(q.goal_for_next_12_months)) {
     pushRule(payload.lists.required, 'goal_unclear', 'Objetivo dos proximos 12 meses ainda esta vago.', 'strategic_questionnaire');
   }
 
-  if (!hasText(q.target_market_logic, 12)) {
+  if (isWeakStrategicAnswer(q.target_market_logic)) {
     pushRule(payload.lists.required, 'market_logic_weak', 'Logica do mercado-alvo ainda esta fraca.', 'strategic_questionnaire');
   }
 
   if (!hasText(q.evidence_of_results, 12)) {
     pushRule(payload.lists.warning, 'insufficient_evidence', 'Evidencia de resultados ainda esta fraca.', 'strategic_questionnaire');
+  }
+
+  if (!hasSpecificRoleHypothesis(q.target_role_hypotheses)) {
+    pushRule(payload.lists.required, 'target_roles_unclear', 'Hipotese de cargo-alvo ainda esta vaga.', 'strategic_questionnaire');
   }
 
   if (isLowAvailability(q.availability_for_execution)) {
@@ -212,14 +257,44 @@ export function decideDossier(input = {}) {
   if (hasText(q.evidence_of_results, 40)) densityScore += 1;
   if (q.high_ambiguity_case === true) densityScore += 1;
 
+  const defendableEvidenceCount = countDefendableEvidence(q.evidence_of_results);
+  const hasConcreteProof = hasConcreteProofSignal(q.evidence_of_results);
+  const hasPremiumAsset = hasPremiumMarketAsset(materials);
+  const hasRoleClarity = hasSpecificRoleHypothesis(q.target_role_hypotheses);
+  const scoreEligibleForCompleto = score >= 70;
+
+  payload.audit.critical_facts.push(`density_score=${densityScore}`);
+  payload.audit.critical_facts.push(`defendable_evidence_count=${defendableEvidenceCount}`);
+  payload.audit.critical_facts.push(`has_concrete_proof=${hasConcreteProof}`);
+  payload.audit.critical_facts.push(`has_premium_market_asset=${hasPremiumAsset}`);
+  payload.audit.critical_facts.push(`score_eligible_for_completo=${scoreEligibleForCompleto}`);
+
+  if (defendableEvidenceCount < 2) {
+    pushRule(payload.lists.warning, 'evidence_pack_thin', 'Ainda faltam pelo menos duas evidencias defendiveis para sustentar um premium.', 'strategic_questionnaire');
+  }
+
+  if (!hasConcreteProof) {
+    pushRule(payload.lists.warning, 'evidence_without_proof_signal', 'A evidencia ainda carece de numero, impacto ou contexto concreto.', 'strategic_questionnaire');
+  }
+
+  if (!hasPremiumAsset) {
+    pushRule(payload.lists.warning, 'market_assets_light', 'Falta ao menos um ativo adicional de mercado para sustentar um premium.', 'materials');
+  }
+
   const warningCount = payload.lists.warning.length;
   const requiresHumanReview = densityScore >= 4 || countTruthy([q.high_ambiguity_case, q.story_inconsistent, warningCount >= 3]) >= 2;
   if (requiresHumanReview) {
     pushRule(payload.lists.warning, 'needs_manual_review', 'Caso pede validacao humana antes de maior automacao.', 'combined');
   }
 
-  payload.audit.critical_facts.push(`density_score=${densityScore}`);
-  if (densityScore >= 3) {
+  const completoEligible = scoreEligibleForCompleto &&
+    densityScore >= 4 &&
+    defendableEvidenceCount >= 2 &&
+    hasConcreteProof &&
+    hasPremiumAsset &&
+    hasRoleClarity;
+
+  if (completoEligible) {
     pushRule(payload.lists.warning, 'high_complexity_case', 'Caso com densidade estrategica mais alta.', 'combined');
     pushRule(payload.lists.warning, 'good_fit_completo', 'Bom fit para Dossie Completo.', 'combined');
     payload.audit.decision_reasons.push('caso com densidade estrategica suficiente para completo');
@@ -233,6 +308,10 @@ export function decideDossier(input = {}) {
       output_template: 'template-output-dossie-completo.md',
       intake_schema: 'schema-intake-dossie-completo.json'
     });
+  }
+
+  if (densityScore >= 3) {
+    pushRule(payload.lists.warning, 'premium_gate_not_met', 'O caso tem potencial, mas ainda nao sustenta Dossie Completo com seguranca.', 'combined');
   }
 
   pushRule(payload.lists.warning, 'good_fit_lite', 'Bom fit para Dossie Lite.', 'combined');
