@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://zkzxpzjpoenmrvrmdqyb.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>CIA App · Versão Beta · Elite Migration</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -263,6 +265,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .restart-btn{background:transparent;border:1px solid var(--border);border-radius:var(--r2);color:var(--muted);font-size:13px;padding:12px 28px;cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s;width:100%;letter-spacing:0.02em}
 .restart-btn:hover{border-color:var(--accent);color:var(--text);background:#5b9cf610}
 
+.qa-card{background:linear-gradient(135deg,#121722 0%,#0f1320 100%);border:1px solid #5b9cf640;border-radius:var(--r);padding:18px 16px;margin:14px 0}
+.qa-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7fb1ff;margin-bottom:10px}
+.qa-copy{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:14px}
+.qa-actions{display:flex;gap:10px;flex-wrap:wrap}
+.qa-btn{padding:11px 14px;border-radius:var(--r2);border:1px solid #3b4c73;background:#162033;color:#dce8ff;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer}
+.qa-btn:hover{filter:brightness(1.06)}
+.qa-status{margin-top:12px;padding:12px 14px;border-radius:var(--r2);border:1px solid var(--border);background:#0d0d1a;font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-line}
+.qa-status.ok{border-color:#3ecf8e55;color:#b8f3d4}
+.qa-status.warn{border-color:#f0c44a55;color:#f7df9a}
+.qa-status.err{border-color:#e8555555;color:#ffc0c0}
+
 /* CARD MENTORIA ELITE */
 .mentoria-card{background:linear-gradient(135deg,#0d1a0d 0%,#0a1a10 50%,#0d1500 100%);border:1px solid #3ecf8e40;border-radius:var(--r);padding:24px 22px;margin:14px 0;position:relative;overflow:hidden}
 .mentoria-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#3ecf8e60,#D4AF3760,#3ecf8e60,transparent)}
@@ -293,38 +306,46 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 </head>
 <body>
 <div class="app" id="app"></div>
+<script src="app-config.runtime.js"></script>
 <script>
 /* =======================================================
    CIA App v2.1 · Elite Migration
    Fixes: VerbalizeNow, badge destino, lógica AU, bugs
 ========================================================= */
+const RUNTIME_CONFIG = window.CIA_APP_RUNTIME_CONFIG || {};
+const RUNTIME_SUPABASE = RUNTIME_CONFIG.supabase || {};
+const RUNTIME_DOSSIER_MOTOR = RUNTIME_CONFIG.dossierMotor || {};
+const RUNTIME_PARAMS = (()=>{try{return new URLSearchParams(window.location.search||'');}catch(e){return new URLSearchParams('');}})();
+const QA_MODE = ['1','true','yes'].includes(String(RUNTIME_PARAMS.get('qa')||'').toLowerCase());
 const APP_CONFIG = Object.freeze({
   env: 'production',
   version: '2.5-dossier-motor-foundation',
   integrations: {
     // Google Apps Script continua como proxy seguro para Sheets/Brevo.
     // Não colocar chaves Brevo ou service_role do Supabase no frontend.
-    gasUrl: 'https://script.google.com/macros/s/AKfycbzs484zhRqNListUyj_85eNp0gUhYQdhbfP4AAI0PfnZxm8aQMD3KgHENo0loqxpRey4A/exec',
+    gasUrl: RUNTIME_CONFIG.gasUrl || 'https://script.google.com/macros/s/AKfycbzs484zhRqNListUyj_85eNp0gUhYQdhbfP4AAI0PfnZxm8aQMD3KgHENo0loqxpRey4A/exec',
     supabase: {
-      enabled: false,
-      url: '',        // ex: https://xxxxx.supabase.co
-      anonKey: '',    // apenas anon public key, com RLS ativo
-      schema: 'public',
+      enabled: RUNTIME_SUPABASE.enabled ?? false,
+      url: RUNTIME_SUPABASE.url || '',        // ex: https://xxxxx.supabase.co
+      anonKey: RUNTIME_SUPABASE.anonKey || '',    // apenas anon public key, com RLS ativo
+      schema: RUNTIME_SUPABASE.schema || 'public',
       tables: {
         sessions: 'cia_sessions',
         events: 'cia_events',
         leads: 'cia_leads',
         results: 'cia_results',
         ctaClicks: 'cia_cta_clicks',
-        nps: 'cia_nps'
+        nps: 'cia_nps',
+        dossierIntakes: 'cia_dossier_intakes',
+        dossierDecisions: 'cia_dossier_decisions'
       }
     },
     dossierMotor: {
-      enabled: false,
-      decisionUrl: '',
-      timeoutMs: 4000,
-      storageKey: 'ciaDossierDecision',
-      inputStorageKey: 'ciaDossierInput'
+      enabled: RUNTIME_DOSSIER_MOTOR.enabled ?? false,
+      decisionUrl: RUNTIME_DOSSIER_MOTOR.decisionUrl || '',
+      timeoutMs: RUNTIME_DOSSIER_MOTOR.timeoutMs || 4000,
+      storageKey: RUNTIME_DOSSIER_MOTOR.storageKey || 'ciaDossierDecision',
+      inputStorageKey: RUNTIME_DOSSIER_MOTOR.inputStorageKey || 'ciaDossierInput'
     }
   },
   links: {
@@ -362,6 +383,7 @@ const APP_CONFIG = Object.freeze({
 });
 
 const SHEETS_URL = APP_CONFIG.integrations.gasUrl;
+window.__CIA_LAST_SUPABASE_RESULT__ = null;
 
 function esc(v){
   return String(v ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
@@ -372,11 +394,12 @@ function safeJsonParse(raw){
 }
 
 function getRuntimeQueryParams(){
-  try{
-    return new URLSearchParams(window.location.search||'');
-  }catch(e){
-    return new URLSearchParams('');
-  }
+  return RUNTIME_PARAMS;
+}
+
+function debugLog(){
+  if(!QA_MODE) return;
+  try{console.log.apply(console, arguments);}catch(e){}
 }
 
 function getDossierMotorConfig(){
@@ -408,7 +431,7 @@ function getStoredMotorDecision(){
   const globalDecision=(typeof window!=='undefined'&&window.__CIA_DOSSIER_DECISION__)||null;
   if(globalDecision&&typeof globalDecision==='object') return globalDecision;
   try{
-    const raw=sessionStorage.getItem(key)||localStorage.getItem(key);
+    const raw=sessionStorage.getItem(key);
     return raw?safeJsonParse(raw):null;
   }catch(e){
     return null;
@@ -418,7 +441,7 @@ function getStoredMotorDecision(){
 function storeMotorDecision(decision){
   const key=getDossierMotorConfig().storageKey;
   try{sessionStorage.setItem(key,JSON.stringify(decision));}catch(e){}
-  try{localStorage.setItem(key,JSON.stringify(decision));}catch(e){}
+  try{localStorage.removeItem(key);}catch(e){}
 }
 
 function clearMotorDecision(){
@@ -430,7 +453,7 @@ function clearMotorDecision(){
 function storeMotorInput(input){
   const key=getDossierMotorConfig().inputStorageKey;
   try{sessionStorage.setItem(key,JSON.stringify(input));}catch(e){}
-  try{localStorage.setItem(key,JSON.stringify(input));}catch(e){}
+  try{localStorage.removeItem(key);}catch(e){}
 }
 
 function getStoredMotorInput(){
@@ -438,7 +461,7 @@ function getStoredMotorInput(){
   const globalInput=(typeof window!=='undefined'&&window.__CIA_DOSSIER_INPUT__)||null;
   if(globalInput&&typeof globalInput==='object') return globalInput;
   try{
-    const raw=sessionStorage.getItem(key)||localStorage.getItem(key);
+    const raw=sessionStorage.getItem(key);
     return raw?safeJsonParse(raw):null;
   }catch(e){
     return null;
@@ -486,6 +509,29 @@ function buildMotorDrivenPrimaryCta(result,band){
     };
   }
 
+  if(decision.nextStep==='request_complement'){
+    return {
+      id:'dossier_request_complement',
+      label:'Completar triagem estratégica',
+      url:'#dossier-intake-card',
+      target:'_self',
+      title:'Ainda faltam poucos dados para liberar o próximo passo certo',
+      copy:`Seu diagnóstico no CIA App indica potencial para ${route}, mas o motor ainda não deveria liberar oferta ou pagamento sem uma triagem mais completa.`,
+      note:'Complete ou revise a triagem estratégica abaixo antes de qualquer recomendação comercial.'
+    };
+  }
+
+  if(decision.nextStep==='route_to_basic'){
+    return {
+      id:'dossier_route_to_basic',
+      label:'Fortalecer minha base antes do Dossiê',
+      url:APP_CV_URL,
+      title:'Seu caso ainda não deveria avançar para o Dossiê agora',
+      copy:`Neste momento, o passo mais inteligente para ${route} é fortalecer base, legibilidade e material antes de tentar destravar uma oferta estratégica mais profunda.`,
+      note:'O motor bloqueou a oferta paga para proteger a entrega e evitar um próximo passo prematuro.'
+    };
+  }
+
   return null;
 }
 
@@ -519,6 +565,43 @@ function buildMotorRequest(result,band){
   };
 }
 
+function buildDossierIntakeRecord(result,band,input){
+  if(!input||typeof input!=='object') return null;
+  return {
+    session_id: SESSION_ID,
+    lead_id: LEAD&&LEAD._id?LEAD._id:null,
+    created_at: new Date().toISOString(),
+    trilha: T||null,
+    route_label: T==='de'?'Alemanha':'Austrália',
+    score: result&&typeof result.final==='number'?result.final:null,
+    banda: band&&band.lb?band.lb:null,
+    profile: input.profile||{},
+    materials: input.materials||{},
+    questionnaire: input.questionnaire||{},
+    meta: input.meta||{}
+  };
+}
+
+function buildDossierDecisionRecord(requestBody,decision,source){
+  if(!decision||typeof decision!=='object') return null;
+  const summary=getMotorDecisionSummary(decision);
+  return {
+    session_id: SESSION_ID,
+    lead_id: requestBody&&requestBody.lead_id?requestBody.lead_id:(LEAD&&LEAD._id?LEAD._id:null),
+    created_at: new Date().toISOString(),
+    trilha: T||null,
+    route_label: requestBody&&requestBody.route?requestBody.route:(T==='de'?'Alemanha':'Austrália'),
+    score: requestBody&&typeof requestBody.score==='number'?requestBody.score:null,
+    banda: requestBody&&requestBody.band?requestBody.band:null,
+    decision_status: summary?summary.status:null,
+    recommended_offer: summary?summary.recommendedOffer:null,
+    next_step: summary?summary.nextStep:null,
+    source: source||null,
+    request_payload: requestBody||{},
+    decision_payload: decision
+  };
+}
+
 async function requestMotorDecision(result,band){
   const cfg=getDossierMotorConfig();
   if(!cfg.enabled||!cfg.decisionUrl) return {decision:getStoredMotorDecision(),source:'stored_or_disabled'};
@@ -539,9 +622,18 @@ async function requestMotorDecision(result,band){
     if(!res.ok) throw new Error(`Motor HTTP ${res.status}`);
     const decision=await res.json();
     storeMotorDecision(decision);
+    const decisionRecord=buildDossierDecisionRecord(requestBody,decision,'remote');
+    if(decisionRecord) supabaseInsert('dossierDecisions', decisionRecord);
+    logEvent('dossier_decision_received',{
+      decision_status: decisionRecord?decisionRecord.decision_status:null,
+      recommended_offer: decisionRecord?decisionRecord.recommended_offer:null,
+      next_step: decisionRecord?decisionRecord.next_step:null,
+      motor_source:'remote'
+    });
     return {decision,source:'remote'};
   }catch(e){
     if(timeoutId) clearTimeout(timeoutId);
+    logEvent('dossier_decision_error',{motor_source:'fallback_after_error',error:e&&e.message?e.message:String(e)});
     return {decision:getStoredMotorDecision(),source:'fallback_after_error',error:e&&e.message?e.message:String(e)};
   }
 }
@@ -601,9 +693,9 @@ function publicLeadId(){
 
 async function supabaseInsert(tableKey, record){
   const sb=APP_CONFIG.integrations.supabase;
-  if(!sb.enabled||!sb.url||!sb.anonKey) return;
+  if(!sb.enabled||!sb.url||!sb.anonKey) return {ok:false, skipped:true, reason:'disabled_or_missing_config'};
   const table=sb.tables[tableKey];
-  if(!table) return;
+  if(!table) return {ok:false, skipped:true, reason:'unknown_table'};
   try{
     const res = await fetch(`${sb.url.replace(/\/$/,'')}/rest/v1/${table}`,{
       method:'POST',
@@ -615,8 +707,16 @@ async function supabaseInsert(tableKey, record){
       },
       body:JSON.stringify(record)
     });
-    if(!res.ok && res.status!==409) console.warn('Supabase insert failed', tableKey, res.status);
-  }catch(e){console.warn('Supabase insert skipped/error', tableKey, e);}
+    const result={ok:res.ok||res.status===409,status:res.status,tableKey};
+    window.__CIA_LAST_SUPABASE_RESULT__=result;
+    if(!result.ok) console.warn('Supabase insert failed', tableKey, res.status);
+    return result;
+  }catch(e){
+    const result={ok:false,status:null,tableKey,error:e&&e.message?e.message:String(e)};
+    window.__CIA_LAST_SUPABASE_RESULT__=result;
+    console.warn('Supabase insert skipped/error', tableKey, e);
+    return result;
+  }
 }
 
 async function logEvent(type, data={}){
@@ -630,7 +730,7 @@ async function logEvent(type, data={}){
     step,
     ...data
   };
-  console.log('[CIA App]', type, payload);
+  debugLog('[CIA App]', type, payload);
   if(type==='app_loaded'){
     supabaseInsert('sessions', {session_id:payload.session_id,app_version:APP_CONFIG.version,landing_path:payload.path,referrer:payload.referrer,utm:payload.utm});
   }
@@ -650,6 +750,88 @@ async function logEvent(type, data={}){
     const img=new Image();
     img.src=SHEETS_URL+'?data='+params;
   } catch(e){ console.warn('Sheets fallback error', e); }
+}
+
+async function runSupabaseDiagnostic(opts={}){
+  const allowWrite=!!opts.allowWrite;
+  const sb=APP_CONFIG.integrations.supabase;
+  if(!sb.enabled||!sb.url||!sb.anonKey){
+    return {ok:false,stage:'config',message:'Supabase desativado ou com config incompleta.'};
+  }
+
+  const baseUrl=sb.url.replace(/\/$/,'');
+  try{
+    const pingRes=await fetch(`${baseUrl}/rest/v1/${sb.tables.sessions}?select=session_id&limit=1`,{
+      method:'GET',
+      headers:{apikey:sb.anonKey,Authorization:`Bearer ${sb.anonKey}`}
+    });
+    if(!pingRes.ok){
+      return {ok:false,stage:'read_probe',status:pingRes.status,message:`Leitura de diagnóstico falhou (${pingRes.status}).`};
+    }
+  }catch(e){
+    return {ok:false,stage:'reachability',message:`API inacessível: ${e&&e.message?e.message:String(e)}`};
+  }
+
+  if(!allowWrite){
+    return {ok:true,stage:'read_probe',message:'API alcançável e config carregada. Teste de escrita não executado.'};
+  }
+
+  const smokeId=`qa_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+  const insertResult=await supabaseInsert('events',{
+    session_id: SESSION_ID,
+    lead_id: LEAD&&LEAD._id?LEAD._id:null,
+    ts: new Date().toISOString(),
+    type: 'qa_connectivity_check',
+    app_version: APP_CONFIG.version,
+    trilha: T||null,
+    step,
+    payload:{smoke_id:smokeId,source:'qa_panel'}
+  });
+
+  if(insertResult&&insertResult.ok){
+    return {ok:true,stage:'write_probe',status:insertResult.status,message:'Escrita de teste aprovada no Supabase.'};
+  }
+
+  if(insertResult&&insertResult.status===401){
+    return {ok:false,stage:'write_probe',status:401,message:'Escrita bloqueada por RLS. Verifique se as migrations/policies do Supabase foram aplicadas neste projeto.'};
+  }
+
+  return {ok:false,stage:'write_probe',status:insertResult&&insertResult.status?insertResult.status:null,message:`Escrita de teste falhou${insertResult&&insertResult.status?` (${insertResult.status})`:''}.`};
+}
+
+function renderQaCard(){
+  if(!QA_MODE) return '';
+  return `
+    <div class="qa-card" id="qa-card">
+      <div class="qa-title">QA Controlado</div>
+      <div class="qa-copy">Modo de diagnóstico ativo. Use este bloco para validar se o frontend está configurado e se o Supabase está aceitando escrita real com a policy esperada.</div>
+      <div class="qa-actions">
+        <button class="qa-btn" id="qa-run-read">Testar conectividade</button>
+        <button class="qa-btn" id="qa-run-write">Testar escrita real</button>
+      </div>
+      <div class="qa-status" id="qa-status">Aguardando execução manual.</div>
+    </div>`;
+}
+
+function bindQaCard(){
+  if(!QA_MODE) return;
+  const statusEl=document.getElementById('qa-status');
+  const runCheck=async allowWrite=>{
+    if(!statusEl) return;
+    statusEl.className='qa-status';
+    statusEl.textContent=allowWrite ? 'Rodando teste de escrita real...' : 'Rodando teste de conectividade...';
+    const result=await runSupabaseDiagnostic({allowWrite});
+    statusEl.className=`qa-status ${result.ok?'ok':(result.stage==='write_probe'?'err':'warn')}`;
+    statusEl.textContent=[
+      result.message,
+      result.status?`HTTP: ${result.status}`:'',
+      `Etapa: ${result.stage}`
+    ].filter(Boolean).join('\n');
+  };
+  const readBtn=document.getElementById('qa-run-read');
+  const writeBtn=document.getElementById('qa-run-write');
+  if(readBtn) readBtn.addEventListener('click',()=>runCheck(false));
+  if(writeBtn) writeBtn.addEventListener('click',()=>runCheck(true));
 }
 
 /* =======================================================
@@ -1766,7 +1948,7 @@ function getSteps(result){
         if(rede6>=2){
           const xingArea=['neg','comex','eng'].includes(area6);
           return xingArea
-            ?'Priorize networking direto e ${xingArea?"Xing":"LinkedIn"} antes de job sites. Com rede ativa, candidaturas diretas convertem mais. Job sites como Make it in Germany e StepStone como complemento'
+            ?'Priorize networking direto e Xing antes de job sites. Com rede ativa, candidaturas diretas convertem mais. Job sites como Make it in Germany e StepStone como complemento'
             :'Priorize contato direto com empresas-alvo antes de job sites. Com rede ativa, o retorno é maior. Use Make it in Germany e StepStone como complemento, não como estratégia principal';
         }
         // Se rede fraca: começar pelos canais mais acessíveis
@@ -2427,6 +2609,17 @@ function getFallbackPrimaryCta(result,band){
   const cvWeak=(ANS['p11']?ANS['p11'].v:0)<2;
   const emailAutomatic='Você já confirmou seus dados. A trilha por email fica conectada ao seu diagnóstico e evita mandar o mesmo próximo passo para todo mundo.';
   const dossierEnabled=shouldOfferDossierIntake(result,getMotorDecisionSummary(getStoredMotorDecision()));
+  if(dossierEnabled){
+    return {
+      id:'dossier_intake_start',
+      label:'Completar triagem estratégica',
+      url:'#dossier-intake-card',
+      target:'_self',
+      title:'Seu próximo passo aqui é o Dossiê, não a mentoria premium',
+      copy:`Seu resultado indica base suficiente para ${route}, mas o próximo passo certo ainda depende da triagem curta do Dossiê. Antes de qualquer oferta futura, o app precisa decidir se o melhor encaixe é Lite, Completo, Faltam dados ou Recusa.`,
+      note:'Complete a triagem estratégica abaixo para liberar a recomendação correta dentro do CIA App.'
+    };
+  }
   if(score<=40){
     return {id:'community_foundation',label:'Entrar no grupo gratuito',url:APP_CONFIG.links.owned.whatsappGroup,title:'Construa a base antes de gastar energia com candidatura',copy:`Seu resultado mostra que ainda existe preparação importante antes de uma candidatura séria para ${route}. O próximo passo é organizar idioma, mercado e direção. O grupo gratuito ajuda você a amadurecer essa decisão sem entrar cedo demais em produto ou mentoria.`,note:emailAutomatic};
   }
@@ -2435,17 +2628,6 @@ function getFallbackPrimaryCta(result,band){
   }
   if(score<=85){
     return {id:'strategic_application',label:'Preparar minha candidatura estratégica',url:APP_CV_URL,title:'Você tem sinais competitivos, agora o risco está nos detalhes',copy:`Seu perfil já tem elementos que podem funcionar na ${route}. O próximo ganho não vem de consumir mais conteúdo solto, mas de organizar CV, carta, LinkedIn, empresas-alvo e abordagem como uma arquitetura de candidatura.`,note:'Por enquanto, o CV Builder é o primeiro módulo prático desse caminho. Carta e LinkedIn entram na sequência da Plataforma EM.'};
-  }
-  if(dossierEnabled){
-    return {
-      id:'dossier_intake_start',
-      label:'Completar triagem estratégica',
-      url:'#dossier-intake-card',
-      target:'_self',
-      title:'Seu próximo passo aqui é o Dossiê, não a mentoria premium',
-      copy:`Seu resultado indica alta prontidão para ${route}, mas a recomendação certa ainda depende da triagem curta do Dossiê. Antes de qualquer oferta futura, o app precisa decidir se o melhor encaixe é Lite, Completo, Faltam dados ou Recusa.`,
-      note:'Complete a triagem estratégica abaixo para liberar a recomendação correta dentro do CIA App.'
-    };
   }
   return {id:'strategic_application',label:'Preparar minha candidatura estratégica',url:APP_CV_URL,title:'Você tem sinais competitivos, agora o risco está nos detalhes',copy:`Seu perfil já tem elementos que podem funcionar na ${route}. O próximo ganho não vem de consumir mais conteúdo solto, mas de organizar CV, carta, LinkedIn, empresas-alvo e abordagem como uma arquitetura de candidatura.`,note:'Sem motor ativo, o app cai no fluxo estratégico padrão e não oferta mentoria premium aqui.'};
 }
@@ -2489,6 +2671,8 @@ function getDossierIntakeTone(rawDecision,motorSource){
 function renderDossierIntakeCard(result,rawDecision,motorSource){
   if(!shouldOfferDossierIntake(result,getMotorDecisionSummary(rawDecision))) return '';
   const tone=getDossierIntakeTone(rawDecision,motorSource);
+  const summary=getMotorDecisionSummary(rawDecision);
+  const primaryCtaId=summary&&summary.nextStep==='request_complement' ? 'dossier_request_complement' : 'dossier_intake_start';
   const stored=getStoredMotorInput()||{};
   const profile=stored.profile||{};
   const materials=stored.materials||{};
@@ -2503,7 +2687,7 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
     <div class="primary-cta-title">${tone.title}</div>
     <div class="primary-cta-copy">${tone.copy}</div>
     ${decisionSummary}
-    <button type="button" id="dossier-intake-toggle" class="primary-cta-btn ${T==='de'?'de':'au'}" style="max-width:320px;margin-top:14px">
+    <button type="button" id="dossier-intake-toggle" class="primary-cta-btn ${T==='de'?'de':'au'}" data-primary-cta="${primaryCtaId}" style="max-width:320px;margin-top:14px">
       ${showForm?'Revisar triagem estratégica':'Completar triagem estratégica'}
     </button>
     <div id="dossier-intake-form-wrap" style="display:${showForm?'block':'none'};margin-top:18px;text-align:left">
@@ -2592,6 +2776,10 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
   </div>`;
 }
 
+function isDossierCtaInlinePrimary(cta){
+  return !!cta&&['dossier_intake_start','dossier_request_complement'].includes(cta.id);
+}
+
 function bindDossierIntakeCard(result,band){
   const card=document.getElementById('dossier-intake-card');
   if(!card) return;
@@ -2654,11 +2842,27 @@ function bindDossierIntakeCard(result,band){
     submitBtn.disabled=true;
     submitBtn.textContent='Processando...';
     clearMotorDecision();
-    storeMotorInput({
+    const motorInput={
       profile:{seniority_level:seniority},
       materials,
       questionnaire,
       meta:{submitted_at:new Date().toISOString(),source:'cia_real_intake'}
+    };
+    storeMotorInput(motorInput);
+    const intakeRecord=buildDossierIntakeRecord(result,band,motorInput);
+    if(intakeRecord) supabaseInsert('dossierIntakes', intakeRecord);
+    logEvent('dossier_intake_submitted',{
+      intake_source:'cia_real_intake',
+      dossier_fields:{
+        seniority: seniority,
+        availability: availability,
+        urgency: urgency,
+        target_roles_count: targetRoles.length,
+        has_cv: materials.cv,
+        has_linkedin: materials.linkedin,
+        has_portfolio: materials.portfolio,
+        has_github: materials.github
+      }
     });
     await requestMotorDecision(result,band);
     await renderResults({skipAnalytics:true});
@@ -2684,6 +2888,8 @@ async function renderResults(opts={}){
   const result=calcScore(),band=getBand(result.final),alerts=getAlerts(),insights=getInsights(result),steps=getSteps(result);
   const motorResolution=await requestMotorDecision(result,band);
   const motorDecision=getMotorDecisionSummary(motorResolution.decision);
+  const primaryCta=getPrimaryCta(result,band);
+  const inlineDossierPrimary=isDossierCtaInlinePrimary(primaryCta);
 
   GEO.pais=GEO.pais||'Brasil';
   publicLeadId();
@@ -2765,8 +2971,8 @@ async function renderResults(opts={}){
     })()}
     <div class="sec-label-main" style="margin-top:24px">Próximos passos</div>
     <div class="steps">${steps.map((s,i)=>`<div class="step"><span class="step-n">0${i+1}</span><div class="step-t">${s}</div></div>`).join('')}</div>
-    ${renderDossierIntakeCard(result,motorResolution.decision,motorResolution.source)}
-    ${renderPrimaryCta(result,band)}
+    ${inlineDossierPrimary?renderDossierIntakeCard(result,motorResolution.decision,motorResolution.source):renderPrimaryCta(result,band)}
+    ${inlineDossierPrimary?'':renderDossierIntakeCard(result,motorResolution.decision,motorResolution.source)}
     <div class="secondary-resources-label">Recursos complementares</div>
     ${(()=>{
       const inv=ANS['p9']?ANS['p9'].v:0;
@@ -2840,6 +3046,7 @@ async function renderResults(opts={}){
       </div>
       <div id="nps-thanks" style="display:none;font-size:13px;color:#3ecf8e;text-align:center;padding:8px 0;font-weight:500">Obrigado pelo feedback!</div>
     </div>
+    ${renderQaCard()}
     <div class="restart"><button class="restart-btn" id="btn-restart">Refazer a avaliação</button></div>`;
 
   document.getElementById('app').innerHTML='';
@@ -2860,11 +3067,11 @@ async function renderResults(opts={}){
       motorDecision,
       alerts,insights,steps,summary:buildSummary(result,insights,steps)
     };
-    try{localStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
     try{sessionStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
+    try{localStorage.removeItem('ciaCvBuilderPayload');}catch(e){}
   }
 
-  document.querySelectorAll('a.primary-cta-btn,.promo-btn,.mentoria-card-btn').forEach((el,idx)=>{
+  document.querySelectorAll('[data-primary-cta],.promo-btn,.mentoria-card-btn').forEach((el,idx)=>{
     el.addEventListener('click',()=>{
       const ctaId=el.dataset.primaryCta || (el.classList.contains('mentoria-card-btn')?'premium_link':'promo_link');
       logCtaClick(ctaId,el.textContent.trim(),el.href||'',`result_card_${idx}`);
@@ -3026,6 +3233,7 @@ async function renderResults(opts={}){
   });
 
   bindDossierIntakeCard(result,band);
+  bindQaCard();
 
   const cvBuilderBtn=document.getElementById('btn-open-cv-builder');
   if(cvBuilderBtn){
