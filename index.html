@@ -3435,14 +3435,6 @@ function renderDossierInterviewCard(result,band,rawDecision){
   const motorInput=getStoredMotorInput()||{};
   const progress=getInterviewProgress(decision,motorInput,state);
   const nextQuestion=getNextInterviewQuestion(decision,motorInput,state);
-  const recapHtml=progress.questions.map(question=>{
-    const value=getInterviewResolvedValue(question,state,motorInput);
-    if(!isInterviewAnswerValid(question,value)) return '';
-    return `<div style="padding:10px 12px;background:#111120;border:1px solid var(--border);border-radius:var(--r2)">
-      <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:6px">${esc(question.label)}</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.65">${formatInterviewAnswer(question,value)}</div>
-    </div>`;
-  }).join('');
   const inputHtml=nextQuestion ? (
     nextQuestion.type==='select'
       ? `<select id="dossier-interview-answer" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
@@ -3473,8 +3465,10 @@ function renderDossierInterviewCard(result,band,rawDecision){
       </div>
     `:`
       <div style="display:grid;gap:12px">
-        <div style="font-size:15px;color:var(--text);font-weight:500">Recapitulação antes de gerar a prévia</div>
-        <div style="display:grid;gap:8px">${recapHtml}</div>
+        <div style="font-size:15px;color:var(--text);font-weight:500">Contexto suficiente para gerar a prévia</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">
+          A entrevista já reuniu o necessário. Em vez de repetir seu CV e suas respostas aqui, o app segue direto para a prévia estratégica do dossiê.
+        </div>
         <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
           <button type="button" id="dossier-interview-confirm" class="primary-cta-btn ${T==='de'?'de':'au'}">${state.confirmed?'Prévia gerada':'Confirmar dados e gerar prévia'}</button>
           <button type="button" id="dossier-interview-reset" class="btn-back" style="width:auto;padding:12px 16px">Refazer entrevista</button>
@@ -3747,7 +3741,7 @@ function bindDossierInterviewCard(result,band,rawDecision){
   }
   if(resetBtn){
     resetBtn.addEventListener('click',async()=>{
-      clearDossierInterview();
+      clearDossierFlowState();
       await renderResults({skipAnalytics:true});
       const anchor=document.getElementById('dossier-interview-card');
       if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
@@ -3990,7 +3984,7 @@ async function renderResults(opts={}){
     const savedLead={...LEAD};
     const savedGEO={...GEO};
     T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;
-    clearDossierInterview();
+    clearDossierFlowState();
     LEAD=savedLead;GEO=savedGEO;
     renderTrilha();window.scrollTo(0,0);
   });
