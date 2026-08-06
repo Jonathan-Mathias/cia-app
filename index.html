@@ -508,6 +508,95 @@ function dossierHasText(value,min=1){
   return typeof value==='string'&&value.trim().length>=min;
 }
 
+function normalizeComparableText(value){
+  return String(value||'')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,' ')
+    .trim();
+}
+
+function truncateText(value,max=280){
+  const text=String(value||'').trim().replace(/\s+/g,' ');
+  if(text.length<=max) return text;
+  return `${text.slice(0,Math.max(0,max-1)).trim()}...`;
+}
+
+function splitTextChunks(value){
+  return String(value||'')
+    .split(/\n+/)
+    .map(item=>item.trim())
+    .filter(Boolean);
+}
+
+function inferCareerDomain(value){
+  const normalized=normalizeComparableText(value);
+  if(!normalized) return null;
+  const domains=[
+    {id:'engineering',label:'Engenharia',keywords:['engineer','engineering','mechanical','motorsport','cfd','aerodynamic','simulation','cad','manufacturing engineer']},
+    {id:'operations',label:'Operacoes',keywords:['operations','operational','supply chain','logistics','process','plant','production','service manager','customer service','after sales','spare parts']},
+    {id:'software',label:'Tecnologia e Produto Digital',keywords:['software','developer','data scientist','product manager','frontend','backend','machine learning','programador','engenheiro de software']},
+    {id:'sales',label:'Comercial e Negocios',keywords:['sales','business development','account manager','growth','revenue','commercial']},
+    {id:'finance',label:'Financas',keywords:['finance','financial','fp&a','controller','accounting','controllership']},
+    {id:'marketing',label:'Marketing',keywords:['marketing','content','brand','seo','media']}
+  ];
+  const scored=domains.map(domain=>({
+    domain,
+    score:domain.keywords.reduce((acc,keyword)=>acc+(normalized.includes(keyword)?1:0),0)
+  })).sort((a,b)=>b.score-a.score);
+  return scored[0]&&scored[0].score>0?scored[0].domain:null;
+}
+
+function extractCvHeadline(cvText){
+  const chunks=splitTextChunks(cvText);
+  return chunks.find(line=>line.length>=24&&line.length<=220)||'';
+}
+
+function extractCvRoleSnippets(cvText,max=3){
+  const chunks=splitTextChunks(cvText);
+  const lines=chunks.filter(line=>/(19|20)\d{2}|present|atual|freelance/i.test(line)&&/[A-Za-z]/.test(line));
+  return lines.slice(0,max);
+}
+
+function extractCvMetricSnippets(cvText,max=3){
+  const chunks=splitTextChunks(cvText);
+  const lines=chunks.filter(line=>/%|\b\d+\s?(k|m|mil|runs|meses|months|years|anos|cars?)\b/i.test(line));
+  return lines.slice(0,max);
+}
+
+function summarizeCvSnapshot(cvText){
+  const headline=extractCvHeadline(cvText);
+  const roles=extractCvRoleSnippets(cvText,3);
+  if(!headline&&roles.length===0) return truncateText(cvText,260)||'Base de CV ainda nao resumida.';
+  return [headline].concat(roles).filter(Boolean).map(item=>truncateText(item,180)).join(' | ');
+}
+
+function getInterviewResolvedValue(question,state,motorInput){
+  if(!question) return '';
+  const answers=state&&state.answers&&typeof state.answers==='object'?state.answers:{};
+  const direct=answers[question.id];
+  if(isInterviewAnswerValid(question,direct)) return direct;
+  const questionnaire=motorInput&&motorInput.questionnaire&&typeof motorInput.questionnaire==='object'?motorInput.questionnaire:{};
+  const materials=motorInput&&motorInput.materials&&typeof motorInput.materials==='object'?motorInput.materials:{};
+  if(question.id==='target_positioning'){
+    const roles=Array.isArray(questionnaire.target_role_hypotheses)?questionnaire.target_role_hypotheses.filter(Boolean):[];
+    const goal=String(questionnaire.goal_for_next_12_months||'').trim();
+    const synthesized=[roles.join(' / '),goal].filter(Boolean).join(' | ');
+    if(dossierHasText(synthesized,question.minLength||1)) return synthesized;
+  }
+  if(question.id==='measurable_results'&&dossierHasText(questionnaire.evidence_of_results,question.minLength||1)) return questionnaire.evidence_of_results;
+  if(question.id==='market_proof'){
+    const parts=[];
+    if(materials.linkedin) parts.push('LinkedIn utilizavel');
+    if(materials.portfolio) parts.push('Portfolio disponivel');
+    if(materials.github) parts.push('GitHub relevante');
+    const synthesized=parts.join(', ');
+    if(dossierHasText(synthesized,question.minLength||1)) return synthesized;
+  }
+  return '';
+}
+
 function isWeakStrategicAnswer(value){
   if(!dossierHasText(value,12)) return true;
   const normalized=value.trim().toLowerCase();
@@ -2916,8 +3005,8 @@ function getDossierIntakeTone(rawDecision,motorSource){
   }
   if(motorSource==='awaiting_intake'){
     return {
-      title:'Destrave uma leitura mais estratégica sem inflar o fluxo',
-      copy:'O quiz faz o diagnóstico base. A triagem abaixo adiciona só o mínimo que o motor precisa para decidir entre Lite, Completo, Recusa ou Faltam dados.'
+      title:'Destrave uma leitura premium do seu caso',
+      copy:'O quiz já fez a leitura base. Esta triagem adiciona o contexto que falta para transformar um resultado genérico em uma recomendação mais séria, estratégica e acionável.'
     };
   }
   return {
@@ -2926,14 +3015,21 @@ function getDossierIntakeTone(rawDecision,motorSource){
   };
 }
 
-function getDossierInterviewQuestions(decision,motorInput){
+function getDossierInterviewQuestions(decision,motorInput,state){
   const status=decision&&decision.status?decision.status:null;
   const dependents=(CTR.adultos||0)+(CTR.criancas||0)+(CTR.jovens||0);
   const hasDependents=dependents>1||CTR.criancas>0||CTR.jovens>0;
   const materials=motorInput&&motorInput.materials&&typeof motorInput.materials==='object'?motorInput.materials:{};
   const questionnaire=motorInput&&motorInput.questionnaire&&typeof motorInput.questionnaire==='object'?motorInput.questionnaire:{};
+  const answers=state&&state.answers&&typeof state.answers==='object'?state.answers:{};
   const needsProofPrompt=!(materials.linkedin||materials.portfolio||materials.github);
   const tradeoffFlag=questionnaire.has_meaningful_tradeoffs===true;
+  const roles=Array.isArray(questionnaire.target_role_hypotheses)?questionnaire.target_role_hypotheses.filter(Boolean):[];
+  const cvContext=answers.cv_snapshot||'';
+  const cvHeadline=extractCvHeadline(cvContext);
+  const cvDomain=inferCareerDomain(`${cvContext} ${answers.current_positioning||''}`);
+  const targetDomain=inferCareerDomain(`${answers.target_positioning||''} ${roles.join(' ')} ${questionnaire.goal_for_next_12_months||''}`);
+  const positioningBridge=cvDomain&&targetDomain&&cvDomain.id!==targetDomain.id;
   return [
     {
       id:'cv_snapshot',
@@ -2948,8 +3044,8 @@ function getDossierInterviewQuestions(decision,motorInput){
       id:'current_positioning',
       type:'text',
       minLength:6,
-      label:'Como você se apresentaria profissionalmente hoje em uma linha?',
-      helper:'Isso vira a base do headline e evita tese de cargo confusa.',
+      label:cvHeadline?'Depois de ler seu CV, qual tese profissional resume melhor esse perfil hoje?':'Como você se apresentaria profissionalmente hoje em uma linha?',
+      helper:cvHeadline?`Seu CV hoje comunica algo perto de "${truncateText(cvHeadline,110)}". Me dê a versão em uma linha que você realmente quer sustentar.`:'Isso vira a base do headline e evita tese de cargo confusa.',
       placeholder:'Ex.: Operations Manager com foco em processos industriais',
       requiredFor:['Lite','Completo']
     },
@@ -2957,8 +3053,10 @@ function getDossierInterviewQuestions(decision,motorInput){
       id:'target_positioning',
       type:'textarea',
       minLength:18,
-      label:'Que tipo de vaga você quer perseguir primeiro?',
-      helper:'Fale em recorte real de cargo, senioridade e contexto.',
+      label:positioningBridge?'Qual ponte de reposicionamento você quer sustentar primeiro?':'Que tipo de vaga você quer perseguir primeiro?',
+      helper:positioningBridge
+        ? `Hoje seu material parece mais ${cvDomain.label}, mas sua meta aponta para ${targetDomain.label}. Explique o recorte que faz essa ponte parecer estratégica, não aleatória.`
+        : 'Fale em recorte real de cargo, senioridade e contexto.',
       placeholder:'Ex.: vagas de Operations Manager em indústria de médio porte na Alemanha',
       requiredFor:['Lite','Completo']
     },
@@ -2967,7 +3065,9 @@ function getDossierInterviewQuestions(decision,motorInput){
       type:'textarea',
       minLength:28,
       label:'Quais 2 ou 3 resultados concretos você consegue defender?',
-      helper:'Prefira números, impacto financeiro, ganho operacional, prazo, redução de erro ou aumento de receita.',
+      helper:extractCvMetricSnippets(cvContext,1).length
+        ? `Seu CV já sugere métricas ou entregas concretas. Agora eu preciso das que você realmente conseguiria sustentar em entrevista, com contexto e impacto.`
+        : 'Prefira números, impacto financeiro, ganho operacional, prazo, redução de erro ou aumento de receita.',
       placeholder:'Ex.: reduzi lead time em 18%, liderei projeto de ...',
       requiredFor:['Lite','Completo']
     },
@@ -3025,8 +3125,10 @@ function getDossierInterviewQuestions(decision,motorInput){
       id:'tradeoff_context',
       type:'textarea',
       minLength:18,
-      label:'Qual trade-off ou ambiguidade torna esse caso mais complexo?',
-      helper:'Ex.: trocar de trilha, aceitar downgrade estratégico, mercado A vs B, timing curto.',
+      label:positioningBridge?'Qual trade-off real você aceitaria para fazer essa mudança de trilha sem destruir coerência?':'Qual trade-off ou ambiguidade torna esse caso mais complexo?',
+      helper:positioningBridge
+        ? `Ex.: aceitar cargo de entrada mais lateral, preservar faixa salarial, escolher mercado mais aderente ou manter sua trilha original.`
+        : 'Ex.: trocar de trilha, aceitar downgrade estratégico, mercado A vs B, timing curto.',
       placeholder:'Ex.: posso ter que aceitar reposicionamento inicial para entrar no mercado certo...',
       requiredFor:['Completo'],
       condition:()=>tradeoffFlag||status==='Completo'
@@ -3050,16 +3152,14 @@ function isInterviewAnswerValid(question,value){
 }
 
 function getInterviewProgress(decision,motorInput,state){
-  const questions=getDossierInterviewQuestions(decision,motorInput).filter(question=>!question.condition||question.condition(state||{}));
-  const answers=state&&state.answers&&typeof state.answers==='object'?state.answers:{};
-  const answered=questions.filter(question=>isInterviewAnswerValid(question,answers[question.id])).length;
+  const questions=getDossierInterviewQuestions(decision,motorInput,state).filter(question=>!question.condition||question.condition(state||{}));
+  const answered=questions.filter(question=>isInterviewAnswerValid(question,getInterviewResolvedValue(question,state,motorInput))).length;
   return {questions,answered,total:questions.length};
 }
 
 function getNextInterviewQuestion(decision,motorInput,state){
   const progress=getInterviewProgress(decision,motorInput,state);
-  const answers=state&&state.answers&&typeof state.answers==='object'?state.answers:{};
-  return progress.questions.find(question=>!isInterviewAnswerValid(question,answers[question.id]))||null;
+  return progress.questions.find(question=>!isInterviewAnswerValid(question,getInterviewResolvedValue(question,state,motorInput)))||null;
 }
 
 function formatInterviewAnswer(question,value){
@@ -3071,32 +3171,56 @@ function formatInterviewAnswer(question,value){
   return esc(String(value||'').trim());
 }
 
+function buildPreviewIdentityContext(motorInput,interviewState){
+  const questionnaire=motorInput&&motorInput.questionnaire&&typeof motorInput.questionnaire==='object'?motorInput.questionnaire:{};
+  const answers=interviewState&&interviewState.answers&&typeof interviewState.answers==='object'?interviewState.answers:{};
+  const cvSnapshot=getInterviewResolvedValue({id:'cv_snapshot',type:'textarea',minLength:1},interviewState,motorInput)||'';
+  const currentPositioning=getInterviewResolvedValue({id:'current_positioning',type:'text',minLength:1},interviewState,motorInput)||'';
+  const targetPositioning=getInterviewResolvedValue({id:'target_positioning',type:'textarea',minLength:1},interviewState,motorInput)||'';
+  const cvDomain=inferCareerDomain(`${cvSnapshot} ${currentPositioning}`);
+  const targetDomain=inferCareerDomain(`${targetPositioning} ${(questionnaire.target_role_hypotheses||[]).join(' ')}`);
+  const inferredArea=cvDomain?cvDomain.label:(ANS['p3']?ANS['p3'].l:'Área não informada');
+  return {
+    cvSnapshot,
+    cvDomain,
+    targetDomain,
+    inferredArea,
+    cvSummary:summarizeCvSnapshot(cvSnapshot),
+    cvHeadline:truncateText(extractCvHeadline(cvSnapshot)||currentPositioning||'',140),
+    cvMetrics:extractCvMetricSnippets(cvSnapshot,3)
+  };
+}
+
 function buildDossierPreview(result,band,decision,motorInput,interviewState){
   const questionnaire=motorInput&&motorInput.questionnaire&&typeof motorInput.questionnaire==='object'?motorInput.questionnaire:{};
   const profile=motorInput&&motorInput.profile&&typeof motorInput.profile==='object'?motorInput.profile:{};
+  const identity=buildPreviewIdentityContext(motorInput,interviewState);
   const answers=interviewState&&interviewState.answers&&typeof interviewState.answers==='object'?interviewState.answers:{};
   const route=T==='de'?'Alemanha':'Austrália';
   const routeLabel=route;
-  const currentTitle=answers.current_positioning||profile.seniority_level||'Profissional qualificado';
-  const targetPositioning=answers.target_positioning||questionnaire.goal_for_next_12_months||'Reposicionamento internacional com foco estratégico';
+  const currentTitle=getInterviewResolvedValue({id:'current_positioning',type:'text',minLength:1},interviewState,motorInput)||identity.cvHeadline||profile.seniority_level||'Profissional qualificado';
+  const targetPositioning=getInterviewResolvedValue({id:'target_positioning',type:'textarea',minLength:1},interviewState,motorInput)||questionnaire.goal_for_next_12_months||'Reposicionamento internacional com foco estratégico';
   const targetRoles=Array.isArray(questionnaire.target_role_hypotheses)&&questionnaire.target_role_hypotheses.length
     ? questionnaire.target_role_hypotheses.join(' · ')
     : 'Cargos-alvo ainda em refinamento';
-  const area=ANS['p3']?ANS['p3'].l:'Área não informada';
+  const area=identity.inferredArea;
   const languageLabel=T==='de'
     ? (ANS['p2']?ANS['p2'].l:'Alemão ainda não informado')
     : (ANS['p1']?ANS['p1'].l:'Inglês ainda não informado');
-  const resultEvidence=questionnaire.evidence_of_results||answers.measurable_results||'Evidências de resultado ainda em consolidação.';
-  const cvSnapshot=answers.cv_snapshot||'Base de CV ainda não resumida.';
-  const workAuth=answers.work_authorization||'Realidade de visto ainda precisa de validação.';
+  const resultEvidence=getInterviewResolvedValue({id:'measurable_results',type:'textarea',minLength:1},interviewState,motorInput)||'Evidências de resultado ainda em consolidação.';
+  const cvSnapshot=identity.cvSummary||'Base de CV ainda não resumida.';
+  const workAuth=getInterviewResolvedValue({id:'work_authorization',type:'textarea',minLength:1},interviewState,motorInput)||'Realidade de visto ainda precisa de validação.';
   const marketLogic=questionnaire.target_market_logic||'Lógica de mercado ainda em lapidação.';
-  const familyContext=answers.family_constraints||((CTR.criancas||0)+(CTR.jovens||0)+(CTR.adultos||0)>1?'Existe contexto familiar a considerar.':'Sem dependentes críticos no fluxo atual.');
-  const proofAssets=answers.market_proof||'Sem prova pública claramente descrita até aqui.';
-  const salaryFloor=answers.salary_floor||'Faixa salarial ainda não fixada.';
-  const cityFlex=answers.city_flexibility||'Flexibilidade geográfica ainda não explicitada.';
-  const tradeoffContext=answers.tradeoff_context||'Caso sem trade-off estrutural forte declarado.';
-  const careerContext=answers.career_context||'Contexto adicional de carreira não detalhado.';
-  const summaryLead=`${currentTitle} com trajetória em ${area}, mirando ${routeLabel} com foco inicial em ${targetRoles}.`;
+  const familyContext=getInterviewResolvedValue({id:'family_constraints',type:'textarea',minLength:1},interviewState,motorInput)||((CTR.criancas||0)+(CTR.jovens||0)+(CTR.adultos||0)>1?'Existe contexto familiar a considerar.':'Sem dependentes críticos no fluxo atual.');
+  const proofAssets=getInterviewResolvedValue({id:'market_proof',type:'textarea',minLength:1},interviewState,motorInput)||'Sem prova pública claramente descrita até aqui.';
+  const salaryFloor=getInterviewResolvedValue({id:'salary_floor',type:'text',minLength:1},interviewState,motorInput)||'Faixa salarial ainda não fixada.';
+  const cityFlex=getInterviewResolvedValue({id:'city_flexibility',type:'select',minLength:1},interviewState,motorInput)||'Flexibilidade geográfica ainda não explicitada.';
+  const tradeoffContext=getInterviewResolvedValue({id:'tradeoff_context',type:'textarea',minLength:1},interviewState,motorInput)||'Caso sem trade-off estrutural forte declarado.';
+  const careerContext=getInterviewResolvedValue({id:'career_context',type:'textarea',minLength:1},interviewState,motorInput)||'Contexto adicional de carreira não detalhado.';
+  const summaryLead=`${currentTitle} com base forte em ${area}, mirando ${routeLabel} com foco inicial em ${targetRoles}.`;
+  const positioningTension=identity.cvDomain&&identity.targetDomain&&identity.cvDomain.id!==identity.targetDomain.id
+    ? `Hoje seu material comunica mais ${identity.cvDomain.label}, mas o alvo declarado já aponta para ${identity.targetDomain.label}.`
+    : '';
   const liteHighlights=[
     `Objetivo declarado: ${targetPositioning}`,
     `Mercado-alvo: ${marketLogic}`,
@@ -3115,6 +3239,7 @@ function buildDossierPreview(result,band,decision,motorInput,interviewState){
       opening:`${summaryLead} O diagnóstico sugere base suficiente para um dossiê enxuto, claro e direcionado.`,
       professionalSummary:[
         `Hoje o caso aparece como ${currentTitle}, mas o valor real está menos no título isolado e mais na coerência entre trajetória, mercado e prova.`,
+        positioningTension||`A leitura atual do perfil já tem substância. O risco não é parecer fraco, e sim parecer amplo ou genérico demais para o mercado-alvo.`,
         `O foco imediato para ${routeLabel} deveria ser reduzir ruído de leitura e transformar experiência em narrativa internacional legível para recrutadores.`
       ],
       competencies:[
@@ -3131,7 +3256,7 @@ function buildDossierPreview(result,band,decision,motorInput,interviewState){
       title:'Prévia do Dossiê Completo',
       opening:`${summaryLead} O caso pede leitura com mais contexto, trade-offs e arquitetura de candidatura.`,
       diagnostic:[
-        `Base atual do caso: ${cvSnapshot}`,
+        `Leitura condensada do CV: ${cvSnapshot}`,
         `Contexto de carreira: ${careerContext}`,
         `Restrições de entrada: ${workAuth}`,
         `Família e logística: ${familyContext}`
@@ -3143,6 +3268,7 @@ function buildDossierPreview(result,band,decision,motorInput,interviewState){
         `Flexibilidade geográfica: ${cityFlex}`
       ],
       strategicRisks:[
+        positioningTension||`Tese atual ainda precisa ser testada contra a leitura que o mercado vai fazer do CV.`,
         `Trade-off principal: ${tradeoffContext}`,
         `Evidência crítica ainda a sustentar: ${resultEvidence}`,
         `Prova pública / ativos: ${proofAssets}`
@@ -3188,6 +3314,9 @@ function renderDossierPreviewBlock(result,band,decision,motorInput,interviewStat
           <div class="ins-title">Base para CV direcionado</div>
           <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${lite.cvBullets.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
         </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px">
+          <button type="button" class="btn-back" id="dossier-preview-export-pdf" style="width:auto;padding:12px 16px">Abrir versão para PDF</button>
+        </div>
       </div>
     </div>`;
   }
@@ -3216,8 +3345,75 @@ function renderDossierPreviewBlock(result,band,decision,motorInput,interviewStat
         <div class="ins-title">Base para CV direcionado</div>
         <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${completo.cvBullets.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
       </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px">
+        <button type="button" class="btn-back" id="dossier-preview-export-pdf" style="width:auto;padding:12px 16px">Abrir versão para PDF</button>
+      </div>
     </div>
   </div>`;
+}
+
+function renderPreviewPdfDocument(result,band,decision,motorInput,interviewState){
+  const preview=buildDossierPreview(result,band,decision,motorInput,interviewState);
+  const data=decision&&decision.status==='Lite'?preview.lite:preview.completo;
+  const sections=decision&&decision.status==='Lite'
+    ? [
+      {title:'Resumo profissional',items:data.professionalSummary||[]},
+      {title:'Competências e objetivo',items:(data.competencies||[]).concat(data.objective?[`Objetivo: ${data.objective}`]:[])},
+      {title:'Experiência relevante',items:[data.relevantExperience||'']},
+      {title:'Pontos de destaque',items:data.highlights||[]},
+      {title:'Base para CV direcionado',items:data.cvBullets||[]}
+    ]
+    : [
+      {title:'Histórico e contexto',items:data.diagnostic||[]},
+      {title:'Posicionamento de mercado',items:data.marketPositioning||[]},
+      {title:'Riscos, ambiguidades e leitura estratégica',items:data.strategicRisks||[]},
+      {title:'Recomendações',items:data.recommendations||[]},
+      {title:'Base para CV direcionado',items:data.cvBullets||[]}
+    ];
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>${esc(data.title||'Dossiê')}</title>
+  <style>
+    body{font-family:Georgia,serif;background:#f4efe5;color:#1f1b16;margin:0;padding:40px 0}
+    .page{max-width:900px;margin:0 auto;background:#fff;padding:42px 48px;box-sizing:border-box}
+    .eyebrow{font:12px/1.4 monospace;letter-spacing:1.8px;text-transform:uppercase;color:#7a6853;margin-bottom:18px}
+    h1{font-size:34px;line-height:1.1;margin:0 0 10px}
+    .lead{font-size:17px;line-height:1.7;color:#3f352c;margin:0 0 28px}
+    section{margin-top:24px;padding-top:20px;border-top:1px solid #e7dccb}
+    h2{font-size:15px;letter-spacing:1.3px;text-transform:uppercase;margin:0 0 12px;color:#7a6853}
+    ul,ol{margin:0;padding-left:20px}
+    li{margin:0 0 8px;line-height:1.65}
+    .footer{margin-top:28px;font-size:12px;color:#6a5b4d;line-height:1.6}
+    @media print{
+      body{background:#fff;padding:0}
+      .page{max-width:none;margin:0;padding:24px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="eyebrow">Elite Migration · Prévia do dossiê</div>
+    <h1>${esc(data.title||'Dossiê')}</h1>
+    <p class="lead">${esc(data.opening||'')}</p>
+    ${sections.map(section=>`<section><h2>${esc(section.title)}</h2><ul>${(section.items||[]).filter(Boolean).map(item=>`<li>${esc(item)}</li>`).join('')}</ul></section>`).join('')}
+    <div class="footer">Versão imprimível de teste. Abra a caixa de impressão do navegador e salve em PDF.</div>
+  </div>
+</body>
+</html>`;
+}
+
+function exportDossierPreviewPdf(result,band,decision,motorInput,interviewState){
+  const popup=window.open('','_blank','noopener,noreferrer');
+  if(!popup) return false;
+  const html=renderPreviewPdfDocument(result,band,decision,motorInput,interviewState);
+  popup.document.open();
+  popup.document.write(html);
+  popup.document.close();
+  popup.focus();
+  setTimeout(()=>{try{popup.print();}catch(e){}},250);
+  return true;
 }
 
 function renderDossierInterviewCard(result,band,rawDecision){
@@ -3227,9 +3423,8 @@ function renderDossierInterviewCard(result,band,rawDecision){
   const motorInput=getStoredMotorInput()||{};
   const progress=getInterviewProgress(decision,motorInput,state);
   const nextQuestion=getNextInterviewQuestion(decision,motorInput,state);
-  const answers=state.answers||{};
   const recapHtml=progress.questions.map(question=>{
-    const value=answers[question.id];
+    const value=getInterviewResolvedValue(question,state,motorInput);
     if(!isInterviewAnswerValid(question,value)) return '';
     return `<div style="padding:10px 12px;background:#111120;border:1px solid var(--border);border-radius:var(--r2)">
       <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:6px">${esc(question.label)}</div>
@@ -3315,14 +3510,14 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
             </select>
           </label>
           <label style="display:grid;gap:6px">
-            <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Disponibilidade</span>
+            <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Disponibilidade semanal</span>
             <select id="dossier-availability" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
               <option value="">Selecione</option>
-              <option value="baixa"${questionnaire.availability_for_execution==='baixa'?' selected':''}>Baixa · quase sem tempo semanal</option>
-              <option value="media"${questionnaire.availability_for_execution==='media'?' selected':''}>Média · consigo executar com constância</option>
-              <option value="alta"${questionnaire.availability_for_execution==='alta'?' selected':''}>Alta · consigo priorizar isso agora</option>
+              <option value="baixa"${questionnaire.availability_for_execution==='baixa'?' selected':''}>Até 2h/semana</option>
+              <option value="media"${questionnaire.availability_for_execution==='media'?' selected':''}>3 a 5h/semana</option>
+              <option value="alta"${questionnaire.availability_for_execution==='alta'?' selected':''}>6h+/semana</option>
             </select>
-            <span style="font-size:12px;color:var(--text2);line-height:1.5">Isso mede fôlego real para executar candidatura, networking e ajustes de material nas próximas semanas.</span>
+            <span style="font-size:12px;color:var(--text2);line-height:1.5">Isso mede o tempo real que você consegue investir por semana em candidatura, networking e ajustes de material.</span>
           </label>
           <label style="display:grid;gap:6px">
             <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Prazo para entrar no mercado com candidatura séria</span>
@@ -3356,30 +3551,30 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
         </div>
         <div style="font-size:12px;color:var(--text2);line-height:1.6">Esses botões informam qual material já existe hoje. Para este MVP, a recomendação não é liberada sem CV atual disponível.</div>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Objetivo nos próximos 12 meses · obrigatório</span>
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Objetivo nos próximos 12 meses <span style="color:var(--accent)">*</span></span>
           <textarea id="dossier-goal" rows="3" placeholder="Ex.: Quero me reposicionar para vagas de Operations Manager na Alemanha ainda neste ciclo." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.goal_for_next_12_months||'')}</textarea>
         </label>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Por que ${T==='de'?'a Alemanha':'a Austrália'} faz sentido para você? · obrigatório</span>
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Por que ${T==='de'?'a Alemanha':'a Austrália'} faz sentido para você? <span style="color:var(--accent)">*</span></span>
           <textarea id="dossier-market-logic" rows="3" placeholder="Ex.: indústria, tipo de vaga, idioma, contexto familiar, timing ou mercado." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.target_market_logic||'')}</textarea>
         </label>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Sua melhor evidência de resultado · obrigatório</span>
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Sua melhor evidência de resultado <span style="color:var(--accent)">*</span></span>
           <textarea id="dossier-results-evidence" rows="3" placeholder="Ex.: resultado com número, impacto financeiro, ganho operacional ou entrega relevante." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.evidence_of_results||'')}</textarea>
         </label>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Possíveis cargos-alvo (máximo 3) · obrigatório</span>
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Possíveis cargos-alvo (máximo 3) <span style="color:var(--accent)">*</span></span>
           <input id="dossier-target-roles" type="text" value="${esc(roles)}" placeholder="Ex.: Operations Manager, Project Manager, Supply Chain Manager" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
         </label>
         <label style="display:flex;align-items:center;gap:10px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
           <input id="dossier-tradeoffs" type="checkbox"${questionnaire.has_meaningful_tradeoffs?' checked':''} style="accent-color:var(--accent)">
-          <span style="font-size:13px;color:var(--text2)">Meu caso envolve trade-offs de reposicionamento, timing, senioridade ou mercado-alvo</span>
+          <span style="font-size:13px;color:var(--text2)">Meu caso tem trade-offs relevantes de reposicionamento, timing, senioridade ou mercado-alvo</span>
         </label>
-        <div style="font-size:12px;color:var(--text2);line-height:1.6">Marque isso quando exista ambiguidade real no caso, como mudar de trilha, aceitar downgrade estratégico, reposicionar narrativa ou escolher entre mercados/cargos diferentes. Isso não bloqueia o avanço; só sinaliza caso com mais densidade.</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">Marque quando houver uma decisão estratégica sensível no caso, como trocar de trilha, aceitar um reposicionamento inicial ou escolher entre mercados e cargos diferentes. Isso não bloqueia o avanço; só sinaliza que a leitura precisa de mais nuance.</div>
         <div id="dossier-intake-error" style="display:none;font-size:12px;color:#e85555"></div>
         <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
           <button type="button" id="dossier-intake-submit" class="primary-cta-btn ${T==='de'?'de':'au'}" style="max-width:320px">Atualizar recomendação</button>
-          <div id="dossier-intake-status" style="font-size:12px;color:var(--text2)">Campos obrigatórios: objetivo, lógica do mercado, evidência de resultado e cargos-alvo.</div>
+          <div id="dossier-intake-status" style="font-size:12px;color:var(--text2)"><span style="color:var(--accent)">*</span> Campos obrigatórios para atualizar a recomendação.</div>
         </div>
       </div>
     </div>
@@ -3493,6 +3688,7 @@ function bindDossierInterviewCard(result,band,rawDecision){
   const submitBtn=document.getElementById('dossier-interview-submit');
   const confirmBtn=document.getElementById('dossier-interview-confirm');
   const resetBtn=document.getElementById('dossier-interview-reset');
+  const exportBtn=document.getElementById('dossier-preview-export-pdf');
   const errorEl=document.getElementById('dossier-interview-error');
   if(submitBtn&&nextQuestion){
     submitBtn.addEventListener('click',async()=>{
@@ -3543,6 +3739,11 @@ function bindDossierInterviewCard(result,band,rawDecision){
       await renderResults({skipAnalytics:true});
       const anchor=document.getElementById('dossier-interview-card');
       if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+  if(exportBtn&&state.confirmed){
+    exportBtn.addEventListener('click',()=>{
+      exportDossierPreviewPdf(result,band,decision,motorInput,state);
     });
   }
 }
