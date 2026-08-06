@@ -456,6 +456,12 @@ function storeMotorInput(input){
   try{localStorage.removeItem(key);}catch(e){}
 }
 
+function clearMotorInput(){
+  const key=getDossierMotorConfig().inputStorageKey;
+  try{sessionStorage.removeItem(key);}catch(e){}
+  try{localStorage.removeItem(key);}catch(e){}
+}
+
 function getStoredMotorInput(){
   const key=getDossierMotorConfig().inputStorageKey;
   const globalInput=(typeof window!=='undefined'&&window.__CIA_DOSSIER_INPUT__)||null;
@@ -492,6 +498,12 @@ function clearDossierInterview(){
   const key=getDossierInterviewStorageKey();
   try{sessionStorage.removeItem(key);}catch(e){}
   try{localStorage.removeItem(key);}catch(e){}
+}
+
+function clearDossierFlowState(){
+  clearDossierInterview();
+  clearMotorInput();
+  clearMotorDecision();
 }
 
 function getMotorDecisionSummary(decision){
@@ -3648,7 +3660,7 @@ function bindDossierIntakeCard(result,band){
     submitBtn.disabled=true;
     submitBtn.textContent='Processando...';
     clearMotorDecision();
-    clearDossierInterview();
+    clearDossierFlowState();
     const motorInput={
       profile:{seniority_level:seniority},
       materials,
@@ -3987,7 +3999,7 @@ async function renderResults(opts={}){
 function switchRoute(){
   logEvent('route_switch_click',{from:T||null});
   T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;
-  clearDossierInterview();
+  clearDossierFlowState();
   renderTrilha();window.scrollTo(0,0);
 }
 
