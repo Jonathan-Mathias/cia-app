@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://zkzxpzjpoenmrvrmdqyb.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://127.0.0.1:8788 https://script.google.com https://script.googleusercontent.com https://zkzxpzjpoenmrvrmdqyb.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>CIA App · Versão Beta · Elite Migration</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -350,10 +350,10 @@ const APP_CONFIG = Object.freeze({
   },
   links: {
     products: {
-      ebookPartiuAlemanha: 'https://pay.hotmart.com/S76741696B',
-      cursoEmpregoAlemanha: 'https://hotmart.com/pt-br/marketplace/produtos/emprego-na-alemanha/S95826105M',
+      ebookPartiuAlemanha: '',
+      cursoEmpregoAlemanha: '',
       ebookNaoComeceZero: '',
-      cvBuilder: 'https://jonathan-mathias.github.io/cia-app/cv-builder-demo/index.html?source=cia',
+      cvBuilder: '',
       dossieLite: '',
       dossieCompleto: '',
       cartaApp: '',
@@ -468,6 +468,32 @@ function getStoredMotorInput(){
   }
 }
 
+function getDossierInterviewStorageKey(){
+  return `${getDossierMotorConfig().inputStorageKey}_adaptiveInterview`;
+}
+
+function getStoredDossierInterview(){
+  const key=getDossierInterviewStorageKey();
+  try{
+    const raw=sessionStorage.getItem(key);
+    return raw?safeJsonParse(raw):null;
+  }catch(e){
+    return null;
+  }
+}
+
+function storeDossierInterview(state){
+  const key=getDossierInterviewStorageKey();
+  try{sessionStorage.setItem(key,JSON.stringify(state));}catch(e){}
+  try{localStorage.removeItem(key);}catch(e){}
+}
+
+function clearDossierInterview(){
+  const key=getDossierInterviewStorageKey();
+  try{sessionStorage.removeItem(key);}catch(e){}
+  try{localStorage.removeItem(key);}catch(e){}
+}
+
 function getMotorDecisionSummary(decision){
   if(!decision||typeof decision!=='object') return null;
   const d=decision.decision||{};
@@ -476,6 +502,228 @@ function getMotorDecisionSummary(decision){
   const nextStep=d.next_step||null;
   if(!['Lite','Completo','Recusa','Faltam dados'].includes(status)) return null;
   return {status,recommendedOffer:offer,nextStep};
+}
+
+function dossierHasText(value,min=1){
+  return typeof value==='string'&&value.trim().length>=min;
+}
+
+function isWeakStrategicAnswer(value){
+  if(!dossierHasText(value,12)) return true;
+  const normalized=value.trim().toLowerCase();
+  return [
+    'muito cedo',
+    'ainda estou vendo',
+    'ainda estou avaliando',
+    'ainda nao sei',
+    'ainda não sei',
+    'qualquer mercado serve',
+    'qualquer vaga serve'
+  ].includes(normalized);
+}
+
+function isLowAvailability(value){
+  if(!dossierHasText(value)) return false;
+  return ['baixa','muito baixa','low','very_low'].includes(value.trim().toLowerCase());
+}
+
+function isUnrealisticTimeline(value){
+  if(!dossierHasText(value)) return false;
+  return ['0-3 meses','0-3 months','urgent_without_base'].includes(value.trim().toLowerCase());
+}
+
+function decideDossierInBrowser(input){
+  const score=Number.isFinite(input&&input.score)?input.score:0;
+  const materials=input&&input.materials&&typeof input.materials==='object'?input.materials:{};
+  const questionnaire=input&&input.questionnaire&&typeof input.questionnaire==='object'?input.questionnaire:null;
+  const profile=input&&input.profile&&typeof input.profile==='object'?input.profile:{};
+  const decisionId=(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():`decision_${Date.now()}`;
+  const payload={
+    decision_meta:{
+      decision_id:decisionId,
+      generated_at:new Date().toISOString(),
+      engine_version:'browser-fallback-v1',
+      schema_version:'v1'
+    },
+    input_snapshot:{
+      lead_id:input&&input.lead_id?input.lead_id:null,
+      source_route:input&&input.route?input.route:(T==='de'?'Alemanha':'Austrália'),
+      cia_band_public:input&&input.band?input.band:null,
+      cia_score:score,
+      has_cv:!!materials.cv,
+      has_strategic_questionnaire:!!questionnaire,
+      has_linkedin:!!materials.linkedin,
+      has_portfolio:!!materials.portfolio,
+      has_github:!!materials.github
+    },
+    decision:{
+      status:null,
+      recommended_offer:null,
+      payment_eligibility:'blocked',
+      requires_human_review:false,
+      decision_summary:'',
+      next_step:'manual_review'
+    },
+    lists:{required:[],warning:[],blocking:[]},
+    commercial:{
+      can_show_payment:false,
+      can_choose_offer_freely:false,
+      commercial_message_key:'manual_review'
+    },
+    generation:{
+      output_template:null,
+      intake_schema:null,
+      questionnaire_action:'none'
+    },
+    audit:{
+      decision_reasons:[],
+      critical_facts:[],
+      policy_flags:[
+        'no_job_promise',
+        'no_visa_promise',
+        'payment_after_decision_only',
+        'single_complement_round_only',
+        'language_is_real_guardrail'
+      ]
+    }
+  };
+
+  const setDecision=(status,config)=>{
+    payload.decision.status=status;
+    payload.decision.recommended_offer=config.recommendedOffer||null;
+    payload.decision.payment_eligibility=config.paymentEligibility||'blocked';
+    payload.decision.requires_human_review=!!config.requiresHumanReview;
+    payload.decision.next_step=config.nextStep;
+    payload.decision.decision_summary=`${status}: ${payload.audit.decision_reasons[0]||'decisão gerada'}`;
+    payload.commercial.can_show_payment=!!config.canShowPayment;
+    payload.commercial.commercial_message_key=config.messageKey||'manual_review';
+    payload.generation.questionnaire_action=config.questionnaireAction||'none';
+    payload.generation.output_template=config.outputTemplate||null;
+    payload.generation.intake_schema=config.intakeSchema||null;
+    return payload;
+  };
+
+  if(!materials.cv){
+    payload.lists.blocking.push({code:'missing_cv',message:'CV ausente.',source:'cv'});
+    payload.audit.decision_reasons.push('faltou CV');
+    payload.audit.critical_facts.push('materials.cv=false');
+  }
+
+  if(score<55){
+    payload.lists.blocking.push({code:'below_internal_cutoff',message:'Score abaixo do corte interno de 55.',source:'cia_app'});
+    payload.audit.decision_reasons.push('score abaixo do corte interno');
+    payload.audit.critical_facts.push(`cia_score=${score}`);
+  }
+
+  if(!questionnaire){
+    payload.lists.required.push({code:'missing_questionnaire',message:'Questionário estratégico complementar ausente.',source:'strategic_questionnaire'});
+    payload.audit.decision_reasons.push('faltou questionário complementar');
+  }
+
+  if(payload.lists.blocking.length>0){
+    return setDecision('Recusa',{
+      paymentEligibility:'blocked',
+      nextStep:'route_to_basic',
+      canShowPayment:false,
+      messageKey:'route_to_basic'
+    });
+  }
+
+  if(payload.lists.required.some(item=>item.code==='missing_questionnaire')){
+    return setDecision('Faltam dados',{
+      paymentEligibility:'pending_complement',
+      nextStep:'request_complement',
+      canShowPayment:false,
+      messageKey:'request_complement',
+      questionnaireAction:'request_complement_once'
+    });
+  }
+
+  if(isWeakStrategicAnswer(questionnaire.goal_for_next_12_months)){
+    payload.lists.required.push({code:'goal_unclear',message:'Objetivo dos próximos 12 meses ainda está vago.',source:'strategic_questionnaire'});
+  }
+  if(isWeakStrategicAnswer(questionnaire.target_market_logic)){
+    payload.lists.required.push({code:'market_logic_weak',message:'Lógica do mercado-alvo ainda está fraca.',source:'strategic_questionnaire'});
+  }
+  if(!dossierHasText(questionnaire.evidence_of_results,12)){
+    payload.lists.warning.push({code:'insufficient_evidence',message:'Evidência de resultados ainda está fraca.',source:'strategic_questionnaire'});
+  }
+  if(isLowAvailability(questionnaire.availability_for_execution)){
+    payload.lists.warning.push({code:'availability_low',message:'Disponibilidade baixa para executar o plano.',source:'strategic_questionnaire'});
+  }
+  if(isUnrealisticTimeline(questionnaire.urgency_window)){
+    payload.lists.warning.push({code:'timeline_unrealistic',message:'Prazo agressivo demais para a base atual.',source:'strategic_questionnaire'});
+  }
+  if(questionnaire.language_structural_block===true){
+    payload.lists.blocking.push({code:'language_gap_structural',message:'Idioma ainda é gargalo estrutural real.',source:'combined'});
+    payload.audit.decision_reasons.push('idioma como gargalo estrutural');
+  }
+  if(questionnaire.story_inconsistent===true){
+    payload.lists.warning.push({code:'story_inconsistent',message:'História profissional apresenta inconsistências relevantes.',source:'combined'});
+  }
+
+  if(payload.lists.blocking.length>0){
+    return setDecision('Recusa',{
+      paymentEligibility:'blocked',
+      nextStep:'route_to_basic',
+      canShowPayment:false,
+      messageKey:'route_to_basic'
+    });
+  }
+
+  if(payload.lists.required.length>0){
+    payload.audit.decision_reasons.push('faltam dados críticos para decidir');
+    return setDecision('Faltam dados',{
+      paymentEligibility:'pending_complement',
+      nextStep:'request_complement',
+      canShowPayment:false,
+      messageKey:'request_complement',
+      questionnaireAction:'request_complement_once'
+    });
+  }
+
+  let densityScore=0;
+  if(profile.seniority_level&&['Senior','Especialista','Lideranca','Executivo'].includes(profile.seniority_level)) densityScore+=1;
+  if(Array.isArray(questionnaire.target_role_hypotheses)&&questionnaire.target_role_hypotheses.length>1) densityScore+=1;
+  if(questionnaire.has_meaningful_tradeoffs===true) densityScore+=1;
+  if(dossierHasText(questionnaire.evidence_of_results,40)) densityScore+=1;
+  if(questionnaire.high_ambiguity_case===true) densityScore+=1;
+
+  const warningCount=payload.lists.warning.length;
+  const requiresHumanReview=densityScore>=4||[questionnaire.high_ambiguity_case,questionnaire.story_inconsistent,warningCount>=3].filter(Boolean).length>=2;
+  payload.audit.critical_facts.push(`density_score=${densityScore}`);
+  if(requiresHumanReview){
+    payload.lists.warning.push({code:'needs_manual_review',message:'Caso pede validação humana antes de maior automação.',source:'combined'});
+  }
+
+  if(densityScore>=3){
+    payload.lists.warning.push({code:'high_complexity_case',message:'Caso com densidade estratégica mais alta.',source:'combined'});
+    payload.lists.warning.push({code:'good_fit_completo',message:'Bom fit para Dossiê Completo.',source:'combined'});
+    payload.audit.decision_reasons.push('caso com densidade estratégica suficiente para completo');
+    return setDecision('Completo',{
+      recommendedOffer:'Completo',
+      paymentEligibility:'allowed',
+      requiresHumanReview,
+      nextStep:'offer_completo',
+      canShowPayment:true,
+      messageKey:'offer_completo',
+      outputTemplate:'template-output-dossie-completo.md',
+      intakeSchema:'schema-intake-dossie-completo.json'
+    });
+  }
+
+  payload.lists.warning.push({code:'good_fit_lite',message:'Bom fit para Dossiê Lite.',source:'combined'});
+  payload.audit.decision_reasons.push('caso elegível com menor densidade estratégica');
+  return setDecision('Lite',{
+    recommendedOffer:'Lite',
+    paymentEligibility:'allowed',
+    requiresHumanReview,
+    nextStep:'offer_lite',
+    canShowPayment:true,
+    messageKey:'offer_lite',
+    outputTemplate:'template-output-dossie-lite.md',
+    intakeSchema:'schema-intake-dossie-lite.json'
+  });
 }
 
 function buildMotorDrivenPrimaryCta(result,band){
@@ -525,10 +773,10 @@ function buildMotorDrivenPrimaryCta(result,band){
     return {
       id:'dossier_route_to_basic',
       label:'Fortalecer minha base antes do Dossiê',
-      url:APP_CV_URL,
+      url:APP_CONFIG.links.owned.whatsappGroup,
       title:'Seu caso ainda não deveria avançar para o Dossiê agora',
-      copy:`Neste momento, o passo mais inteligente para ${route} é fortalecer base, legibilidade e material antes de tentar destravar uma oferta estratégica mais profunda.`,
-      note:'O motor bloqueou a oferta paga para proteger a entrega e evitar um próximo passo prematuro.'
+      copy:`Neste momento, o passo mais inteligente para ${route} é fortalecer base, clareza de mercado e consistência de execução antes de tentar destravar uma oferta estratégica mais profunda.`,
+      note:'O motor bloqueou o avanço para proteger a entrega e evitar um próximo passo prematuro.'
     };
   }
 
@@ -604,9 +852,25 @@ function buildDossierDecisionRecord(requestBody,decision,source){
 
 async function requestMotorDecision(result,band){
   const cfg=getDossierMotorConfig();
-  if(!cfg.enabled||!cfg.decisionUrl) return {decision:getStoredMotorDecision(),source:'stored_or_disabled'};
-
   const requestBody=buildMotorRequest(result,band);
+  if(!cfg.enabled||!cfg.decisionUrl){
+    if(!requestBody){
+      if(result&&result.final>=55) return {decision:getStoredMotorDecision(),source:'awaiting_intake'};
+      return {decision:getStoredMotorDecision(),source:'stored_or_disabled'};
+    }
+    const decision=decideDossierInBrowser(requestBody);
+    storeMotorDecision(decision);
+    const decisionRecord=buildDossierDecisionRecord(requestBody,decision,'browser_fallback');
+    if(decisionRecord) supabaseInsert('dossierDecisions', decisionRecord);
+    logEvent('dossier_decision_received',{
+      decision_status: decisionRecord?decisionRecord.decision_status:null,
+      recommended_offer: decisionRecord?decisionRecord.recommended_offer:null,
+      next_step: decisionRecord?decisionRecord.next_step:null,
+      motor_source:'browser_fallback'
+    });
+    return {decision,source:'browser_fallback'};
+  }
+
   if(!requestBody) return {decision:getStoredMotorDecision(),source:'awaiting_intake'};
 
   const controller=typeof AbortController!=='undefined' ? new AbortController() : null;
@@ -804,7 +1068,7 @@ function renderQaCard(){
   return `
     <div class="qa-card" id="qa-card">
       <div class="qa-title">QA Controlado</div>
-      <div class="qa-copy">Modo de diagnóstico ativo. Use este bloco para validar se o frontend está configurado e se o Supabase está aceitando escrita real com a policy esperada.</div>
+      <div class="qa-copy">Modo de diagnóstico ativo via <code>?qa=1</code>. Use este bloco só para validar se o frontend está configurado e se o Supabase está aceitando escrita real com a policy esperada.</div>
       <div class="qa-actions">
         <button class="qa-btn" id="qa-run-read">Testar conectividade</button>
         <button class="qa-btn" id="qa-run-write">Testar escrita real</button>
@@ -954,13 +1218,12 @@ function _renderE1_DE(nome,score,band){
 <p>Significa que você tem interesse real em construir uma carreira na Alemanha, mas ainda faltam elementos estratégicos que o mercado alemão exige antes de reconhecer o seu valor.</p>
 <div class="qt">"Na Alemanha, intenção não substitui estrutura. O mercado recompensa quem sabe se posicionar, não apenas quem se esforça."</div>
 <p>Nos próximos dias vou te enviar dois conteúdos práticos sobre os dois maiores gargalos que profissionais brasileiros enfrentam nessa fase.</p>
-<p>Enquanto isso, se quiser dar um próximo passo concreto agora:</p>
-<a href="${EBOOK_URL}" class="btn">Ver o guia #partiu_Alemanha →</a>`,
+<p>Enquanto isso, o próximo passo certo é continuar pela trilha conectada ao seu diagnóstico.</p>`,
     'Em Rota':`
 <p>Você está à frente de boa parte dos profissionais brasileiros que cogitam essa transição. Tem fundamentos — mas o mercado alemão ainda não está te enxergando da forma que você merece.</p>
 <p>O gap entre Em Rota e Pronto Embarcar quase sempre é posicionamento, não competência. Nos próximos dias vou te mostrar exatamente onde está o bloqueio e como resolver.</p>
 <div class="qt">"Na Alemanha, intenção não substitui estrutura. O mercado recompensa quem sabe se posicionar, não apenas quem se esforça."</div>
-<a href="${EBOOK_URL}" class="btn">Ver o guia #partiu_Alemanha →</a>`,
+<p>Agora o mais importante é manter coerência entre diagnóstico, triagem e próximo passo.</p>`,
     'Pronto para Embarcar':`
 <p>Você está no percentil superior dos candidatos que passam por essa avaliação. Seu perfil tem os elementos que o mercado alemão reconhece.</p>
 <p>O que separa quem entra bem posicionado de quem perde meses é a execução: empresa certa, abordagem certa, timing certo. Nos próximos dias vou te falar sobre esse trabalho de arquitetura.</p>
@@ -1004,8 +1267,7 @@ function _renderE3_DE(nome){
   <li><a href="https://www.anerkennung-in-deutschland.de/pt" target="_blank">anerkennung-in-deutschland.de</a> — portal oficial do governo alemão</li>
   <li><a href="https://anabin.kmk.org" target="_blank">anabin.kmk.org</a> — banco de dados de equivalência de diplomas</li>
 </ul>
-<p>No guia #partiu_Alemanha eu cubro esse processo com mais detalhe, incluindo o que documentar antes de chegar e os erros mais comuns nessa etapa:</p>
-<a href="${EBOOK_URL}" class="btn">Acessar o guia →</a>`);
+<p>Nos próximos passos do próprio CIA App, a ideia é aprofundar isso sem te jogar para produto solto.</p>`);
 }
 
 /* ---- renders AU ---- */
@@ -1080,8 +1342,7 @@ function _renderE2EmRota_DE(nome){
   <li>Candidaturas genéricas — o mercado alemão responde a abordagens diretas e específicas</li>
 </ul>
 <p>Esses três pontos explicam por que profissionais qualificados ficam meses sem resposta. Não é falta de perfil — é falta de arquitetura de candidatura.</p>
-<p>Se quiser resolver isso com estrutura:</p>
-<a href="${CURSO_URL}" class="btn" target="_blank">Emprego na Alemanha →</a>`);
+<p>É exatamente esse tipo de lacuna que o fluxo do Dossiê precisa aprender a interpretar melhor.</p>`);
 }
 
 function _renderE2EmRota_AU(nome){
@@ -1656,7 +1917,7 @@ function getInsights(result){
         const aluguelFrio=' O <strong>aluguel frio</strong> é o valor base do imóvel, sem incluir aquecimento, água e condomínio. O valor real pago todo mês é o aluguel quente, sempre maior. A caução equivale a 3 meses do aluguel frio e precisa ser paga antes de entrar no imóvel.';
         resDE='A mudança com dependentes exige uma reserva financeira significativamente maior.'+aluguelFrio;
         if(CTR.criancas>0) resDE+=' A creche (Kita) é paga na Alemanha, com valores que variam de cidade para cidade: consulte a prefeitura local (Jugendamt).'+seguro;
-        resDE+=' Veja como calcular: <a href="'+EBOOK_URL+'" target="_blank">Guia de planejamento financeiro para a Alemanha</a>.';
+        resDE+=' Coloque esse cálculo no papel antes de qualquer movimento.';
       }
       if(resDE) I('d2','Reserva financeira: custos reais de viver na Alemanha com família',resDE);
     } else {
@@ -1781,7 +2042,7 @@ function getInsights(result){
         d3txt=`Você já se moveu: tem intenção, tem prazo e já investiu na preparação. O que pode estar faltando é consistência. O gap de D3 indica que as ações ainda não estão na frequência necessária para o nível de competitividade que o mercado ${T==='de'?'alemão':'australiano'} exige.`;
       }
       if((inv3===0||inv3==='0')&&T==='de'){
-        d3txt+=' Um passo concreto agora: <a href="'+EBOOK_URL+'" target="_blank">Guia de planejamento financeiro para a Alemanha</a>, que cobre o processo completo sem romantismo.';
+        d3txt+=' Um passo concreto agora: montar um cálculo frio de reserva, prazo e risco antes de acelerar a decisão.';
       }
     }
     I('d3',d3titulo,d3txt);
@@ -1799,7 +2060,7 @@ function getInsights(result){
     } else {
       d4txt=`Entender o processo seletivo ${T==='de'?'alemão':'australiano'} é o que separa candidaturas ignoradas de entrevistas marcadas. O formato de ${appsLnk} tem diferenças reais em relação ao padrão brasileiro: ignorá-las é o erro mais comum de profissionais qualificados.`;
       if((inv4===1||inv4==='1')&&T==='de'&&result.final>=41){
-        d4txt+=` O curso <a href="${CURSO_URL}" target="_blank">Emprego na Alemanha</a> foi desenvolvido exatamente para fechar esse gap com exemplos reais e validados por recrutadores alemães.`;
+        d4txt+=` Esse é exatamente o tipo de gap que o fluxo do Dossiê precisa capturar antes de recomendar qualquer próximo passo mais premium.`;
       }
     }
     I('d4','Posicionamento: a diferença começa antes da candidatura',d4txt);
@@ -1853,7 +2114,7 @@ function getInsights(result){
       ?`Você já deu o passo mais difícil. Mas estar no país não garante emprego na área: a transição profissional exige uma camada adicional de preparação que muitos subestimam. Identifique o principal gap entre as quatro dimensões e trate como prioridade única nos próximos 60 dias.`
       :`Sua pontuação indica que uma mudança imediata <strong>aumenta consideravelmente o risco de fracasso</strong>. O problema raramente é falta de talento: é falta de preparação estratégica. Dependendo do seu ponto de partida, 12 a 24 meses de preparação focada é o horizonte realista para uma entrada bem posicionada.${refId}`;
     if((inv40===0||inv40==='0')&&T==='de'&&!jaNoDestino){
-      g40+=' Quem começa com clareza sobre o processo chega mais rápido. O guia <a href="'+EBOOK_URL+'" target="_blank">#partiu_Alemanha</a> é o ponto de partida mais direto para entender o que realmente está à sua frente.';
+      g40+=' Quem começa com clareza sobre o processo chega mais rápido, mesmo sem desviar para produto paralelo cedo demais.';
     }
     const tituloG40=jaNoDestino?'Perspectiva geral: você está lá, mas a transição profissional precisa de foco':'Perspectiva geral: construa a base antes de migrar';
     I('geral',tituloG40,g40);
@@ -2606,7 +2867,6 @@ function renderLeadGate(){
 function getFallbackPrimaryCta(result,band){
   const score=result.final;
   const route=T==='de'?'Alemanha':'Austrália';
-  const cvWeak=(ANS['p11']?ANS['p11'].v:0)<2;
   const emailAutomatic='Você já confirmou seus dados. A trilha por email fica conectada ao seu diagnóstico e evita mandar o mesmo próximo passo para todo mundo.';
   const dossierEnabled=shouldOfferDossierIntake(result,getMotorDecisionSummary(getStoredMotorDecision()));
   if(dossierEnabled){
@@ -2624,12 +2884,12 @@ function getFallbackPrimaryCta(result,band){
     return {id:'community_foundation',label:'Entrar no grupo gratuito',url:APP_CONFIG.links.owned.whatsappGroup,title:'Construa a base antes de gastar energia com candidatura',copy:`Seu resultado mostra que ainda existe preparação importante antes de uma candidatura séria para ${route}. O próximo passo é organizar idioma, mercado e direção. O grupo gratuito ajuda você a amadurecer essa decisão sem entrar cedo demais em produto ou mentoria.`,note:emailAutomatic};
   }
   if(score<=65){
-    return {id:'cv_builder',label:'Ajustar meu CV para o mercado-alvo',url:APP_CV_URL,title:cvWeak?'Seu gargalo mais caro agora é como o mercado lê seu perfil':'Transforme sua experiência em candidatura legível',copy:`Você já saiu da fase de curiosidade, mas ainda existe diferença entre ter experiência e ser entendido por um recrutador na ${route}. O CV é o primeiro lugar onde essa diferença aparece.`,note:'Este caminho prepara o terreno para Carta, LinkedIn e candidatura estratégica quando os módulos estiverem conectados.'};
+    return {id:'email_followup',label:'Continuar pela trilha por email',url:'#email-report-note',target:'_self',title:'Seu próximo passo agora não é um produto isolado',copy:`Neste MVP, o mais importante é validar se o diagnóstico e a trilha de aprofundamento fazem sentido para o seu caso em ${route}. Em vez de desviar para um módulo solto, o fluxo certo é seguir pela entrega conectada ao seu resultado.`,note:emailAutomatic};
   }
   if(score<=85){
-    return {id:'strategic_application',label:'Preparar minha candidatura estratégica',url:APP_CV_URL,title:'Você tem sinais competitivos, agora o risco está nos detalhes',copy:`Seu perfil já tem elementos que podem funcionar na ${route}. O próximo ganho não vem de consumir mais conteúdo solto, mas de organizar CV, carta, LinkedIn, empresas-alvo e abordagem como uma arquitetura de candidatura.`,note:'Por enquanto, o CV Builder é o primeiro módulo prático desse caminho. Carta e LinkedIn entram na sequência da Plataforma EM.'};
+    return {id:'email_followup',label:'Continuar pela trilha por email',url:'#email-report-note',target:'_self',title:'Seu caso pede continuidade estratégica, não clique solto',copy:`Seu perfil já tem sinais competitivos para ${route}, mas neste MVP o que estamos validando é a coerência entre diagnóstico, triagem e aprofundamento. O próximo passo continua conectado ao seu resultado.`,note:emailAutomatic};
   }
-  return {id:'strategic_application',label:'Preparar minha candidatura estratégica',url:APP_CV_URL,title:'Você tem sinais competitivos, agora o risco está nos detalhes',copy:`Seu perfil já tem elementos que podem funcionar na ${route}. O próximo ganho não vem de consumir mais conteúdo solto, mas de organizar CV, carta, LinkedIn, empresas-alvo e abordagem como uma arquitetura de candidatura.`,note:'Sem motor ativo, o app cai no fluxo estratégico padrão e não oferta mentoria premium aqui.'};
+  return {id:'email_followup',label:'Continuar pela trilha por email',url:'#email-report-note',target:'_self',title:'Seu próximo passo precisa preservar contexto',copy:`Sem o motor ativo, este MVP não deveria te empurrar para uma oferta ou módulo isolado. O caminho mais coerente é manter o contexto do diagnóstico e continuar pela trilha conectada ao seu resultado.`,note:emailAutomatic};
 }
 
 function getPrimaryCta(result,band){
@@ -2637,8 +2897,6 @@ function getPrimaryCta(result,band){
 }
 
 function shouldOfferDossierIntake(result,motorDecision){
-  const cfg=getDossierMotorConfig();
-  if(!cfg.enabled||!cfg.decisionUrl) return false;
   if(result.final < 55) return false;
   return !(motorDecision&&['Lite','Completo'].includes(motorDecision.status));
 }
@@ -2646,8 +2904,8 @@ function shouldOfferDossierIntake(result,motorDecision){
 function getDossierIntakeTone(rawDecision,motorSource){
   if(rawDecision&&rawDecision.decision&&rawDecision.decision.status==='Faltam dados'){
     return {
-      title:'Faltam poucos dados para liberar uma recomendação mais precisa',
-      copy:'O CIA App já fez o diagnóstico base. Se você quiser um próximo passo mais inteligente, complete a triagem curta abaixo.'
+      title:'Faltam poucos dados para liberar a recomendação certa',
+      copy:'O diagnóstico base já foi feito. Agora responda a triagem curta abaixo e confirme se já tem um CV atual para enviar.'
     };
   }
   if(rawDecision&&rawDecision.decision&&rawDecision.decision.status==='Recusa'){
@@ -2666,6 +2924,358 @@ function getDossierIntakeTone(rawDecision,motorSource){
     title:'Se quiser um próximo passo mais preciso, complete a triagem curta',
     copy:'Ela existe para reduzir chute e evitar te mandar para o CTA errado.'
   };
+}
+
+function getDossierInterviewQuestions(decision,motorInput){
+  const status=decision&&decision.status?decision.status:null;
+  const dependents=(CTR.adultos||0)+(CTR.criancas||0)+(CTR.jovens||0);
+  const hasDependents=dependents>1||CTR.criancas>0||CTR.jovens>0;
+  const materials=motorInput&&motorInput.materials&&typeof motorInput.materials==='object'?motorInput.materials:{};
+  const questionnaire=motorInput&&motorInput.questionnaire&&typeof motorInput.questionnaire==='object'?motorInput.questionnaire:{};
+  const needsProofPrompt=!(materials.linkedin||materials.portfolio||materials.github);
+  const tradeoffFlag=questionnaire.has_meaningful_tradeoffs===true;
+  return [
+    {
+      id:'cv_snapshot',
+      type:'textarea',
+      minLength:24,
+      label:'Cole um resumo do seu CV atual',
+      helper:'Basta trazer os cargos mais recentes, empresa, período e foco principal. Não precisa formatar bonito.',
+      placeholder:'Ex.: Operations Manager na empresa X (2022-atual), antes Project Manager na empresa Y...',
+      requiredFor:['Lite','Completo']
+    },
+    {
+      id:'current_positioning',
+      type:'text',
+      minLength:6,
+      label:'Como você se apresentaria profissionalmente hoje em uma linha?',
+      helper:'Isso vira a base do headline e evita tese de cargo confusa.',
+      placeholder:'Ex.: Operations Manager com foco em processos industriais',
+      requiredFor:['Lite','Completo']
+    },
+    {
+      id:'target_positioning',
+      type:'textarea',
+      minLength:18,
+      label:'Que tipo de vaga você quer perseguir primeiro?',
+      helper:'Fale em recorte real de cargo, senioridade e contexto.',
+      placeholder:'Ex.: vagas de Operations Manager em indústria de médio porte na Alemanha',
+      requiredFor:['Lite','Completo']
+    },
+    {
+      id:'measurable_results',
+      type:'textarea',
+      minLength:28,
+      label:'Quais 2 ou 3 resultados concretos você consegue defender?',
+      helper:'Prefira números, impacto financeiro, ganho operacional, prazo, redução de erro ou aumento de receita.',
+      placeholder:'Ex.: reduzi lead time em 18%, liderei projeto de ...',
+      requiredFor:['Lite','Completo']
+    },
+    {
+      id:'market_proof',
+      type:'textarea',
+      minLength:12,
+      label:'Que prova pública ou material de apoio você já tem?',
+      helper:'LinkedIn, portfólio, GitHub, case, publicação, certificação ou até “ainda não tenho nada público”.',
+      placeholder:'Ex.: LinkedIn atualizado, portfólio parcial, nenhum material público ainda',
+      requiredFor:['Lite','Completo'],
+      condition:()=>needsProofPrompt
+    },
+    {
+      id:'work_authorization',
+      type:'textarea',
+      minLength:12,
+      label:`Como está sua realidade de visto ou autorização para ${T==='de'?'Alemanha':'Austrália'}?`,
+      helper:'Não precisa parecer perfeito. O objetivo é entender restrição real de entrada.',
+      placeholder:'Ex.: preciso de patrocínio, tenho cidadania, estou avaliando rota X...',
+      requiredFor:['Lite','Completo']
+    },
+    {
+      id:'family_constraints',
+      type:'textarea',
+      minLength:12,
+      label:'Qual restrição familiar ou logística pesa nessa decisão?',
+      helper:'Só aparece porque seu caso envolve dependentes ou contexto de família.',
+      placeholder:'Ex.: mudança com cônjuge, filhos, escola, cidade, prazo financeiro...',
+      requiredFor:['Lite','Completo'],
+      condition:()=>hasDependents
+    },
+    {
+      id:'salary_floor',
+      type:'text',
+      minLength:3,
+      label:'Qual é seu piso salarial aceitável para essa mudança?',
+      helper:'Pode ser faixa simples. Isso ajuda a filtrar coerência de mercado.',
+      placeholder:T==='de'?'Ex.: EUR 65k':'Ex.: AUD 110k',
+      requiredFor:['Completo']
+    },
+    {
+      id:'city_flexibility',
+      type:'select',
+      label:'Quão flexível você está em relação à cidade?',
+      helper:'Casos mais fechados exigem tese mais precisa.',
+      requiredFor:['Completo'],
+      options:[
+        {value:'aberto',label:'Aberto a mais de uma cidade'},
+        {value:'semi_fechado',label:'Tenho algumas cidades prioritárias'},
+        {value:'fechado',label:'Preciso de uma cidade específica'}
+      ]
+    },
+    {
+      id:'tradeoff_context',
+      type:'textarea',
+      minLength:18,
+      label:'Qual trade-off ou ambiguidade torna esse caso mais complexo?',
+      helper:'Ex.: trocar de trilha, aceitar downgrade estratégico, mercado A vs B, timing curto.',
+      placeholder:'Ex.: posso ter que aceitar reposicionamento inicial para entrar no mercado certo...',
+      requiredFor:['Completo'],
+      condition:()=>tradeoffFlag||status==='Completo'
+    },
+    {
+      id:'career_context',
+      type:'textarea',
+      minLength:24,
+      label:'Que contexto de carreira eu preciso entender para não ler seu perfil errado?',
+      helper:'Transição, lacuna, promoção rápida, mudança de setor, retorno ao mercado, etc.',
+      placeholder:'Ex.: venho de operações, mas nos últimos 18 meses assumi projetos estratégicos...',
+      requiredFor:['Completo']
+    }
+  ];
+}
+
+function isInterviewAnswerValid(question,value){
+  if(!question) return false;
+  if(question.type==='select') return dossierHasText(value);
+  return dossierHasText(value,question.minLength||1);
+}
+
+function getInterviewProgress(decision,motorInput,state){
+  const questions=getDossierInterviewQuestions(decision,motorInput).filter(question=>!question.condition||question.condition(state||{}));
+  const answers=state&&state.answers&&typeof state.answers==='object'?state.answers:{};
+  const answered=questions.filter(question=>isInterviewAnswerValid(question,answers[question.id])).length;
+  return {questions,answered,total:questions.length};
+}
+
+function getNextInterviewQuestion(decision,motorInput,state){
+  const progress=getInterviewProgress(decision,motorInput,state);
+  const answers=state&&state.answers&&typeof state.answers==='object'?state.answers:{};
+  return progress.questions.find(question=>!isInterviewAnswerValid(question,answers[question.id]))||null;
+}
+
+function formatInterviewAnswer(question,value){
+  if(!question) return esc(String(value||''));
+  if(question.type==='select'){
+    const option=(question.options||[]).find(item=>item.value===value);
+    return esc(option?option.label:value||'');
+  }
+  return esc(String(value||'').trim());
+}
+
+function buildDossierPreview(result,band,decision,motorInput,interviewState){
+  const questionnaire=motorInput&&motorInput.questionnaire&&typeof motorInput.questionnaire==='object'?motorInput.questionnaire:{};
+  const profile=motorInput&&motorInput.profile&&typeof motorInput.profile==='object'?motorInput.profile:{};
+  const answers=interviewState&&interviewState.answers&&typeof interviewState.answers==='object'?interviewState.answers:{};
+  const route=T==='de'?'Alemanha':'Austrália';
+  const routeLabel=route;
+  const currentTitle=answers.current_positioning||profile.seniority_level||'Profissional qualificado';
+  const targetPositioning=answers.target_positioning||questionnaire.goal_for_next_12_months||'Reposicionamento internacional com foco estratégico';
+  const targetRoles=Array.isArray(questionnaire.target_role_hypotheses)&&questionnaire.target_role_hypotheses.length
+    ? questionnaire.target_role_hypotheses.join(' · ')
+    : 'Cargos-alvo ainda em refinamento';
+  const area=ANS['p3']?ANS['p3'].l:'Área não informada';
+  const languageLabel=T==='de'
+    ? (ANS['p2']?ANS['p2'].l:'Alemão ainda não informado')
+    : (ANS['p1']?ANS['p1'].l:'Inglês ainda não informado');
+  const resultEvidence=questionnaire.evidence_of_results||answers.measurable_results||'Evidências de resultado ainda em consolidação.';
+  const cvSnapshot=answers.cv_snapshot||'Base de CV ainda não resumida.';
+  const workAuth=answers.work_authorization||'Realidade de visto ainda precisa de validação.';
+  const marketLogic=questionnaire.target_market_logic||'Lógica de mercado ainda em lapidação.';
+  const familyContext=answers.family_constraints||((CTR.criancas||0)+(CTR.jovens||0)+(CTR.adultos||0)>1?'Existe contexto familiar a considerar.':'Sem dependentes críticos no fluxo atual.');
+  const proofAssets=answers.market_proof||'Sem prova pública claramente descrita até aqui.';
+  const salaryFloor=answers.salary_floor||'Faixa salarial ainda não fixada.';
+  const cityFlex=answers.city_flexibility||'Flexibilidade geográfica ainda não explicitada.';
+  const tradeoffContext=answers.tradeoff_context||'Caso sem trade-off estrutural forte declarado.';
+  const careerContext=answers.career_context||'Contexto adicional de carreira não detalhado.';
+  const summaryLead=`${currentTitle} com trajetória em ${area}, mirando ${routeLabel} com foco inicial em ${targetRoles}.`;
+  const liteHighlights=[
+    `Objetivo declarado: ${targetPositioning}`,
+    `Mercado-alvo: ${marketLogic}`,
+    `Melhor evidência disponível: ${resultEvidence}`,
+    `Idioma relevante hoje: ${languageLabel}`
+  ];
+  const cvBullets=[
+    `Headline-base: ${currentTitle}`,
+    `Tese de candidatura: ${targetPositioning}`,
+    `Bullets a defender em entrevista: ${resultEvidence}`,
+    `Pacote atual de prova: ${proofAssets}`
+  ];
+  return {
+    lite:{
+      title:'Prévia do Dossiê Lite',
+      opening:`${summaryLead} O diagnóstico sugere base suficiente para um dossiê enxuto, claro e direcionado.`,
+      professionalSummary:[
+        `Hoje o caso aparece como ${currentTitle}, mas o valor real está menos no título isolado e mais na coerência entre trajetória, mercado e prova.`,
+        `O foco imediato para ${routeLabel} deveria ser reduzir ruído de leitura e transformar experiência em narrativa internacional legível para recrutadores.`
+      ],
+      competencies:[
+        `Competência central: ${currentTitle}`,
+        `Área dominante: ${area}`,
+        `Linguagem de mercado hoje: ${languageLabel}`
+      ],
+      relevantExperience:cvSnapshot,
+      objective:targetPositioning,
+      highlights:liteHighlights,
+      cvBullets
+    },
+    completo:{
+      title:'Prévia do Dossiê Completo',
+      opening:`${summaryLead} O caso pede leitura com mais contexto, trade-offs e arquitetura de candidatura.`,
+      diagnostic:[
+        `Base atual do caso: ${cvSnapshot}`,
+        `Contexto de carreira: ${careerContext}`,
+        `Restrições de entrada: ${workAuth}`,
+        `Família e logística: ${familyContext}`
+      ],
+      marketPositioning:[
+        `Mercado prioritário: ${marketLogic}`,
+        `Cargos-alvo: ${targetRoles}`,
+        `Piso salarial: ${salaryFloor}`,
+        `Flexibilidade geográfica: ${cityFlex}`
+      ],
+      strategicRisks:[
+        `Trade-off principal: ${tradeoffContext}`,
+        `Evidência crítica ainda a sustentar: ${resultEvidence}`,
+        `Prova pública / ativos: ${proofAssets}`
+      ],
+      recommendations:[
+        'Fechar uma tese única de candidatura para os próximos 60-90 dias.',
+        'Traduzir resultados em bullets defendíveis com métrica, contexto e impacto.',
+        'Ajustar CV e LinkedIn para o cargo-alvo antes de aumentar volume de candidatura.',
+        'Validar coerência entre mercado, visto, cidade e faixa salarial antes de escalar execução.'
+      ],
+      cvBullets
+    }
+  };
+}
+
+function renderDossierPreviewBlock(result,band,decision,motorInput,interviewState){
+  const preview=buildDossierPreview(result,band,decision,motorInput,interviewState);
+  const lite=preview.lite;
+  const completo=preview.completo;
+  if(decision.status==='Lite'){
+    return `<div style="display:grid;gap:12px;margin-top:18px">
+      <div class="primary-cta" style="background:linear-gradient(135deg,#161622 0%,#0d0d1a 100%)">
+        <div class="primary-cta-kicker">Entrega gerada para teste</div>
+        <div class="primary-cta-title">${lite.title}</div>
+        <div class="primary-cta-copy">${lite.opening}</div>
+        <div class="ins-card" style="border-left-color:#C9A46A;margin-bottom:0">
+          <div class="ins-title">Resumo profissional</div>
+          <div class="ins-text">${lite.professionalSummary.map(item=>`<p style="margin-bottom:10px">${esc(item)}</p>`).join('')}</div>
+        </div>
+        <div class="ins-card" style="border-left-color:#6e8ef7;margin-bottom:0">
+          <div class="ins-title">Competências e objetivo</div>
+          <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${lite.competencies.map(item=>`<li>${esc(item)}</li>`).join('')}</ul><p style="margin-top:10px"><strong>Objetivo:</strong> ${esc(lite.objective)}</p></div>
+        </div>
+        <div class="ins-card" style="border-left-color:#3ecf8e;margin-bottom:0">
+          <div class="ins-title">Experiência relevante</div>
+          <div class="ins-text">${esc(lite.relevantExperience)}</div>
+        </div>
+        <div class="ins-card" style="border-left-color:#a98ef7;margin-bottom:0">
+          <div class="ins-title">Pontos de destaque</div>
+          <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${lite.highlights.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
+        </div>
+        <div class="ins-card" style="border-left-color:#f0c44a;margin-bottom:0">
+          <div class="ins-title">Base para CV direcionado</div>
+          <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${lite.cvBullets.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
+        </div>
+      </div>
+    </div>`;
+  }
+  return `<div style="display:grid;gap:12px;margin-top:18px">
+    <div class="primary-cta" style="background:linear-gradient(135deg,#161622 0%,#0d0d1a 100%)">
+      <div class="primary-cta-kicker">Entrega gerada para teste</div>
+      <div class="primary-cta-title">${completo.title}</div>
+      <div class="primary-cta-copy">${completo.opening}</div>
+      <div class="ins-card" style="border-left-color:#C9A46A;margin-bottom:0">
+        <div class="ins-title">Histórico e contexto</div>
+        <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${completo.diagnostic.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
+      </div>
+      <div class="ins-card" style="border-left-color:#6e8ef7;margin-bottom:0">
+        <div class="ins-title">Posicionamento de mercado</div>
+        <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${completo.marketPositioning.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
+      </div>
+      <div class="ins-card" style="border-left-color:#e85555;margin-bottom:0">
+        <div class="ins-title">Riscos, ambiguidades e leitura estratégica</div>
+        <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${completo.strategicRisks.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
+      </div>
+      <div class="ins-card" style="border-left-color:#3ecf8e;margin-bottom:0">
+        <div class="ins-title">Recomendações</div>
+        <div class="ins-text"><ol style="padding-left:18px;display:grid;gap:6px">${completo.recommendations.map(item=>`<li>${esc(item)}</li>`).join('')}</ol></div>
+      </div>
+      <div class="ins-card" style="border-left-color:#f0c44a;margin-bottom:0">
+        <div class="ins-title">Base para CV direcionado</div>
+        <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${completo.cvBullets.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderDossierInterviewCard(result,band,rawDecision){
+  const decision=getMotorDecisionSummary(rawDecision);
+  if(!decision||!['Lite','Completo'].includes(decision.status)) return '';
+  const state=getStoredDossierInterview()||{answers:{},confirmed:false,startedAt:null};
+  const motorInput=getStoredMotorInput()||{};
+  const progress=getInterviewProgress(decision,motorInput,state);
+  const nextQuestion=getNextInterviewQuestion(decision,motorInput,state);
+  const answers=state.answers||{};
+  const recapHtml=progress.questions.map(question=>{
+    const value=answers[question.id];
+    if(!isInterviewAnswerValid(question,value)) return '';
+    return `<div style="padding:10px 12px;background:#111120;border:1px solid var(--border);border-radius:var(--r2)">
+      <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:6px">${esc(question.label)}</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.65">${formatInterviewAnswer(question,value)}</div>
+    </div>`;
+  }).join('');
+  const inputHtml=nextQuestion ? (
+    nextQuestion.type==='select'
+      ? `<select id="dossier-interview-answer" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
+          <option value="">Selecione</option>
+          ${(nextQuestion.options||[]).map(option=>`<option value="${esc(option.value)}">${esc(option.label)}</option>`).join('')}
+        </select>`
+      : nextQuestion.type==='text'
+        ? `<input id="dossier-interview-answer" type="text" placeholder="${esc(nextQuestion.placeholder||'')}" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">`
+        : `<textarea id="dossier-interview-answer" rows="4" placeholder="${esc(nextQuestion.placeholder||'')}" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical"></textarea>`
+  ) : '';
+  return `<div class="primary-cta" id="dossier-interview-card" style="background:linear-gradient(135deg,#111120 0%,#141424 52%,#0d0d1a 100%)">
+    <div class="primary-cta-kicker">Entrevista adaptativa do dossiê</div>
+    <div class="primary-cta-title">${decision.status==='Lite'?'Gerar Dossiê Lite com contexto suficiente':'Gerar Dossiê Completo com contexto suficiente'}</div>
+    <div class="primary-cta-copy">Agora o app sai do quiz e entra na parte que faltava: perguntas uma por vez, só até haver material suficiente para um dossiê útil e para um CV mais coerente.</div>
+    <div style="font-size:12px;color:var(--text2);margin:12px 0 4px">Progresso: ${progress.answered}/${progress.total} blocos validados</div>
+    <div style="height:6px;background:#1c1c2e;border-radius:999px;overflow:hidden;margin-bottom:16px"><div style="height:100%;width:${progress.total?Math.round((progress.answered/progress.total)*100):0}%;background:${T==='de'?'linear-gradient(90deg,#C9A46A,#B87942)':'linear-gradient(90deg,#173528,#2d634b)'}"></div></div>
+    ${nextQuestion?`
+      <div style="display:grid;gap:10px">
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.4px;text-transform:uppercase">Pergunta atual</div>
+        <div style="font-size:18px;color:var(--text);line-height:1.45;font-family:'DM Serif Display',serif">${esc(nextQuestion.label)}</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">${esc(nextQuestion.helper||'')}</div>
+        ${inputHtml}
+        <div id="dossier-interview-error" style="display:none;font-size:12px;color:#e85555"></div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <button type="button" id="dossier-interview-submit" class="primary-cta-btn ${T==='de'?'de':'au'}">Salvar resposta e continuar</button>
+          ${progress.answered?'<button type="button" id="dossier-interview-reset" class="btn-back" style="width:auto;padding:12px 16px">Recomeçar entrevista</button>':''}
+        </div>
+      </div>
+    `:`
+      <div style="display:grid;gap:12px">
+        <div style="font-size:15px;color:var(--text);font-weight:500">Recapitulação antes de gerar a prévia</div>
+        <div style="display:grid;gap:8px">${recapHtml}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <button type="button" id="dossier-interview-confirm" class="primary-cta-btn ${T==='de'?'de':'au'}">${state.confirmed?'Prévia gerada':'Confirmar dados e gerar prévia'}</button>
+          <button type="button" id="dossier-interview-reset" class="btn-back" style="width:auto;padding:12px 16px">Refazer entrevista</button>
+        </div>
+      </div>
+    `}
+    ${state.confirmed?renderDossierPreviewBlock(result,band,decision,motorInput,state):''}
+  </div>`;
 }
 
 function renderDossierIntakeCard(result,rawDecision,motorSource){
@@ -2744,7 +3354,7 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
             <span style="font-size:13px;color:var(--text2)">Tenho GitHub relevante</span>
           </label>
         </div>
-        <div style="font-size:12px;color:var(--text2);line-height:1.6">Esses botões só informam qual material já existe hoje. Eles não avançam nada sozinhos. O único que bloqueia a decisão é CV ausente.</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6">Esses botões informam qual material já existe hoje. Para este MVP, a recomendação não é liberada sem CV atual disponível.</div>
         <label style="display:grid;gap:6px">
           <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Objetivo nos próximos 12 meses · obrigatório</span>
           <textarea id="dossier-goal" rows="3" placeholder="Ex.: Quero me reposicionar para vagas de Operations Manager na Alemanha ainda neste ciclo." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.goal_for_next_12_months||'')}</textarea>
@@ -2827,6 +3437,7 @@ function bindDossierIntakeCard(result,band){
     if(!seniority) errors.push('Selecione sua senioridade.');
     if(!availability) errors.push('Selecione sua disponibilidade.');
     if(!urgency) errors.push('Selecione seu prazo.');
+    if(!materials.cv) errors.push('Antes de continuar, confirme que você já tem um CV atual para enviar.');
     if(goal.length<12) errors.push('Explique melhor seu objetivo para os próximos 12 meses.');
     if(marketLogic.length<12) errors.push('Explique por que esse mercado faz sentido para você.');
     if(evidence.length<12) errors.push('Traga pelo menos uma evidência concreta de resultado.');
@@ -2842,6 +3453,7 @@ function bindDossierIntakeCard(result,band){
     submitBtn.disabled=true;
     submitBtn.textContent='Processando...';
     clearMotorDecision();
+    clearDossierInterview();
     const motorInput={
       profile:{seniority_level:seniority},
       materials,
@@ -2868,6 +3480,71 @@ function bindDossierIntakeCard(result,band){
     await renderResults({skipAnalytics:true});
     window.scrollTo({top:0,behavior:'smooth'});
   });
+}
+
+function bindDossierInterviewCard(result,band,rawDecision){
+  const card=document.getElementById('dossier-interview-card');
+  if(!card) return;
+  const decision=getMotorDecisionSummary(rawDecision);
+  if(!decision) return;
+  const motorInput=getStoredMotorInput()||{};
+  const state=getStoredDossierInterview()||{answers:{},confirmed:false,startedAt:null};
+  const nextQuestion=getNextInterviewQuestion(decision,motorInput,state);
+  const submitBtn=document.getElementById('dossier-interview-submit');
+  const confirmBtn=document.getElementById('dossier-interview-confirm');
+  const resetBtn=document.getElementById('dossier-interview-reset');
+  const errorEl=document.getElementById('dossier-interview-error');
+  if(submitBtn&&nextQuestion){
+    submitBtn.addEventListener('click',async()=>{
+      const inputEl=document.getElementById('dossier-interview-answer');
+      const value=inputEl&&typeof inputEl.value==='string'?inputEl.value.trim():'';
+      if(!isInterviewAnswerValid(nextQuestion,value)){
+        if(errorEl){
+          errorEl.style.display='block';
+          errorEl.textContent=nextQuestion.type==='select'?'Selecione uma opção antes de continuar.':`Responda com um pouco mais de substância para eu não gerar um dossiê raso.`;
+        }
+        return;
+      }
+      const nextState={
+        answers:{...(state.answers||{}),[nextQuestion.id]:value},
+        confirmed:false,
+        startedAt:state.startedAt||new Date().toISOString(),
+        updatedAt:new Date().toISOString()
+      };
+      storeDossierInterview(nextState);
+      logEvent('dossier_interview_answered',{
+        decision_status:decision.status,
+        question_id:nextQuestion.id,
+        answer_length:value.length
+      });
+      await renderResults({skipAnalytics:true});
+      const anchor=document.getElementById('dossier-interview-card');
+      if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+  if(confirmBtn){
+    confirmBtn.addEventListener('click',async()=>{
+      if(!state.confirmed){
+        const nextState={...state,confirmed:true,confirmedAt:new Date().toISOString()};
+        storeDossierInterview(nextState);
+        logEvent('dossier_preview_generated',{
+          decision_status:decision.status,
+          question_count:getInterviewProgress(decision,motorInput,nextState).answered
+        });
+        await renderResults({skipAnalytics:true});
+      }
+      const anchor=document.getElementById('dossier-interview-card');
+      if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+  if(resetBtn){
+    resetBtn.addEventListener('click',async()=>{
+      clearDossierInterview();
+      await renderResults({skipAnalytics:true});
+      const anchor=document.getElementById('dossier-interview-card');
+      if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
 }
 
 function renderPrimaryCta(result,band){
@@ -2973,68 +3650,17 @@ async function renderResults(opts={}){
     <div class="steps">${steps.map((s,i)=>`<div class="step"><span class="step-n">0${i+1}</span><div class="step-t">${s}</div></div>`).join('')}</div>
     ${inlineDossierPrimary?renderDossierIntakeCard(result,motorResolution.decision,motorResolution.source):renderPrimaryCta(result,band)}
     ${inlineDossierPrimary?'':renderDossierIntakeCard(result,motorResolution.decision,motorResolution.source)}
-    <div class="secondary-resources-label">Recursos complementares</div>
-    ${(()=>{
-      const inv=ANS['p9']?ANS['p9'].v:0;
-      const primeiroNome=firstNameSafe(LEAD.nome);
-      const vocativo=primeiroNome?primeiroNome+', ':'';
-      let html='';
-      if(T==='de'&&result.final>=41&&result.final<86){
-        if(inv===0||inv==='0'){
-          html+=`<div class="promo ebook">
-            <div class="promo-tag">Ponto de partida</div>
-            <div class="promo-title">#partiu_Alemanha</div>
-            <div class="promo-sub">${vocativo}você ainda não investiu em preparação para essa mudança. Isso é comum, mas tem um custo real: profissionais que chegam sem estrutura perdem meses recomeçando do zero. Esse guia foi escrito por quem viveu os dois lados, e cobre tudo do visto ao primeiro salário.</div>
-            <a href="${EBOOK_URL}" target="_blank" class="promo-btn">Começar com o guia</a>
-          </div>`;
-        } else if(inv===1||inv==='1'){
-          if(result.final<=65){
-            html+=`<div class="promo curso">
-              <div class="promo-tag">Próximo nível</div>
-              <div class="promo-title">Emprego na Alemanha</div>
-              <div class="promo-sub">${vocativo}você já se moveu. O próximo passo é transformar esse movimento em candidaturas reais: currículo no padrão alemão, carta personalizada por vaga e LinkedIn que atrai recrutadores sem precisar candidatar.</div>
-              <a href="${CURSO_URL}" target="_blank" class="promo-btn">Ver o curso</a>
-            </div>`;
-          } else {
-            html+=`<div class="promo curso">
-              <div class="promo-tag">Refinamento estratégico</div>
-              <div class="promo-title">Emprego na Alemanha</div>
-              <div class="promo-sub">${vocativo}seu perfil já é competitivo. A diferença entre candidatos no seu nível costuma estar nos detalhes de posicionamento: como o currículo é lido por ATS alemão, como a carta demonstra fit cultural, e como o LinkedIn aparece para recrutadores.</div>
-              <a href="${CURSO_URL}" target="_blank" class="promo-btn">Conhecer o curso</a>
-            </div>`;
-          }
-        } else if(inv===2||inv==='2'){
-          html+=`<div class="promo curso" style="border-color:#D4AF3740;background:#1a1500">
-            <div class="promo-tag" style="color:#D4AF37">Para quem já buscou ajuda</div>
-            <div class="promo-title">Emprego na Alemanha</div>
-            <div class="promo-sub">${vocativo}você já investiu em orientação antes. Este curso complementa o que você já sabe com foco específico no processo seletivo alemão: os padrões que recrutadores esperam e que quase nenhum material brasileiro cobre.</div>
-            <a href="${CURSO_URL}" target="_blank" class="promo-btn">Conhecer o curso</a>
-          </div>`;
-        } else if(inv===3||inv==='3'){
-          html+=`<div class="promo curso" style="border-color:#D4AF3740;background:#1a1500">
-            <div class="promo-tag" style="color:#D4AF37">Você está em movimento</div>
-            <div class="promo-title">Emprego na Alemanha</div>
-            <div class="promo-sub">${vocativo}quem investe em viagem de reconhecimento ou processo de visto está levando isso a sério. Nessa fase, o que mais importa é não perder oportunidades por falhas evitáveis de posicionamento.</div>
-            <a href="${CURSO_URL}" target="_blank" class="promo-btn">Ver o curso</a>
-          </div>`;
-        }
-      }
-      return html;
-    })()}
+    ${renderDossierInterviewCard(result,band,motorResolution.decision)}
+    <div class="secondary-resources-label" id="email-report-note">Entrega conectada ao diagnóstico</div>
+    <div style="background:#0d0d1a;border:1px solid var(--border);border-radius:var(--r);padding:18px 18px 16px;margin:8px 0 18px">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">Este MVP está testando coerência de motor, não viralização</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">Seu resultado já fica ligado ao nome, email e WhatsApp que você confirmou. A lógica agora é validar se o diagnóstico, a triagem estratégica e a recomendação seguinte fazem sentido em conjunto. Por isso, a continuidade principal deste MVP acontece pela trilha conectada ao seu resultado, não por botões de compartilhamento.</div>
+    </div>
     ${result.final>=86?`<div class="secondary-resources-label">Interesse premium registrado pelo CTA principal</div>`:''}
     <div class="social" style="display:flex;flex-direction:column;gap:10px">
       <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Jonathan Mathias</div>
       <p style="font-size:13px;color:var(--text2);line-height:1.7">Brasil → Alemanha → Austrália. Mentor de carreira internacional para gestores e especialistas que levam a decisão a sério. Conteúdo toda semana no <a href="${APP_CONFIG.links.owned.linkedinJonathan}" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">LinkedIn</a> e no <a href="${APP_IG_URL}" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500">Instagram</a>.</p>
     </div>
-    <div class="sec-label-main">Compartilhar</div>
-    <div class="share-wrap">
-      <button class="share-btn-row" id="shr-copy"><span class="share-lbl" id="shr-copy-lbl">Copiar relatório completo</span></button>
-      <button class="share-btn-row" id="shr-wa" style="background:linear-gradient(135deg,#0a1a0a,#0d1a12);border-color:#25D36640"><span class="share-lbl" id="shr-wa-lbl" style="color:#25D366">Compartilhar no WhatsApp</span></button>
-      <button class="share-btn-row" id="shr-li" style="background:linear-gradient(135deg,#080e18,#0a1220);border-color:#0A66C240"><span class="share-lbl" id="shr-li-lbl" style="color:#5b9cf6">Compartilhar no LinkedIn</span></button>
-      <button class="share-btn-row" id="shr-ig" style="background:linear-gradient(135deg,#0d080d,#180a15);border-color:#c1358440"><span class="share-lbl" id="shr-ig-lbl" style="color:#e1306c">Compartilhar no Instagram Story</span></button>
-
-    </div>
-
     <div class="sec-label-main">Avalie esta experiência</div>
     <div id="nps-block" style="background:#0d0d1a;border:1px solid var(--border);border-radius:var(--r);padding:22px 20px;margin:8px 0 16px">
       <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">De 0 a 10, qual a probabilidade de você recomendar essa avaliação?</div>
@@ -3058,24 +3684,10 @@ async function renderResults(opts={}){
     supabaseInsert('ctaClicks',payload);
   }
 
-  function storeCvBuilderPayload(){
-    const payload={
-      source:'cia-final-report',
-      generatedAt:new Date().toISOString(),
-      lead:{...LEAD},geo:{...GEO},trilha:T,answers:ANS,counters:CTR,
-      score:{final:result.final,band:band.lb,dimensions:result.dims},
-      motorDecision,
-      alerts,insights,steps,summary:buildSummary(result,insights,steps)
-    };
-    try{sessionStorage.setItem('ciaCvBuilderPayload',JSON.stringify(payload));}catch(e){}
-    try{localStorage.removeItem('ciaCvBuilderPayload');}catch(e){}
-  }
-
   document.querySelectorAll('[data-primary-cta],.promo-btn,.mentoria-card-btn').forEach((el,idx)=>{
     el.addEventListener('click',()=>{
       const ctaId=el.dataset.primaryCta || (el.classList.contains('mentoria-card-btn')?'premium_link':'promo_link');
       logCtaClick(ctaId,el.textContent.trim(),el.href||'',`result_card_${idx}`);
-      if(['cv_builder','strategic_application'].includes(ctaId)) storeCvBuilderPayload();
     });
   });
 
@@ -3103,81 +3715,6 @@ async function renderResults(opts={}){
         if(bar){setTimeout(()=>{bar.style.transition='width 1s cubic-bezier(.4,0,.2,1)';bar.style.width=result.dims[d]+'%';},i*120);}
       });
     },600);
-  });
-
-  const shareAction=(canal,text)=>{
-    logEvent('share_click',{trilha:T,score:result.final,banda:band.lb,canal});
-    return text;
-  };
-  document.getElementById('shr-copy').addEventListener('click',()=>{
-    const txt=shareAction('copy',buildSummary(result,insights,steps));
-    const doFeedback=()=>{
-      const lbl=document.getElementById('shr-copy-lbl');
-      const ic=document.getElementById('shr-copy-icon');
-      const btn=document.getElementById('shr-copy');
-      if(btn)btn.classList.add('ok');
-      if(lbl){lbl.textContent='Copiado com sucesso';lbl.className='share-lbl ok';}
-      if(ic)ic.textContent='✓';
-      setTimeout(()=>{
-        const b=document.getElementById('shr-copy'),l=document.getElementById('shr-copy-lbl'),i=document.getElementById('shr-copy-icon');
-        if(b)b.classList.remove('ok');
-        if(l){l.textContent='Copiar relatório completo';l.className='share-lbl';}
-        if(i)i.textContent='⊞';
-      },3000);
-    };
-    if(navigator.clipboard&&window.isSecureContext){
-      navigator.clipboard.writeText(txt).then(doFeedback).catch(()=>{
-        const ta=document.createElement('textarea');
-        ta.value=txt;ta.style.cssText='position:fixed;left:-9999px;top:-9999px;opacity:0';
-        document.body.appendChild(ta);ta.focus();ta.select();
-        try{document.execCommand('copy');doFeedback();}catch(e){}
-        document.body.removeChild(ta);
-      });
-    } else {
-      const ta=document.createElement('textarea');
-      ta.value=txt;ta.style.cssText='position:fixed;left:-9999px;top:-9999px;opacity:0';
-      document.body.appendChild(ta);ta.focus();ta.select();
-      try{document.execCommand('copy');doFeedback();}catch(e){}
-      document.body.removeChild(ta);
-    }
-  });
-  document.getElementById('shr-wa').addEventListener('click',()=>{
-    shareAction('whatsapp','');
-    const dest=T==='de'?'Alemanha':'Austrália';
-    const msgWA=[
-      `Fiz uma avaliação gratuita de prontidão para carreira internacional na ${dest} e o resultado foi mais honesto do que esperava.`,
-      `Não é um quiz genérico: analisa idioma, maturidade da decisão, perfil comportamental e conhecimento do mercado — com gaps reais e próximos passos específicos.`,
-      `Se você está pensando em trabalhar fora com seriedade, vale 5 minutos:%0A%0Ahttps://jonathan-mathias.github.io/cia-app/`
-    ].join('%0A%0A');
-    window.open('https://api.whatsapp.com/send?text='+msgWA,'_blank');
-  });
-  document.getElementById('shr-li').addEventListener('click',()=>{
-    shareAction('linkedin','');
-    const dest=T==='de'?'Alemanha':'Austrália';
-    const msgLI=[
-      `Fiz uma avaliação de prontidão para carreira internacional na ${dest} e o resultado foi mais honesto do que esperava.`,
-      `Não é um quiz de autoconhecimento. É um diagnóstico com pontuação real em 4 dimensões: idioma e área, maturidade da decisão, perfil comportamental e conhecimento do mercado.`,
-      `O que mais surpreende não é a pontuação. É perceber exatamente onde está o gap que está travando a candidatura.`,
-      `Se você está levando carreira internacional a sério, vale 5 minutos. É gratuito.`,
-      `👉 https://jonathan-mathias.github.io/cia-app/`
-    ].join('\n\n');
-    const encoded=encodeURIComponent(msgLI);
-    // LinkedIn share: copy text to clipboard + open share dialog
-    const ta=document.createElement('textarea');
-    ta.value=msgLI;ta.style.cssText='position:fixed;left:-9999px;top:-9999px;opacity:0';
-    document.body.appendChild(ta);ta.focus();ta.select();
-    try{document.execCommand('copy');}catch(e){}
-    document.body.removeChild(ta);
-    // Show feedback before opening
-    const lbl=document.getElementById('shr-li-lbl');
-    if(lbl){lbl.textContent='Texto copiado — cole no post';setTimeout(()=>{lbl.textContent='Compartilhar no LinkedIn';},4000);}
-    setTimeout(()=>{
-      const url=encodeURIComponent('https://jonathan-mathias.github.io/cia-app/');
-      window.open('https://www.linkedin.com/sharing/share-offsite/?url='+url,'_blank');
-    },400);
-  });
-  document.getElementById('shr-ig').addEventListener('click',()=>{
-    generateIGCard();
   });
 
   const npsGrid=document.getElementById('nps-grid');
@@ -3233,21 +3770,14 @@ async function renderResults(opts={}){
   });
 
   bindDossierIntakeCard(result,band);
+  bindDossierInterviewCard(result,band,motorResolution.decision);
   bindQaCard();
-
-  const cvBuilderBtn=document.getElementById('btn-open-cv-builder');
-  if(cvBuilderBtn){
-    cvBuilderBtn.addEventListener('click',()=>{
-      logCtaClick('cv_builder','Abrir CV Builder com meus dados',APP_CV_URL,'result_card_cv_builder');
-      storeCvBuilderPayload();
-      window.open(APP_CV_URL,'_blank');
-    });
-  }
 
   document.getElementById('btn-restart').addEventListener('click',()=>{
     const savedLead={...LEAD};
     const savedGEO={...GEO};
     T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;
+    clearDossierInterview();
     LEAD=savedLead;GEO=savedGEO;
     renderTrilha();window.scrollTo(0,0);
   });
@@ -3256,6 +3786,7 @@ async function renderResults(opts={}){
 function switchRoute(){
   logEvent('route_switch_click',{from:T||null});
   T='';QS=[];step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};NPS=null;
+  clearDossierInterview();
   renderTrilha();window.scrollTo(0,0);
 }
 
