@@ -38,18 +38,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 
 /* TRILHA */
 .trilha-wrap{min-height:calc(100vh - 100px);padding:10px 0 20px}
-.cia-topbar{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:12px;padding:6px 2px 18px;border-bottom:1px solid rgba(201,164,106,.18)}
-.cia-mark{width:40px;height:40px;color:#E0BC78;opacity:1;filter:drop-shadow(0 0 12px rgba(201,164,106,.16))}
+.cia-topbar{display:grid;grid-template-columns:32px 1fr 32px;align-items:center;gap:12px;padding:6px 2px 18px;border-bottom:1px solid rgba(201,164,106,.18)}
 .cia-brand{text-align:center}
 .cia-brand-name{font-family:'DM Serif Display',serif;font-size:28px;line-height:1;color:#F7F3EA}
 .cia-brand-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:#C9A46A;margin-top:7px}
-.cia-topbar-spacer{width:36px;height:36px}
+.cia-topbar-spacer{width:24px;height:24px}
 .cia-hero{position:relative;padding:42px 4px 26px;overflow:hidden;text-align:center;display:grid;justify-items:center}
-.cia-map{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:356px;max-width:94%;opacity:.44;color:#C9A46A;pointer-events:none}
-.cia-coords{position:relative;display:flex;justify-content:center;gap:16px;flex-wrap:wrap;font-family:'DM Mono',monospace;font-size:9px;line-height:1.7;color:#D8B472;letter-spacing:.9px;opacity:.9;margin:8px 0 18px}
-.cia-coord{display:flex;align-items:center;gap:7px;padding:4px 0}
-.cia-coord strong{font-weight:500;color:#F0D39A}
-.cia-coord-dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.75}
+.cia-map{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:368px;max-width:96%;opacity:.28;color:#C9A46A;pointer-events:none}
+.cia-map-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.3px;fill:currentColor;opacity:.55}
+.cia-map-dot{fill:currentColor;opacity:.6}
 .trilha-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;font-weight:600}
 .trilha-h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,9.4vw,56px);line-height:1.08;color:#F7F3EA;margin-bottom:24px;letter-spacing:0;max-width:460px;text-align:center;text-wrap:balance}
 .cia-rule{width:54px;height:2px;background:#C9A46A;margin:0 auto 26px}
@@ -333,8 +330,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   .app{padding-left:14px;padding-right:14px}
   .cia-brand-name{font-size:25px}
   .trilha-h1{font-size:37px}
-  .cia-map{top:18px;width:250px;max-width:96%;opacity:.34}
-  .cia-coords{gap:10px;margin-bottom:12px;font-size:8px}
+  .cia-map{top:16px;width:258px;max-width:98%;opacity:.24}
   .trilha-proof{grid-template-columns:54px 1fr 34px}
   .trilha-proof-title{font-size:18px}
   .trilha-btn{min-height:154px}
@@ -356,7 +352,7 @@ const RUNTIME_PARAMS = (()=>{try{return new URLSearchParams(window.location.sear
 const QA_MODE = ['1','true','yes'].includes(String(RUNTIME_PARAMS.get('qa')||'').toLowerCase());
 const APP_CONFIG = Object.freeze({
   env: 'production',
-  version: '2.7-home-map-coords',
+  version: '2.8-home-map-background',
   integrations: {
     // Google Apps Script continua como proxy seguro para Sheets/Brevo.
     // Não colocar chaves Brevo ou service_role do Supabase no frontend.
@@ -2646,11 +2642,7 @@ function renderTrilha(){
   document.getElementById('app').innerHTML=`
     <div class="trilha-wrap">
       <div class="cia-topbar">
-        <svg class="cia-mark" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M10 8v32M24 8v32M38 8v32M6 14h36M6 28h36M6 40h36" fill="none" stroke="currentColor" stroke-width="1.25"/>
-          <path d="M15 9l18 30M34 10L12 37" fill="none" stroke="currentColor" stroke-width="1" opacity=".72"/>
-          <circle cx="24" cy="28" r="3.4" fill="currentColor" opacity="1"/>
-        </svg>
+        <div class="cia-topbar-spacer" aria-hidden="true"></div>
         <div class="cia-brand">
           <div class="cia-brand-name">CIA App</div>
           <div class="cia-brand-sub">Elite Migration</div>
@@ -2665,15 +2657,16 @@ function renderTrilha(){
           <path d="M325 144c10-6 23-9 34-7 13 2 25 10 32 21 7 12 9 28 2 40-7 12-24 19-38 17-14-1-26-10-33-21-7-12-10-28-4-39 2-5 4-8 7-11z" fill="none" stroke="currentColor" stroke-width="1.05" opacity=".28"/>
           <path d="M61 174c24-5 47-6 73-5M162 156c25 4 48 5 75 3M263 173c20-2 38-1 58 3" fill="none" stroke="currentColor" stroke-width=".8" opacity=".18"/>
           <path d="M214 36v168M97 120h236" fill="none" stroke="currentColor" stroke-width=".8" opacity=".18"/>
+          <circle class="cia-map-dot" cx="90" cy="152" r="2.8"/>
+          <circle class="cia-map-dot" cx="223" cy="91" r="2.8"/>
+          <circle class="cia-map-dot" cx="338" cy="161" r="2.8"/>
+          <text class="cia-map-label" x="48" y="168">Brasília · 15.7939 S, 47.8828 W</text>
+          <text class="cia-map-label" x="178" y="74">Berlim · 52.5200 N, 13.4050 E</text>
+          <text class="cia-map-label" x="264" y="179">Canberra · 35.2809 S, 149.1300 E</text>
         </svg>
         <h1 class="trilha-h1">Descubra seu mapa de carreira internacional</h1>
         <div class="cia-rule"></div>
         <p class="trilha-sub">Um diagnóstico objetivo para entender sua prontidão, evidência e mercado-alvo.</p>
-        <div class="cia-coords" aria-label="Coordenadas de capitais estratégicas">
-          <span class="cia-coord"><span class="cia-coord-dot" aria-hidden="true"></span><strong>Brasília</strong> 15.7939 S, 47.8828 W</span>
-          <span class="cia-coord"><span class="cia-coord-dot" aria-hidden="true"></span><strong>Berlim</strong> 52.5200 N, 13.4050 E</span>
-          <span class="cia-coord"><span class="cia-coord-dot" aria-hidden="true"></span><strong>Canberra</strong> 35.2809 S, 149.1300 E</span>
-        </div>
       </section>
 
       <div class="trilha-context">
@@ -2709,11 +2702,7 @@ function renderMarketChoice(){
   document.getElementById('app').innerHTML=`
     <div class="market-wrap">
       <div class="cia-topbar">
-        <svg class="cia-mark" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M10 8v32M24 8v32M38 8v32M6 14h36M6 28h36M6 40h36" fill="none" stroke="currentColor" stroke-width="1.25"/>
-          <path d="M15 9l18 30M34 10L12 37" fill="none" stroke="currentColor" stroke-width="1" opacity=".72"/>
-          <circle cx="24" cy="28" r="3.4" fill="currentColor" opacity="1"/>
-        </svg>
+        <div class="cia-topbar-spacer" aria-hidden="true"></div>
         <div class="cia-brand">
           <div class="cia-brand-name">CIA App</div>
           <div class="cia-brand-sub">Elite Migration</div>
