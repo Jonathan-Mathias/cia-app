@@ -960,25 +960,33 @@ function buildMotorDrivenPrimaryCta(result,band){
   const liteUrl=links.lite;
   const completoUrl=links.completo;
 
-  if(decision.nextStep==='offer_lite'&&liteUrl){
+  if(decision.nextStep==='offer_lite'){
+    const hasExternalUrl=!!liteUrl;
     return {
       id:'dossier_lite_offer',
-      label:'Ver meu Dossiê Lite',
-      url:liteUrl,
+      label:hasExternalUrl?'Ver meu Dossiê Lite':'Continuar para o Dossiê Lite',
+      url:hasExternalUrl?liteUrl:'#dossier-interview-card',
+      target:hasExternalUrl?'_blank':'_self',
       title:'Seu caso foi liberado para um próximo passo mais estratégico',
       copy:`Seu diagnóstico no CIA App indica base suficiente para avançar para uma leitura mais estruturada de candidatura para ${route}. O próximo passo não é conteúdo solto: é um direcionamento mais organizado.`,
-      note:'Esta recomendação veio da lógica do motor da Plataforma EM. O produto continua sujeito a validação e disponibilidade.'
+      note:hasExternalUrl
+        ?'Esta recomendação veio da lógica do motor da Plataforma EM. O produto continua sujeito a validação e disponibilidade.'
+        :'Esta recomendação veio da lógica do motor da Plataforma EM. Como a URL comercial final ainda não está publicada neste ambiente, o fluxo segue pela entrega atual dentro do app.'
     };
   }
 
-  if(decision.nextStep==='offer_completo'&&completoUrl){
+  if(decision.nextStep==='offer_completo'){
+    const hasExternalUrl=!!completoUrl;
     return {
       id:'dossier_completo_offer',
-      label:'Ver meu Dossiê Completo',
-      url:completoUrl,
+      label:hasExternalUrl?'Ver meu Dossiê Completo':'Continuar para o Dossiê Completo',
+      url:hasExternalUrl?completoUrl:'#dossier-interview-card',
+      target:hasExternalUrl?'_blank':'_self',
       title:'Seu caso pede uma leitura estratégica mais profunda',
       copy:`Seu diagnóstico indica um caso com mais densidade, trade-offs ou risco de leitura errada. O próximo passo recomendado é uma arquitetura de candidatura mais robusta para ${route}.`,
-      note:'Esta recomendação veio da lógica do motor da Plataforma EM. O produto continua sujeito a validação e disponibilidade.'
+      note:hasExternalUrl
+        ?'Esta recomendação veio da lógica do motor da Plataforma EM. O produto continua sujeito a validação e disponibilidade.'
+        :'Esta recomendação veio da lógica do motor da Plataforma EM. Como a URL comercial final ainda não está publicada neste ambiente, o fluxo segue pela entrega atual dentro do app.'
     };
   }
 
@@ -3512,7 +3520,7 @@ function renderDossierPreviewBlock(result,band,decision,motorInput,interviewStat
           <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${lite.cvBullets.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px">
-          <button type="button" class="btn-back" id="dossier-preview-export-pdf" style="width:auto;padding:12px 16px">Abrir versão para PDF</button>
+          <button type="button" class="btn-back" data-dossier-export-pdf="true" style="width:auto;padding:12px 16px">Abrir versão para PDF</button>
         </div>
       </div>
     </div>`;
@@ -3543,7 +3551,7 @@ function renderDossierPreviewBlock(result,band,decision,motorInput,interviewStat
         <div class="ins-text"><ul style="padding-left:18px;display:grid;gap:6px">${completo.cvBullets.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px">
-        <button type="button" class="btn-back" id="dossier-preview-export-pdf" style="width:auto;padding:12px 16px">Abrir versão para PDF</button>
+        <button type="button" class="btn-back" data-dossier-export-pdf="true" style="width:auto;padding:12px 16px">Abrir versão para PDF</button>
       </div>
     </div>
   </div>`;
@@ -3602,15 +3610,34 @@ function renderPreviewPdfDocument(result,band,decision,motorInput,interviewState
 }
 
 function exportDossierPreviewPdf(result,band,decision,motorInput,interviewState){
-  const popup=window.open('','_blank','noopener,noreferrer');
-  if(!popup) return false;
   const html=renderPreviewPdfDocument(result,band,decision,motorInput,interviewState);
-  popup.document.open();
-  popup.document.write(html);
-  popup.document.close();
-  popup.focus();
-  setTimeout(()=>{try{popup.print();}catch(e){}},250);
-  return true;
+  try{
+    const popup=window.open('','_blank','noopener,noreferrer');
+    if(popup&&popup.document){
+      popup.document.open();
+      popup.document.write(html);
+      popup.document.close();
+      popup.focus();
+      return true;
+    }
+  }catch(e){}
+  try{
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('a');
+    link.href=url;
+    link.target='_blank';
+    link.rel='noopener noreferrer';
+    link.style.display='none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.__CIA_LAST_DOSSIER_PDF_URL__=url;
+    setTimeout(()=>{try{URL.revokeObjectURL(url);}catch(e){}},60000);
+    return true;
+  }catch(e){
+    return false;
+  }
 }
 
 function renderDossierInterviewCard(result,band,rawDecision){
@@ -3911,7 +3938,7 @@ function bindDossierInterviewCard(result,band,rawDecision){
   const submitBtn=document.getElementById('dossier-interview-submit');
   const confirmBtn=document.getElementById('dossier-interview-confirm');
   const resetBtn=document.getElementById('dossier-interview-reset');
-  const exportBtn=document.getElementById('dossier-preview-export-pdf');
+  const exportBtns=Array.from(document.querySelectorAll('[data-dossier-export-pdf]'));
   const errorEl=document.getElementById('dossier-interview-error');
   if(submitBtn&&nextQuestion){
     submitBtn.addEventListener('click',async()=>{
@@ -3964,9 +3991,11 @@ function bindDossierInterviewCard(result,band,rawDecision){
       if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
     });
   }
-  if(exportBtn&&state.confirmed){
-    exportBtn.addEventListener('click',()=>{
-      exportDossierPreviewPdf(result,band,decision,motorInput,state);
+  if(exportBtns.length&&state.confirmed){
+    exportBtns.forEach((exportBtn)=>{
+      exportBtn.addEventListener('click',()=>{
+        exportDossierPreviewPdf(result,band,decision,motorInput,state);
+      });
     });
   }
 }
