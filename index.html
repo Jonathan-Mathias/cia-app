@@ -39,14 +39,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 /* TRILHA */
 .trilha-wrap{min-height:calc(100vh - 100px);padding:10px 0 20px}
 .cia-topbar{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:12px;padding:6px 2px 18px;border-bottom:1px solid rgba(201,164,106,.18)}
-.cia-mark{width:38px;height:38px;color:#C9A46A;opacity:.9}
+.cia-mark{width:40px;height:40px;color:#E0BC78;opacity:1;filter:drop-shadow(0 0 12px rgba(201,164,106,.16))}
 .cia-brand{text-align:center}
 .cia-brand-name{font-family:'DM Serif Display',serif;font-size:28px;line-height:1;color:#F7F3EA}
 .cia-brand-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:#C9A46A;margin-top:7px}
-.cia-menu{width:36px;height:36px;border:1px solid rgba(201,164,106,.28);border-radius:8px;background:transparent;color:#C9A46A;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1}
-.cia-hero{position:relative;padding:44px 4px 26px;overflow:hidden;text-align:center;display:grid;justify-items:center}
-.cia-map{position:absolute;left:50%;top:18px;transform:translateX(-50%);width:320px;max-width:86%;opacity:.38;color:#C9A46A;pointer-events:none}
-.cia-coords{position:relative;right:auto;top:auto;font-family:'DM Mono',monospace;font-size:9px;line-height:1.7;color:#C9A46A;letter-spacing:.8px;opacity:.78;margin-bottom:18px}
+.cia-topbar-spacer{width:36px;height:36px}
+.cia-hero{position:relative;padding:42px 4px 26px;overflow:hidden;text-align:center;display:grid;justify-items:center}
+.cia-map{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:356px;max-width:94%;opacity:.44;color:#C9A46A;pointer-events:none}
+.cia-coords{position:relative;display:flex;justify-content:center;gap:16px;flex-wrap:wrap;font-family:'DM Mono',monospace;font-size:9px;line-height:1.7;color:#D8B472;letter-spacing:.9px;opacity:.9;margin:8px 0 18px}
+.cia-coord{display:flex;align-items:center;gap:7px;padding:4px 0}
+.cia-coord strong{font-weight:500;color:#F0D39A}
+.cia-coord-dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.75}
 .trilha-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;font-weight:600}
 .trilha-h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,9.4vw,56px);line-height:1.08;color:#F7F3EA;margin-bottom:24px;letter-spacing:0;max-width:460px;text-align:center;text-wrap:balance}
 .cia-rule{width:54px;height:2px;background:#C9A46A;margin:0 auto 26px}
@@ -63,8 +66,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .trilha-proof-num{font-family:'DM Mono',monospace;font-size:14px;color:#C9A46A;text-align:right}
 .cia-start-btn{width:100%;height:74px;border-radius:8px;border:1px solid #E4C284;background:linear-gradient(135deg,#DDB36D 0%,#C9A46A 52%,#B87942 100%);color:#080B09;font-family:'DM Mono',monospace;font-size:13px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:18px;cursor:pointer;box-shadow:0 0 0 4px rgba(201,164,106,.1),0 18px 34px rgba(0,0,0,.38);transition:transform .18s ease,filter .18s ease}
 .cia-start-btn:hover{transform:translateY(-1px);filter:brightness(1.04)}
-.cia-start-btn:focus-visible,.trilha-btn:focus-visible,.cia-menu:focus-visible{outline:2px solid #F7F3EA;outline-offset:3px}
-.cia-secondary-btn{margin:24px auto 0;border:0;background:transparent;color:#C9A46A;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:10px;justify-content:center;cursor:pointer;padding:8px 10px;border-bottom:1px solid rgba(201,164,106,.26)}
+.cia-start-btn:focus-visible,.trilha-btn:focus-visible{outline:2px solid #F7F3EA;outline-offset:3px}
 .cia-foot{display:grid;grid-template-columns:1fr 42px 1fr;align-items:center;gap:14px;border-top:1px solid rgba(201,164,106,.15);padding:16px 8px 0;margin-top:24px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:rgba(247,243,234,.38)}
 .cia-foot-center{height:34px;border-left:1px solid rgba(201,164,106,.22);border-right:1px solid rgba(201,164,106,.22);display:flex;align-items:center;justify-content:center;color:#C9A46A}
 .cia-foot-right{text-align:right;color:rgba(201,164,106,.62)}
@@ -331,8 +333,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   .app{padding-left:14px;padding-right:14px}
   .cia-brand-name{font-size:25px}
   .trilha-h1{font-size:37px}
-  .cia-map{top:24px;width:240px;max-width:92%;opacity:.3}
-  .cia-coords{display:block;margin-bottom:12px;font-size:8px}
+  .cia-map{top:18px;width:250px;max-width:96%;opacity:.34}
+  .cia-coords{gap:10px;margin-bottom:12px;font-size:8px}
   .trilha-proof{grid-template-columns:54px 1fr 34px}
   .trilha-proof-title{font-size:18px}
   .trilha-btn{min-height:154px}
@@ -354,7 +356,7 @@ const RUNTIME_PARAMS = (()=>{try{return new URLSearchParams(window.location.sear
 const QA_MODE = ['1','true','yes'].includes(String(RUNTIME_PARAMS.get('qa')||'').toLowerCase());
 const APP_CONFIG = Object.freeze({
   env: 'production',
-  version: '2.6-home-market-dossier-reset',
+  version: '2.7-home-map-coords',
   integrations: {
     // Google Apps Script continua como proxy seguro para Sheets/Brevo.
     // Não colocar chaves Brevo ou service_role do Supabase no frontend.
@@ -2645,30 +2647,33 @@ function renderTrilha(){
     <div class="trilha-wrap">
       <div class="cia-topbar">
         <svg class="cia-mark" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M10 8v32M24 8v32M38 8v32M6 14h36M6 28h36M6 40h36" fill="none" stroke="currentColor" stroke-width="1"/>
-          <path d="M15 9l18 30M34 10L12 37" fill="none" stroke="currentColor" stroke-width=".8" opacity=".55"/>
-          <circle cx="24" cy="28" r="3" fill="currentColor" opacity=".85"/>
+          <path d="M10 8v32M24 8v32M38 8v32M6 14h36M6 28h36M6 40h36" fill="none" stroke="currentColor" stroke-width="1.25"/>
+          <path d="M15 9l18 30M34 10L12 37" fill="none" stroke="currentColor" stroke-width="1" opacity=".72"/>
+          <circle cx="24" cy="28" r="3.4" fill="currentColor" opacity="1"/>
         </svg>
         <div class="cia-brand">
           <div class="cia-brand-name">CIA App</div>
           <div class="cia-brand-sub">Elite Migration</div>
         </div>
-        <button class="cia-menu" type="button" aria-label="Menu">≡</button>
+        <div class="cia-topbar-spacer" aria-hidden="true"></div>
       </div>
 
       <section class="cia-hero">
-        <svg class="cia-map" viewBox="0 0 340 260" aria-hidden="true">
-          <path d="M95 46c28-22 54-28 84-21 34 8 50 33 74 51 20 15 43 21 54 44 12 25 1 59-22 74-27 18-57 4-83 13-32 11-48 48-82 45-28-2-47-28-47-55 0-23 14-40 11-62-3-25-23-42-16-64 4-11 13-19 27-25z" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".28"/>
-          <path d="M188 72c18 8 30 22 38 40M151 194c15-21 35-34 58-41M118 83c24 14 40 33 48 57" fill="none" stroke="currentColor" stroke-width=".9" opacity=".22"/>
-          <path d="M62 122h216M170 32v190" fill="none" stroke="currentColor" stroke-width=".8" opacity=".25"/>
-          <circle cx="205" cy="134" r="22" fill="none" stroke="currentColor" stroke-width="1.3"/>
-          <circle cx="205" cy="134" r="4" fill="currentColor"/>
-          <path d="M205 112v-34M205 156v40M183 134h-42M227 134h54" fill="none" stroke="currentColor" stroke-width="1"/>
+        <svg class="cia-map" viewBox="0 0 420 240" aria-hidden="true">
+          <path d="M49 95c18-11 36-10 47-6 11 4 17 13 26 20 11 9 24 12 30 23 4 9-2 20-12 26-11 7-24 4-35 8-11 4-15 14-27 15-14 1-28-7-33-19-6-14 2-26 4-37 2-12-5-21 0-30z" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".3"/>
+          <path d="M162 62c16-12 37-16 57-14 17 2 34 10 45 21 12 11 17 26 31 34 18 10 42 7 56 20 12 11 12 29 0 39-10 8-27 8-38 15-15 9-19 28-36 35-18 7-39 2-54-11-14-12-21-29-34-39-12-10-28-15-38-28-10-13-14-31-8-46 4-10 11-18 19-26z" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".38"/>
+          <path d="M325 144c10-6 23-9 34-7 13 2 25 10 32 21 7 12 9 28 2 40-7 12-24 19-38 17-14-1-26-10-33-21-7-12-10-28-4-39 2-5 4-8 7-11z" fill="none" stroke="currentColor" stroke-width="1.05" opacity=".28"/>
+          <path d="M61 174c24-5 47-6 73-5M162 156c25 4 48 5 75 3M263 173c20-2 38-1 58 3" fill="none" stroke="currentColor" stroke-width=".8" opacity=".18"/>
+          <path d="M214 36v168M97 120h236" fill="none" stroke="currentColor" stroke-width=".8" opacity=".18"/>
         </svg>
-        <div class="cia-coords">52.5200 N<br>13.4050 E</div>
         <h1 class="trilha-h1">Descubra seu mapa de carreira internacional</h1>
         <div class="cia-rule"></div>
         <p class="trilha-sub">Um diagnóstico objetivo para entender sua prontidão, evidência e mercado-alvo.</p>
+        <div class="cia-coords" aria-label="Coordenadas de capitais estratégicas">
+          <span class="cia-coord"><span class="cia-coord-dot" aria-hidden="true"></span><strong>Brasília</strong> 15.7939 S, 47.8828 W</span>
+          <span class="cia-coord"><span class="cia-coord-dot" aria-hidden="true"></span><strong>Berlim</strong> 52.5200 N, 13.4050 E</span>
+          <span class="cia-coord"><span class="cia-coord-dot" aria-hidden="true"></span><strong>Canberra</strong> 35.2809 S, 149.1300 E</span>
+        </div>
       </section>
 
       <div class="trilha-context">
@@ -2691,7 +2696,6 @@ function renderTrilha(){
       </div>
 
       <button class="cia-start-btn" id="btn-start" type="button">Iniciar diagnóstico <span aria-hidden="true">→</span></button>
-      <button class="cia-secondary-btn" id="btn-how" type="button"><span aria-hidden="true">i</span> Ver como funciona</button>
       <div class="cia-foot">
         <div>CIA-START v2.0</div>
         <div class="cia-foot-center">⌖</div>
@@ -2699,7 +2703,6 @@ function renderTrilha(){
       </div>
     </div>`;
   document.getElementById('btn-start').addEventListener('click',renderMarketChoice);
-  document.getElementById('btn-how').addEventListener('click',renderMarketChoice);
 }
 
 function renderMarketChoice(){
@@ -2707,15 +2710,15 @@ function renderMarketChoice(){
     <div class="market-wrap">
       <div class="cia-topbar">
         <svg class="cia-mark" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M10 8v32M24 8v32M38 8v32M6 14h36M6 28h36M6 40h36" fill="none" stroke="currentColor" stroke-width="1"/>
-          <path d="M15 9l18 30M34 10L12 37" fill="none" stroke="currentColor" stroke-width=".8" opacity=".55"/>
-          <circle cx="24" cy="28" r="3" fill="currentColor" opacity=".85"/>
+          <path d="M10 8v32M24 8v32M38 8v32M6 14h36M6 28h36M6 40h36" fill="none" stroke="currentColor" stroke-width="1.25"/>
+          <path d="M15 9l18 30M34 10L12 37" fill="none" stroke="currentColor" stroke-width="1" opacity=".72"/>
+          <circle cx="24" cy="28" r="3.4" fill="currentColor" opacity="1"/>
         </svg>
         <div class="cia-brand">
           <div class="cia-brand-name">CIA App</div>
           <div class="cia-brand-sub">Elite Migration</div>
         </div>
-        <button class="cia-menu" type="button" aria-label="Menu">≡</button>
+        <div class="cia-topbar-spacer" aria-hidden="true"></div>
       </div>
 
       <section class="market-question">
