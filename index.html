@@ -352,7 +352,7 @@ const RUNTIME_PARAMS = (()=>{try{return new URLSearchParams(window.location.sear
 const QA_MODE = ['1','true','yes'].includes(String(RUNTIME_PARAMS.get('qa')||'').toLowerCase());
 const APP_CONFIG = Object.freeze({
   env: 'production',
-  version: '2.8.1-market-subtitles-removed',
+  version: '2.9-dossier-workspace',
   integrations: {
     // Google Apps Script continua como proxy seguro para Sheets/Brevo.
     // Não colocar chaves Brevo ou service_role do Supabase no frontend.
@@ -569,6 +569,83 @@ function clearDossierFlowState(){
   clearDossierInterview();
   clearMotorInput();
   clearMotorDecision();
+}
+
+function getDossierWorkspaceStorageKey(){
+  return 'ciaDossierWorkspaceContext';
+}
+
+function getStoredDossierWorkspaceContext(){
+  const key=getDossierWorkspaceStorageKey();
+  try{
+    const raw=localStorage.getItem(key);
+    return raw?safeJsonParse(raw):null;
+  }catch(e){
+    return null;
+  }
+}
+
+function storeDossierWorkspaceContext(context){
+  const key=getDossierWorkspaceStorageKey();
+  try{localStorage.setItem(key,JSON.stringify(context));}catch(e){}
+}
+
+function clearDossierWorkspaceContext(){
+  const key=getDossierWorkspaceStorageKey();
+  try{localStorage.removeItem(key);}catch(e){}
+}
+
+function isDossierWorkspaceHash(hashValue){
+  const hash=typeof hashValue==='string'?hashValue:window.location.hash;
+  return hash==='#dossier-intake'||hash==='#dossier-interview';
+}
+
+function buildCurrentAppUrlWithHash(hash){
+  try{
+    const url=new URL(window.location.href);
+    url.hash=hash;
+    return url.toString();
+  }catch(e){
+    return `${window.location.pathname}${window.location.search}${hash}`;
+  }
+}
+
+function replaceHashSilently(hash){
+  const next=buildCurrentAppUrlWithHash(hash);
+  try{window.history.replaceState({},'',next);}catch(e){window.location.hash=hash;}
+}
+
+function buildDossierWorkspaceContext(result,band,rawDecision,motorSource){
+  return {
+    savedAt:new Date().toISOString(),
+    trilha:T||'',
+    answers:ANS||{},
+    counters:CTR||{adultos:0,criancas:0,jovens:0},
+    geo:GEO||{},
+    result:result||null,
+    band:band||null,
+    rawDecision:rawDecision||null,
+    motorSource:motorSource||null
+  };
+}
+
+function restoreDossierWorkspaceGlobals(context){
+  if(!context||typeof context!=='object') return;
+  if(context.trilha) T=context.trilha;
+  if(context.answers&&typeof context.answers==='object') ANS=context.answers;
+  if(context.counters&&typeof context.counters==='object') CTR=context.counters;
+  if(context.geo&&typeof context.geo==='object') GEO={...GEO,...context.geo};
+}
+
+function openDossierWorkspace(mode,result,band,rawDecision,motorSource){
+  const hash=mode==='interview'?'#dossier-interview':'#dossier-intake';
+  storeDossierWorkspaceContext(buildDossierWorkspaceContext(result,band,rawDecision,motorSource));
+  const url=buildCurrentAppUrlWithHash(hash);
+  let opened=null;
+  try{opened=window.open(url,'_blank','noopener');}catch(e){}
+  if(!opened){
+    window.location.href=url;
+  }
 }
 
 function clearLegacyDossierStorage(){
@@ -3844,6 +3921,36 @@ function isDossierCtaInlinePrimary(cta){
   return !!cta&&['dossier_intake_start','dossier_request_complement'].includes(cta.id);
 }
 
+function shouldRenderDossierWorkspaceLaunch(result,rawDecision){
+  const summary=getMotorDecisionSummary(rawDecision);
+  return shouldOfferDossierIntake(result,summary)||!!(summary&&['Lite','Completo'].includes(summary.status));
+}
+
+function renderDossierWorkspaceLaunchCard(result,band,rawDecision,motorSource){
+  if(!shouldRenderDossierWorkspaceLaunch(result,rawDecision)) return '';
+  const summary=getMotorDecisionSummary(rawDecision);
+  const needsInterview=!!(summary&&['Lite','Completo'].includes(summary.status));
+  const mode=needsInterview?'interview':'intake';
+  const title=needsInterview
+    ? (summary.status==='Lite'?'Abrir área dedicada do Dossiê Lite':'Abrir área dedicada do Dossiê Completo')
+    : 'Abrir área dedicada da triagem estratégica';
+  const copy=needsInterview
+    ? 'O score já cumpriu o papel dele. A partir daqui, o dossiê precisa de um espaço próprio para coleta de contexto, entrevista e prévia.'
+    : 'O quiz encerrou a leitura base. A próxima decisão do motor não deve ficar espremida dentro do cartão de resultado.';
+  const label=needsInterview?'Abrir dossiê em tela dedicada':'Abrir triagem em tela dedicada';
+  const kicker=needsInterview?'Fluxo do dossiê':'Triagem estratégica';
+  const note=needsInterview
+    ? 'Melhor do que continuar no card do resultado: você entra direto na parte que gera contexto para o dossiê.'
+    : 'Abre em aba separada com o contexto do resultado preservado.';
+  return `<div class="primary-cta" data-dossier-workspace-launch="${mode}">
+    <div class="primary-cta-kicker">${kicker}</div>
+    <div class="primary-cta-title">${title}</div>
+    <div class="primary-cta-copy">${copy}</div>
+    <button type="button" class="primary-cta-btn ${T==='de'?'de':'au'}" data-dossier-workspace-open="${mode}">${label}</button>
+    <div class="primary-cta-note">${note}</div>
+  </div>`;
+}
+
 function bindDossierIntakeCard(result,band){
   const card=document.getElementById('dossier-intake-card');
   if(!card) return;
@@ -3930,7 +4037,21 @@ function bindDossierIntakeCard(result,band){
         has_github: materials.github
       }
     });
-    await requestMotorDecision(result,band);
+    const nextResolution=await requestMotorDecision(result,band);
+    const nextDecision=nextResolution&&nextResolution.decision?nextResolution.decision:getStoredMotorDecision();
+    const nextSummary=getMotorDecisionSummary(nextDecision);
+    if(isDossierWorkspaceHash()){
+      storeDossierWorkspaceContext(buildDossierWorkspaceContext(result,band,nextDecision,nextResolution&&nextResolution.source?nextResolution.source:'workspace'));
+      if(nextSummary&&['Lite','Completo'].includes(nextSummary.status)){
+        replaceHashSilently('#dossier-interview');
+        renderDossierWorkspace('interview');
+      }else{
+        replaceHashSilently('#dossier-intake');
+        renderDossierWorkspace('intake');
+      }
+      window.scrollTo({top:0,behavior:'smooth'});
+      return;
+    }
     await renderResults({skipAnalytics:true});
     window.scrollTo({top:0,behavior:'smooth'});
   });
@@ -3953,6 +4074,11 @@ function bindDossierInterviewCard(result,band,rawDecision){
         mode:'qa_simulated_purchase',
         decision_status:decision.status
       });
+      if(isDossierWorkspaceHash()){
+        renderDossierWorkspace('interview');
+        window.scrollTo({top:0,behavior:'smooth'});
+        return;
+      }
       await renderResults({skipAnalytics:true});
       const anchor=document.getElementById('dossier-interview-card');
       if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
@@ -3990,6 +4116,11 @@ function bindDossierInterviewCard(result,band,rawDecision){
         question_id:nextQuestion.id,
         answer_length:value.length
       });
+      if(isDossierWorkspaceHash()){
+        renderDossierWorkspace('interview');
+        window.scrollTo({top:0,behavior:'smooth'});
+        return;
+      }
       await renderResults({skipAnalytics:true});
       const anchor=document.getElementById('dossier-interview-card');
       if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
@@ -4004,6 +4135,11 @@ function bindDossierInterviewCard(result,band,rawDecision){
           decision_status:decision.status,
           question_count:getInterviewProgress(decision,motorInput,nextState).answered
         });
+        if(isDossierWorkspaceHash()){
+          renderDossierWorkspace('interview');
+          window.scrollTo({top:0,behavior:'smooth'});
+          return;
+        }
         await renderResults({skipAnalytics:true});
       }
       const anchor=document.getElementById('dossier-interview-card');
@@ -4013,6 +4149,11 @@ function bindDossierInterviewCard(result,band,rawDecision){
   if(resetBtn){
     resetBtn.addEventListener('click',async()=>{
       clearDossierFlowState();
+      if(isDossierWorkspaceHash()){
+        renderDossierWorkspace('intake');
+        window.scrollTo({top:0,behavior:'smooth'});
+        return;
+      }
       await renderResults({skipAnalytics:true});
       const anchor=document.getElementById('dossier-interview-card');
       if(anchor) anchor.scrollIntoView({behavior:'smooth',block:'start'});
@@ -4038,6 +4179,86 @@ function renderPrimaryCta(result,band){
     <a href="${cta.url}" target="${target}" class="primary-cta-btn ${cls}" data-primary-cta="${cta.id}">${cta.label}</a>
     <div class="primary-cta-note">${cta.note}</div>
   </div>`;
+}
+
+function bindDossierWorkspaceLaunch(result,band,rawDecision,motorSource){
+  document.querySelectorAll('[data-dossier-workspace-open]').forEach((btn)=>{
+    btn.addEventListener('click',()=>{
+      const mode=btn.getAttribute('data-dossier-workspace-open')||'intake';
+      openDossierWorkspace(mode,result,band,rawDecision,motorSource);
+    });
+  });
+}
+
+function renderDossierWorkspace(mode){
+  const context=getStoredDossierWorkspaceContext();
+  if(!context){
+    document.getElementById('app').innerHTML=`
+      <div class="trilha-wrap">
+        <div class="cia-topbar">
+          <div class="cia-topbar-spacer" aria-hidden="true"></div>
+          <div class="cia-brand">
+            <div class="cia-brand-name">CIA App</div>
+            <div class="cia-brand-sub">Elite Migration</div>
+          </div>
+          <div class="cia-topbar-spacer" aria-hidden="true"></div>
+        </div>
+        <div class="primary-cta" style="margin-top:28px">
+          <div class="primary-cta-kicker">Área do dossiê</div>
+          <div class="primary-cta-title">Não encontrei o contexto desta sessão</div>
+          <div class="primary-cta-copy">Abra a área do dossiê a partir do resultado do quiz para preservar score, trilha e decisão do motor.</div>
+          <button type="button" id="btn-dossier-home" class="primary-cta-btn ${T==='de'?'de':'au'}">Voltar ao app</button>
+        </div>
+      </div>`;
+    const homeBtn=document.getElementById('btn-dossier-home');
+    if(homeBtn) homeBtn.addEventListener('click',()=>{replaceHashSilently('');renderTrilha();window.scrollTo(0,0);});
+    return;
+  }
+  restoreDossierWorkspaceGlobals(context);
+  const result=context.result||calcScore();
+  const band=context.band||getBand(result.final);
+  const rawDecision=context.rawDecision||getStoredMotorDecision();
+  const summary=getMotorDecisionSummary(rawDecision);
+  const effectiveMode=(mode==='interview'&&summary&&['Lite','Completo'].includes(summary.status))?'interview':'intake';
+  const title=effectiveMode==='interview'
+    ? (summary&&summary.status==='Lite'?'Dossiê Lite · área dedicada':'Dossiê Completo · área dedicada')
+    : 'Triagem estratégica · área dedicada';
+  const copy=effectiveMode==='interview'
+    ? 'Aqui o motor vira entrega: contexto, entrevista adaptativa e prévia do dossiê sem disputar espaço com a tela de score.'
+    : 'Aqui o motor decide o tier do dossiê com mais calma, usando a triagem curta antes de qualquer geração de conteúdo.';
+  const cardHtml=effectiveMode==='interview'
+    ? renderDossierInterviewCard(result,band,rawDecision)
+    : renderDossierIntakeCard(result,rawDecision,context.motorSource||'workspace');
+  document.getElementById('app').innerHTML=`
+    <div class="trilha-wrap">
+      <div class="cia-topbar">
+        <div class="cia-topbar-spacer" aria-hidden="true"></div>
+        <div class="cia-brand">
+          <div class="cia-brand-name">CIA App</div>
+          <div class="cia-brand-sub">Elite Migration</div>
+        </div>
+        <div class="cia-topbar-spacer" aria-hidden="true"></div>
+      </div>
+      <div style="text-align:center;padding:24px 0 10px">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:${T==='de'?'#D4AF37':'#173528'}">Mecanismo do dossiê</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:clamp(30px,6vw,42px);line-height:1.12;color:#F7F3EA;margin:10px auto 12px;max-width:520px">${title}</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.75;max-width:560px;margin:0 auto">${copy}</div>
+      </div>
+      <div style="display:flex;justify-content:center;margin:8px 0 18px">
+        <button type="button" id="btn-dossier-back-result" class="market-back">Voltar ao resultado</button>
+      </div>
+      ${cardHtml}
+    </div>`;
+  const backBtn=document.getElementById('btn-dossier-back-result');
+  if(backBtn){
+    backBtn.addEventListener('click',async()=>{
+      replaceHashSilently('');
+      await renderResults({skipAnalytics:true});
+      window.scrollTo(0,0);
+    });
+  }
+  bindDossierIntakeCard(result,band);
+  bindDossierInterviewCard(result,band,rawDecision);
 }
 
 async function renderResults(opts={}){
@@ -4128,9 +4349,8 @@ async function renderResults(opts={}){
     })()}
     <div class="sec-label-main" style="margin-top:24px">Próximos passos</div>
     <div class="steps">${steps.map((s,i)=>`<div class="step"><span class="step-n">0${i+1}</span><div class="step-t">${s}</div></div>`).join('')}</div>
-    ${inlineDossierPrimary?renderDossierIntakeCard(result,motorResolution.decision,motorResolution.source):renderPrimaryCta(result,band)}
-    ${inlineDossierPrimary?'':renderDossierIntakeCard(result,motorResolution.decision,motorResolution.source)}
-    ${renderDossierInterviewCard(result,band,motorResolution.decision)}
+    ${inlineDossierPrimary?renderDossierWorkspaceLaunchCard(result,band,motorResolution.decision,motorResolution.source):renderPrimaryCta(result,band)}
+    ${inlineDossierPrimary?'':renderDossierWorkspaceLaunchCard(result,band,motorResolution.decision,motorResolution.source)}
     <div class="secondary-resources-label" id="email-report-note">Entrega conectada ao diagnóstico</div>
     <div style="background:#0d0d1a;border:1px solid var(--border);border-radius:var(--r);padding:18px 18px 16px;margin:8px 0 18px">
       <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">Este MVP está testando coerência de motor, não viralização</div>
@@ -4249,8 +4469,7 @@ async function renderResults(opts={}){
     card.addEventListener('click',()=>{card.classList.toggle('collapsed');});
   });
 
-  bindDossierIntakeCard(result,band);
-  bindDossierInterviewCard(result,band,motorResolution.decision);
+  bindDossierWorkspaceLaunch(result,band,motorResolution.decision,motorResolution.source);
   bindQaCard();
 
   document.getElementById('btn-restart').addEventListener('click',()=>{
@@ -4277,6 +4496,8 @@ function routeSwitchInline(){
 
 syncAppVersionState();
 if(window.location.hash==='#market') renderMarketChoice();
+else if(window.location.hash==='#dossier-intake') renderDossierWorkspace('intake');
+else if(window.location.hash==='#dossier-interview') renderDossierWorkspace('interview');
 else renderTrilha();
 logEvent('app_loaded');
 </script>
