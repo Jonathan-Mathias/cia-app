@@ -352,7 +352,7 @@ const RUNTIME_PARAMS = (()=>{try{return new URLSearchParams(window.location.sear
 const QA_MODE = ['1','true','yes'].includes(String(RUNTIME_PARAMS.get('qa')||'').toLowerCase());
 const APP_CONFIG = Object.freeze({
   env: 'production',
-  version: '2.9-dossier-workspace',
+  version: '3.0-dossier-tier-axes',
   integrations: {
     // Google Apps Script continua como proxy seguro para Sheets/Brevo.
     // Não colocar chaves Brevo ou service_role do Supabase no frontend.
@@ -688,6 +688,34 @@ function getMotorDecisionSummary(decision){
   return {status,recommendedOffer:offer,nextStep};
 }
 
+function renderMotorDecisionAudit(rawDecision){
+  if(!rawDecision||typeof rawDecision!=='object') return '';
+  const audit=rawDecision.audit&&typeof rawDecision.audit==='object'?rawDecision.audit:{};
+  const axes=audit.tier_axes&&typeof audit.tier_axes==='object'?audit.tier_axes:null;
+  if(!axes) return '';
+  const reasons={
+    density:Array.isArray(axes.densityReasons)?axes.densityReasons.filter(Boolean):[],
+    proof:Array.isArray(axes.proofReasons)?axes.proofReasons.filter(Boolean):[],
+    complexity:Array.isArray(axes.complexityReasons)?axes.complexityReasons.filter(Boolean):[]
+  };
+  const items=[
+    {label:'Densidade',value:axes.density,reasons:reasons.density},
+    {label:'Prova',value:axes.proof,reasons:reasons.proof},
+    {label:'Complexidade',value:axes.complexity,reasons:reasons.complexity}
+  ];
+  return `<div style="margin-top:14px;padding:14px 14px 12px;border:1px solid var(--border);border-radius:var(--r2);background:#0d0d1a">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px">Leitura do motor</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+      ${items.map(item=>`<div style="padding:10px 10px 8px;border:1px solid var(--border);border-radius:10px;background:#111120">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">${item.label}</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:26px;color:var(--text);line-height:1">${item.value}</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.5;margin-top:6px">${esc(item.reasons[0]||'Sem leitura detalhada')}</div>
+      </div>`).join('')}
+    </div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.65"><strong style="color:var(--text)">Soma:</strong> ${axes.total}/6. Regra atual do app: <strong style="color:var(--text)">4-6 = Completo</strong>, <strong style="color:var(--text)">0-3 = Lite</strong>.</div>
+  </div>`;
+}
+
 function dossierHasText(value,min=1){
   return typeof value==='string'&&value.trim().length>=min;
 }
@@ -832,6 +860,112 @@ function hasSpecificRoleHypothesis(value){
   return Array.isArray(value)&&value.some(item=>dossierHasText(item,4));
 }
 
+function normalizeDecisionText(value){
+  return String(value||'')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase();
+}
+
+function hasReferenceOpportunity(value){
+  if(!dossierHasText(value,6)) return false;
+  const normalized=normalizeDecisionText(value);
+  return !/(nenhuma|nenhum|nao tenho|nao mapeei|ainda nao|ainda nao tenho|sem vaga)/.test(normalized);
+}
+
+function countAlternativeMarkets(value){
+  const normalized=normalizeDecisionText(value);
+  if(!normalized) return 0;
+  const markets=['alemanha','australia','canada','estados unidos','eua','reino unido','uk','irlanda','holanda','portugal'];
+  return markets.filter(market=>normalized.includes(market)).length;
+}
+
+function detectReferenceMarketTension(referenceValue,route){
+  const normalized=normalizeDecisionText(referenceValue);
+  if(!normalized) return false;
+  const isGermanyRoute=normalizeDecisionText(route).includes('alemanha');
+  const routeTerms=isGermanyRoute?['alemanha','germany','berlin','munich','munique']:['australia','sydney','melbourne','brisbane','perth'];
+  const foreignTerms=isGermanyRoute
+    ? ['australia','sydney','melbourne','brisbane','perth','uk','reino unido','canada','estados unidos','eua']
+    : ['alemanha','germany','berlin','munich','munique','uk','reino unido','canada','estados unidos','eua'];
+  const mentionsRoute=routeTerms.some(term=>normalized.includes(term));
+  const mentionsForeign=foreignTerms.some(term=>normalized.includes(term));
+  return mentionsForeign&&!mentionsRoute;
+}
+
+function scoreTierAxes(input){
+  const route=input&&input.route?input.route:(T==='de'?'Alemanha':'Austrália');
+  const questionnaire=input&&input.questionnaire&&typeof input.questionnaire==='object'?input.questionnaire:{};
+  const profile=input&&input.profile&&typeof input.profile==='object'?input.profile:{};
+  const materials=input&&input.materials&&typeof input.materials==='object'?input.materials:{};
+  const seniority=profile.seniority_level||'';
+  const roles=Array.isArray(questionnaire.target_role_hypotheses)?questionnaire.target_role_hypotheses.filter(Boolean):[];
+  const evidence=questionnaire.evidence_of_results||'';
+  const marketLogic=questionnaire.target_market_logic||'';
+  const reference=questionnaire.reference_opportunity||'';
+  const hasConcreteProof=hasConcreteProofSignal(evidence);
+  const hasMarketAsset=hasPremiumMarketAsset(materials);
+  const referenceMapped=hasReferenceOpportunity(reference);
+  const alternativeMarkets=countAlternativeMarkets(marketLogic);
+  const referenceTension=detectReferenceMarketTension(reference,route);
+  const tradeoff=questionnaire.has_meaningful_tradeoffs===true;
+  const highAmbiguity=questionnaire.high_ambiguity_case===true;
+  const storyInconsistent=questionnaire.story_inconsistent===true;
+
+  let density=0;
+  const densityReasons=[];
+  if(['Senior','Especialista'].includes(seniority)){
+    density=1;
+    densityReasons.push('senioridade consolidada');
+  }
+  if(['Lideranca','Executivo'].includes(seniority)||((['Senior','Especialista'].includes(seniority))&&hasConcreteProof)){
+    density=2;
+    densityReasons.push('trajetória sênior com responsabilidade defensável');
+  }
+  if(!densityReasons.length&&roles.length) densityReasons.push('senioridade ainda sem prova suficiente para leitura premium');
+
+  let proof=0;
+  const proofReasons=[];
+  if(hasConcreteProof||referenceMapped||hasMarketAsset){
+    proof=1;
+    proofReasons.push('já existe alguma prova ou ativo de mercado');
+  }
+  if(hasConcreteProof&&referenceMapped){
+    proof=2;
+    proofReasons.push('resultado concreto combinado com vaga de referência mapeada');
+  }
+  if(proof===2&&hasMarketAsset) proofReasons.push('ativo adicional de mercado reforça a prova');
+  if(!proofReasons.length) proofReasons.push('prova ainda depende mais de intenção do que de evidência');
+
+  let complexity=0;
+  const complexityReasons=[];
+  if(roles.length>1||tradeoff||alternativeMarkets>1){
+    complexity=1;
+    complexityReasons.push('já existe mais de uma variável real competindo');
+  }
+  if(highAmbiguity||storyInconsistent||referenceTension||(tradeoff&&(roles.length>1||alternativeMarkets>1))){
+    complexity=2;
+    complexityReasons.push(referenceTension
+      ? 'vaga de referência aponta para uma trilha diferente da rota declarada'
+      : 'caso tem ambiguidade ou contradição real');
+  }
+  if(!complexityReasons.length) complexityReasons.push('caminho ainda parece relativamente linear');
+
+  return {
+    density,
+    proof,
+    complexity,
+    total:density+proof+complexity,
+    referenceMapped,
+    referenceTension,
+    hasConcreteProof,
+    hasMarketAsset,
+    densityReasons,
+    proofReasons,
+    complexityReasons
+  };
+}
+
 function decideDossierInBrowser(input){
   const score=Number.isFinite(input&&input.score)?input.score:0;
   const materials=input&&input.materials&&typeof input.materials==='object'?input.materials:{};
@@ -904,16 +1038,12 @@ function decideDossierInBrowser(input){
   };
 
   if(!materials.cv){
-    payload.lists.blocking.push({code:'missing_cv',message:'CV ausente.',source:'cv'});
-    payload.audit.decision_reasons.push('faltou CV');
+    payload.lists.required.push({code:'missing_cv',message:'CV ausente.',source:'cv'});
+    payload.audit.decision_reasons.push('faltou CV atual');
     payload.audit.critical_facts.push('materials.cv=false');
   }
 
-  if(score<55){
-    payload.lists.blocking.push({code:'below_internal_cutoff',message:'Score abaixo do corte interno de 55.',source:'cia_app'});
-    payload.audit.decision_reasons.push('score abaixo do corte interno');
-    payload.audit.critical_facts.push(`cia_score=${score}`);
-  }
+  payload.audit.critical_facts.push(`cia_score=${score}`);
 
   if(!questionnaire){
     payload.lists.required.push({code:'missing_questionnaire',message:'Questionário estratégico complementar ausente.',source:'strategic_questionnaire'});
@@ -944,6 +1074,12 @@ function decideDossierInBrowser(input){
   }
   if(isWeakStrategicAnswer(questionnaire.target_market_logic)){
     payload.lists.required.push({code:'market_logic_weak',message:'Lógica do mercado-alvo ainda está fraca.',source:'strategic_questionnaire'});
+  }
+  if(!dossierHasText(questionnaire.language_level_detail,6)){
+    payload.lists.required.push({code:'language_level_missing',message:'Nível de idioma não foi confirmado.',source:'strategic_questionnaire'});
+  }
+  if(!dossierHasText(questionnaire.reference_opportunity,6)){
+    payload.lists.required.push({code:'reference_opportunity_missing',message:'Falta vaga de referência ou declaração explícita de que ainda não existe.',source:'strategic_questionnaire'});
   }
   if(!dossierHasText(questionnaire.evidence_of_results,12)){
     payload.lists.warning.push({code:'insufficient_evidence',message:'Evidência de resultados ainda está fraca.',source:'strategic_questionnaire'});
@@ -985,47 +1121,44 @@ function decideDossierInBrowser(input){
     });
   }
 
-  let densityScore=0;
-  if(profile.seniority_level&&['Senior','Especialista','Lideranca','Executivo'].includes(profile.seniority_level)) densityScore+=1;
-  if(Array.isArray(questionnaire.target_role_hypotheses)&&questionnaire.target_role_hypotheses.length>1) densityScore+=1;
-  if(questionnaire.has_meaningful_tradeoffs===true) densityScore+=1;
-  if(dossierHasText(questionnaire.evidence_of_results,40)) densityScore+=1;
-  if(questionnaire.high_ambiguity_case===true) densityScore+=1;
+  const axes=scoreTierAxes({
+    route:input&&input.route?input.route:(T==='de'?'Alemanha':'Austrália'),
+    questionnaire,
+    profile,
+    materials
+  });
 
-  const defendableEvidenceCount=countDefendableEvidence(questionnaire.evidence_of_results);
-  const hasConcreteProof=hasConcreteProofSignal(questionnaire.evidence_of_results);
-  const hasPremiumAsset=hasPremiumMarketAsset(materials);
-  const hasRoleClarity=hasSpecificRoleHypothesis(questionnaire.target_role_hypotheses);
-  const scoreEligibleForCompleto=score>=70;
+  payload.audit.tier_axes=axes;
+  payload.audit.critical_facts.push(`axis_density=${axes.density}`);
+  payload.audit.critical_facts.push(`axis_proof=${axes.proof}`);
+  payload.audit.critical_facts.push(`axis_complexity=${axes.complexity}`);
+  payload.audit.critical_facts.push(`axis_total=${axes.total}`);
+  payload.audit.critical_facts.push(`reference_mapped=${axes.referenceMapped}`);
+  payload.audit.critical_facts.push(`reference_tension=${axes.referenceTension}`);
+  payload.audit.critical_facts.push(`has_concrete_proof=${axes.hasConcreteProof}`);
 
-  payload.audit.critical_facts.push(`density_score=${densityScore}`);
-  payload.audit.critical_facts.push(`defendable_evidence_count=${defendableEvidenceCount}`);
-  payload.audit.critical_facts.push(`has_concrete_proof=${hasConcreteProof}`);
-  payload.audit.critical_facts.push(`has_premium_market_asset=${hasPremiumAsset}`);
-  payload.audit.critical_facts.push(`score_eligible_for_completo=${scoreEligibleForCompleto}`);
-
-  if(defendableEvidenceCount<2){
-    payload.lists.warning.push({code:'evidence_pack_thin',message:'Ainda faltam pelo menos duas evidências defendíveis para sustentar um premium.',source:'strategic_questionnaire'});
-  }
-  if(!hasConcreteProof){
+  if(!axes.hasConcreteProof){
     payload.lists.warning.push({code:'evidence_without_proof_signal',message:'A evidência ainda carece de número, impacto ou contexto concreto.',source:'strategic_questionnaire'});
   }
-  if(!hasPremiumAsset){
+  if(!axes.referenceMapped){
+    payload.lists.warning.push({code:'reference_not_mapped',message:'Ainda não existe vaga de referência clara mapeada pelo lead.',source:'strategic_questionnaire'});
+  }
+  if(!axes.hasMarketAsset){
     payload.lists.warning.push({code:'market_assets_light',message:'Falta ao menos um ativo adicional de mercado para sustentar um premium.',source:'materials'});
   }
 
   const warningCount=payload.lists.warning.length;
-  const requiresHumanReview=densityScore>=4||[questionnaire.high_ambiguity_case,questionnaire.story_inconsistent,warningCount>=3].filter(Boolean).length>=2;
+  const requiresHumanReview=axes.total>=5||[questionnaire.high_ambiguity_case,questionnaire.story_inconsistent,warningCount>=3].filter(Boolean).length>=2;
   if(requiresHumanReview){
     payload.lists.warning.push({code:'needs_manual_review',message:'Caso pede validação humana antes de maior automação.',source:'combined'});
   }
 
-  const completoEligible=scoreEligibleForCompleto&&densityScore>=4&&defendableEvidenceCount>=2&&hasConcreteProof&&hasPremiumAsset&&hasRoleClarity;
+  const completoEligible=axes.total>=4;
 
   if(completoEligible){
-    payload.lists.warning.push({code:'high_complexity_case',message:'Caso com densidade estratégica mais alta.',source:'combined'});
+    payload.lists.warning.push({code:'tier_completo_by_axes',message:`Soma D/P/C = ${axes.total}/6.`,source:'combined'});
     payload.lists.warning.push({code:'good_fit_completo',message:'Bom fit para Dossiê Completo.',source:'combined'});
-    payload.audit.decision_reasons.push('caso com densidade estratégica suficiente para completo');
+    payload.audit.decision_reasons.push(`soma D/P/C em ${axes.total}/6 com leitura premium defensável`);
     return setDecision('Completo',{
       recommendedOffer:'Completo',
       paymentEligibility:'allowed',
@@ -1038,12 +1171,9 @@ function decideDossierInBrowser(input){
     });
   }
 
-  if(densityScore>=3){
-    payload.lists.warning.push({code:'premium_gate_not_met',message:'O caso tem potencial, mas ainda não sustenta Dossiê Completo com segurança.',source:'combined'});
-  }
-
+  payload.lists.warning.push({code:'tier_lite_by_axes',message:`Soma D/P/C = ${axes.total}/6.`,source:'combined'});
   payload.lists.warning.push({code:'good_fit_lite',message:'Bom fit para Dossiê Lite.',source:'combined'});
-  payload.audit.decision_reasons.push('caso elegível com menor densidade estratégica');
+  payload.audit.decision_reasons.push(`soma D/P/C em ${axes.total}/6, ainda sem densidade suficiente para completo`);
   return setDecision('Lite',{
     recommendedOffer:'Lite',
     paymentEligibility:'allowed',
@@ -3823,11 +3953,15 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
   const decisionSummary=rawDecision&&rawDecision.decision&&rawDecision.decision.decision_summary
     ? `<div style="font-size:12px;color:var(--text2);line-height:1.65;margin-top:10px"><strong style="color:var(--text)">Leitura atual:</strong> ${esc(rawDecision.decision.decision_summary)}</div>`
     : '';
+  const languageLabel=T==='de'
+    ? (ANS['p2']?ANS['p2'].l:'Alemão ainda não informado no quiz')
+    : (ANS['p1']?ANS['p1'].l:'Inglês ainda não informado no quiz');
   return `<div class="primary-cta" id="dossier-intake-card">
     <div class="primary-cta-kicker">Triagem estratégica</div>
     <div class="primary-cta-title">${tone.title}</div>
     <div class="primary-cta-copy">${tone.copy}</div>
     ${decisionSummary}
+    ${renderMotorDecisionAudit(rawDecision)}
     <button type="button" id="dossier-intake-toggle" class="primary-cta-btn ${T==='de'?'de':'au'}" data-primary-cta="${primaryCtaId}" style="max-width:320px;margin-top:14px">
       ${showForm?'Revisar triagem estratégica':'Completar triagem estratégica'}
     </button>
@@ -3891,17 +4025,26 @@ function renderDossierIntakeCard(result,rawDecision,motorSource){
           <textarea id="dossier-goal" rows="3" placeholder="Ex.: Quero me reposicionar para vagas de Operations Manager na Alemanha ainda neste ciclo." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.goal_for_next_12_months||'')}</textarea>
         </label>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Por que ${T==='de'?'a Alemanha':'a Austrália'} faz sentido para você? <span style="color:var(--accent)">*</span></span>
-          <textarea id="dossier-market-logic" rows="3" placeholder="Ex.: indústria, tipo de vaga, idioma, contexto familiar, timing ou mercado." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.target_market_logic||'')}</textarea>
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Mercado principal e alternativas reais <span style="color:var(--accent)">*</span></span>
+          <textarea id="dossier-market-logic" rows="3" placeholder="Ex.: Alemanha é a prioridade. Austrália ainda está na mesa por X, mas hoje eu priorizaria Y." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.target_market_logic||'')}</textarea>
         </label>
         <label style="display:grid;gap:6px">
           <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Sua melhor evidência de resultado <span style="color:var(--accent)">*</span></span>
           <textarea id="dossier-results-evidence" rows="3" placeholder="Ex.: resultado com número, impacto financeiro, ganho operacional ou entrega relevante." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.evidence_of_results||'')}</textarea>
         </label>
         <label style="display:grid;gap:6px">
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Possíveis cargos-alvo (máximo 3) <span style="color:var(--accent)">*</span></span>
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Prioridade de função/cargo (máximo 3) <span style="color:var(--accent)">*</span></span>
           <input id="dossier-target-roles" type="text" value="${esc(roles)}" placeholder="Ex.: Operations Manager, Project Manager, Supply Chain Manager" style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif">
         </label>
+        <label style="display:grid;gap:6px">
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Vaga de referência já mapeada <span style="color:var(--accent)">*</span></span>
+          <textarea id="dossier-reference-opportunity" rows="3" placeholder="Ex.: vaga X na empresa Y em Berlim. Se ainda não mapeou nenhuma, escreva isso explicitamente." style="padding:13px 14px;border:1px solid var(--border);border-radius:var(--r2);font-size:14px;color:var(--text);background:#111120;font-family:'Geist',sans-serif;resize:vertical">${esc(questionnaire.reference_opportunity||'')}</textarea>
+        </label>
+        <div style="display:grid;gap:6px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
+          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase">Idioma atual no quiz</span>
+          <strong style="font-size:14px;color:var(--text)">${esc(languageLabel)}</strong>
+          <span style="font-size:12px;color:var(--text2);line-height:1.55">Por enquanto o motor reutiliza o idioma que já saiu no diagnóstico base. Isso já entra na decisão sem pedir a mesma informação duas vezes.</span>
+        </div>
         <label style="display:flex;align-items:center;gap:10px;background:#111120;border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px">
           <input id="dossier-tradeoffs" type="checkbox"${questionnaire.has_meaningful_tradeoffs?' checked':''} style="accent-color:var(--accent)">
           <span style="font-size:13px;color:var(--text2)">Meu caso tem trade-offs relevantes de reposicionamento, timing, senioridade ou mercado-alvo</span>
@@ -3974,8 +4117,15 @@ function bindDossierIntakeCard(result,band){
     const goal=((document.getElementById('dossier-goal')||{}).value||'').trim();
     const marketLogic=((document.getElementById('dossier-market-logic')||{}).value||'').trim();
     const evidence=((document.getElementById('dossier-results-evidence')||{}).value||'').trim();
+    const referenceOpportunity=((document.getElementById('dossier-reference-opportunity')||{}).value||'').trim();
     const rolesRaw=((document.getElementById('dossier-target-roles')||{}).value||'').trim();
     const targetRoles=rolesRaw.split(/[,\n]/).map(v=>v.trim()).filter(Boolean);
+    const languageLevelDetail=T==='de'
+      ? (ANS['p2']?ANS['p2'].l:'Alemão ainda não informado')
+      : (ANS['p1']?ANS['p1'].l:'Inglês ainda não informado');
+    const languageStructuralBlock=T==='de'
+      ? !((ANS['p2']?ANS['p2'].v:0) >= 2)
+      : !((ANS['p1']?ANS['p1'].v:0) >= 2);
     const materials={
       cv:!!((document.getElementById('dossier-cv')||{}).checked),
       linkedin:!!((document.getElementById('dossier-linkedin')||{}).checked),
@@ -3986,13 +4136,15 @@ function bindDossierIntakeCard(result,band){
       goal_for_next_12_months: goal,
       target_market_logic: marketLogic,
       evidence_of_results: evidence,
+      language_level_detail: languageLevelDetail,
+      reference_opportunity: referenceOpportunity,
       availability_for_execution: availability,
       urgency_window: urgency,
       target_role_hypotheses: targetRoles,
       has_meaningful_tradeoffs: !!((document.getElementById('dossier-tradeoffs')||{}).checked),
       high_ambiguity_case: false,
       story_inconsistent: false,
-      language_structural_block: false
+      language_structural_block: languageStructuralBlock
     };
     const errors=[];
     if(!seniority) errors.push('Selecione sua senioridade.');
@@ -4000,8 +4152,9 @@ function bindDossierIntakeCard(result,band){
     if(!urgency) errors.push('Selecione seu prazo.');
     if(!materials.cv) errors.push('Antes de continuar, confirme que você já tem um CV atual para enviar.');
     if(goal.length<12) errors.push('Explique melhor seu objetivo para os próximos 12 meses.');
-    if(marketLogic.length<12) errors.push('Explique por que esse mercado faz sentido para você.');
+    if(marketLogic.length<12) errors.push('Explique mercado principal e alternativas reais.');
     if(evidence.length<12) errors.push('Traga pelo menos uma evidência concreta de resultado.');
+    if(referenceOpportunity.length<6) errors.push('Informe uma vaga de referência ou diga explicitamente que ainda não mapeou nenhuma.');
     if(targetRoles.length<1) errors.push('Informe ao menos uma hipótese de cargo-alvo.');
     if(targetRoles.length>3) errors.push('Informe no máximo 3 cargos-alvo.');
     if(errors.length){

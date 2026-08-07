@@ -69,6 +69,119 @@ function hasSpecificRoleHypothesis(value) {
   return Array.isArray(value) && value.some(item => hasText(item, 4));
 }
 
+function normalizeDecisionText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function hasReferenceOpportunity(value) {
+  if (!hasText(value, 6)) return false;
+  const normalized = normalizeDecisionText(value);
+  return !/(nenhuma|nenhum|nao tenho|nao mapeei|ainda nao|ainda nao tenho|sem vaga)/.test(normalized);
+}
+
+function countAlternativeMarkets(value) {
+  const normalized = normalizeDecisionText(value);
+  if (!normalized) return 0;
+  const markets = [
+    'alemanha',
+    'australia',
+    'canada',
+    'estados unidos',
+    'eua',
+    'reino unido',
+    'uk',
+    'irlanda',
+    'holanda',
+    'portugal'
+  ];
+  return markets.filter(market => normalized.includes(market)).length;
+}
+
+function detectReferenceMarketTension(referenceValue, route) {
+  const normalized = normalizeDecisionText(referenceValue);
+  if (!normalized) return false;
+  const isGermanyRoute = normalizeDecisionText(route).includes('alemanha');
+  const routeTerms = isGermanyRoute ? ['alemanha', 'germany', 'berlin', 'munich', 'munique'] : ['australia', 'australia', 'sydney', 'melbourne', 'brisbane', 'perth'];
+  const foreignTerms = isGermanyRoute
+    ? ['australia', 'sydney', 'melbourne', 'brisbane', 'perth', 'uk', 'reino unido', 'canada', 'estados unidos', 'eua']
+    : ['alemanha', 'germany', 'berlin', 'munich', 'munique', 'uk', 'reino unido', 'canada', 'estados unidos', 'eua'];
+  const mentionsRoute = routeTerms.some(term => normalized.includes(term));
+  const mentionsForeign = foreignTerms.some(term => normalized.includes(term));
+  return mentionsForeign && !mentionsRoute;
+}
+
+function scoreTierAxes({ route, questionnaire, profile, materials }) {
+  const seniority = profile?.seniority_level || '';
+  const roles = Array.isArray(questionnaire?.target_role_hypotheses) ? questionnaire.target_role_hypotheses.filter(Boolean) : [];
+  const evidence = questionnaire?.evidence_of_results || '';
+  const marketLogic = questionnaire?.target_market_logic || '';
+  const reference = questionnaire?.reference_opportunity || '';
+  const hasConcreteProof = hasConcreteProofSignal(evidence);
+  const hasMarketAsset = hasPremiumMarketAsset(materials);
+  const referenceMapped = hasReferenceOpportunity(reference);
+  const alternativeMarkets = countAlternativeMarkets(marketLogic);
+  const referenceTension = detectReferenceMarketTension(reference, route);
+  const tradeoff = questionnaire?.has_meaningful_tradeoffs === true;
+  const highAmbiguity = questionnaire?.high_ambiguity_case === true;
+  const storyInconsistent = questionnaire?.story_inconsistent === true;
+
+  let density = 0;
+  const densityReasons = [];
+  if (['Senior', 'Especialista'].includes(seniority)) {
+    density = 1;
+    densityReasons.push('senioridade consolidada');
+  }
+  if (['Lideranca', 'Executivo'].includes(seniority) || ((['Senior', 'Especialista'].includes(seniority)) && hasConcreteProof)) {
+    density = 2;
+    densityReasons.push('trajetoria senior com responsabilidade defendivel');
+  }
+  if (!densityReasons.length && roles.length) densityReasons.push('senioridade ainda sem prova suficiente para leitura premium');
+
+  let proof = 0;
+  const proofReasons = [];
+  if (hasConcreteProof || referenceMapped || hasMarketAsset) {
+    proof = 1;
+    proofReasons.push('ja existe alguma prova ou ativo de mercado');
+  }
+  if (hasConcreteProof && referenceMapped) {
+    proof = 2;
+    proofReasons.push('resultado concreto combinado com vaga de referencia mapeada');
+  }
+  if (proof === 2 && hasMarketAsset) proofReasons.push('ativo adicional de mercado reforca a prova');
+  if (!proofReasons.length) proofReasons.push('prova ainda depende mais de intencao do que de evidencia');
+
+  let complexity = 0;
+  const complexityReasons = [];
+  if (roles.length > 1 || tradeoff || alternativeMarkets > 1) {
+    complexity = 1;
+    complexityReasons.push('ja existe mais de uma variavel real competindo');
+  }
+  if (highAmbiguity || storyInconsistent || referenceTension || (tradeoff && (roles.length > 1 || alternativeMarkets > 1))) {
+    complexity = 2;
+    complexityReasons.push(referenceTension
+      ? 'vaga de referencia aponta para uma trilha diferente da rota declarada'
+      : 'caso tem ambiguidade ou contradicao real');
+  }
+  if (!complexityReasons.length) complexityReasons.push('caminho ainda parece relativamente linear');
+
+  return {
+    density,
+    proof,
+    complexity,
+    total: density + proof + complexity,
+    referenceMapped,
+    referenceTension,
+    hasConcreteProof,
+    hasMarketAsset,
+    densityReasons,
+    proofReasons,
+    complexityReasons
+  };
+}
+
 function countTruthy(values) {
   return values.filter(Boolean).length;
 }
@@ -162,16 +275,12 @@ export function decideDossier(input = {}) {
   const materials = input.materials || {};
 
   if (!materials.cv) {
-    pushRule(payload.lists.blocking, 'missing_cv', 'CV ausente.', 'cv');
-    payload.audit.decision_reasons.push('faltou CV');
+    pushRule(payload.lists.required, 'missing_cv', 'CV ausente.', 'cv');
+    payload.audit.decision_reasons.push('faltou CV atual');
     payload.audit.critical_facts.push('materials.cv=false');
   }
 
-  if (score < 55) {
-    pushRule(payload.lists.blocking, 'below_internal_cutoff', 'Score abaixo do corte interno de 55.', 'cia_app');
-    payload.audit.decision_reasons.push('score abaixo do corte interno');
-    payload.audit.critical_facts.push(`cia_score=${score}`);
-  }
+  payload.audit.critical_facts.push(`cia_score=${score}`);
 
   if (!input.questionnaire) {
     pushRule(payload.lists.required, 'missing_questionnaire', 'Questionario estrategico complementar ausente.', 'strategic_questionnaire');
@@ -203,6 +312,14 @@ export function decideDossier(input = {}) {
 
   if (isWeakStrategicAnswer(q.target_market_logic)) {
     pushRule(payload.lists.required, 'market_logic_weak', 'Logica do mercado-alvo ainda esta fraca.', 'strategic_questionnaire');
+  }
+
+  if (!hasText(q.language_level_detail, 6)) {
+    pushRule(payload.lists.required, 'language_level_missing', 'Nivel de idioma nao foi confirmado.', 'strategic_questionnaire');
+  }
+
+  if (!hasText(q.reference_opportunity, 6)) {
+    pushRule(payload.lists.required, 'reference_opportunity_missing', 'Falta vaga de referencia ou declaracao explicita de que ainda nao existe.', 'strategic_questionnaire');
   }
 
   if (!hasText(q.evidence_of_results, 12)) {
@@ -250,54 +367,46 @@ export function decideDossier(input = {}) {
     });
   }
 
-  let densityScore = 0;
-  if (input.profile?.seniority_level && ['Senior', 'Especialista', 'Lideranca', 'Executivo'].includes(input.profile.seniority_level)) densityScore += 1;
-  if (Array.isArray(q.target_role_hypotheses) && q.target_role_hypotheses.length > 1) densityScore += 1;
-  if (q.has_meaningful_tradeoffs === true) densityScore += 1;
-  if (hasText(q.evidence_of_results, 40)) densityScore += 1;
-  if (q.high_ambiguity_case === true) densityScore += 1;
+  const axes = scoreTierAxes({
+    route: input.route || payload.input_snapshot.source_route,
+    questionnaire: q,
+    profile: input.profile || {},
+    materials
+  });
 
-  const defendableEvidenceCount = countDefendableEvidence(q.evidence_of_results);
-  const hasConcreteProof = hasConcreteProofSignal(q.evidence_of_results);
-  const hasPremiumAsset = hasPremiumMarketAsset(materials);
-  const hasRoleClarity = hasSpecificRoleHypothesis(q.target_role_hypotheses);
-  const scoreEligibleForCompleto = score >= 70;
+  payload.audit.tier_axes = axes;
+  payload.audit.critical_facts.push(`axis_density=${axes.density}`);
+  payload.audit.critical_facts.push(`axis_proof=${axes.proof}`);
+  payload.audit.critical_facts.push(`axis_complexity=${axes.complexity}`);
+  payload.audit.critical_facts.push(`axis_total=${axes.total}`);
+  payload.audit.critical_facts.push(`reference_mapped=${axes.referenceMapped}`);
+  payload.audit.critical_facts.push(`reference_tension=${axes.referenceTension}`);
+  payload.audit.critical_facts.push(`has_concrete_proof=${axes.hasConcreteProof}`);
 
-  payload.audit.critical_facts.push(`density_score=${densityScore}`);
-  payload.audit.critical_facts.push(`defendable_evidence_count=${defendableEvidenceCount}`);
-  payload.audit.critical_facts.push(`has_concrete_proof=${hasConcreteProof}`);
-  payload.audit.critical_facts.push(`has_premium_market_asset=${hasPremiumAsset}`);
-  payload.audit.critical_facts.push(`score_eligible_for_completo=${scoreEligibleForCompleto}`);
-
-  if (defendableEvidenceCount < 2) {
-    pushRule(payload.lists.warning, 'evidence_pack_thin', 'Ainda faltam pelo menos duas evidencias defendiveis para sustentar um premium.', 'strategic_questionnaire');
-  }
-
-  if (!hasConcreteProof) {
+  if (!axes.hasConcreteProof) {
     pushRule(payload.lists.warning, 'evidence_without_proof_signal', 'A evidencia ainda carece de numero, impacto ou contexto concreto.', 'strategic_questionnaire');
   }
 
-  if (!hasPremiumAsset) {
+  if (!axes.referenceMapped) {
+    pushRule(payload.lists.warning, 'reference_not_mapped', 'Ainda nao existe vaga de referencia clara mapeada pelo lead.', 'strategic_questionnaire');
+  }
+
+  if (!axes.hasMarketAsset) {
     pushRule(payload.lists.warning, 'market_assets_light', 'Falta ao menos um ativo adicional de mercado para sustentar um premium.', 'materials');
   }
 
   const warningCount = payload.lists.warning.length;
-  const requiresHumanReview = densityScore >= 4 || countTruthy([q.high_ambiguity_case, q.story_inconsistent, warningCount >= 3]) >= 2;
+  const requiresHumanReview = axes.total >= 5 || countTruthy([q.high_ambiguity_case, q.story_inconsistent, warningCount >= 3]) >= 2;
   if (requiresHumanReview) {
     pushRule(payload.lists.warning, 'needs_manual_review', 'Caso pede validacao humana antes de maior automacao.', 'combined');
   }
 
-  const completoEligible = scoreEligibleForCompleto &&
-    densityScore >= 4 &&
-    defendableEvidenceCount >= 2 &&
-    hasConcreteProof &&
-    hasPremiumAsset &&
-    hasRoleClarity;
+  const completoEligible = axes.total >= 4;
 
   if (completoEligible) {
-    pushRule(payload.lists.warning, 'high_complexity_case', 'Caso com densidade estrategica mais alta.', 'combined');
+    pushRule(payload.lists.warning, 'tier_completo_by_axes', `Soma D/P/C = ${axes.total}/6.`, 'combined');
     pushRule(payload.lists.warning, 'good_fit_completo', 'Bom fit para Dossie Completo.', 'combined');
-    payload.audit.decision_reasons.push('caso com densidade estrategica suficiente para completo');
+    payload.audit.decision_reasons.push(`soma D/P/C em ${axes.total}/6 com leitura premium defensavel`);
     return finalize(payload, 'Completo', {
       recommended_offer: 'Completo',
       payment_eligibility: 'allowed',
@@ -310,12 +419,9 @@ export function decideDossier(input = {}) {
     });
   }
 
-  if (densityScore >= 3) {
-    pushRule(payload.lists.warning, 'premium_gate_not_met', 'O caso tem potencial, mas ainda nao sustenta Dossie Completo com seguranca.', 'combined');
-  }
-
+  pushRule(payload.lists.warning, 'tier_lite_by_axes', `Soma D/P/C = ${axes.total}/6.`, 'combined');
   pushRule(payload.lists.warning, 'good_fit_lite', 'Bom fit para Dossie Lite.', 'combined');
-  payload.audit.decision_reasons.push('caso elegivel com menor densidade estrategica');
+  payload.audit.decision_reasons.push(`soma D/P/C em ${axes.total}/6, ainda sem densidade suficiente para completo`);
   return finalize(payload, 'Lite', {
     recommended_offer: 'Lite',
     payment_eligibility: 'allowed',

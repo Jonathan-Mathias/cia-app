@@ -22,6 +22,8 @@ function makeBaseInput(overrides = {}) {
       goal_for_next_12_months: 'Quero me reposicionar para o mercado alemao com candidatura mais legivel e focada.',
       target_market_logic: 'Alemanha faz sentido pela aderencia da minha experiencia e pelo tipo de industria que quero atacar.',
       evidence_of_results: 'Reduzi o tempo de ciclo em 18% em uma frente operacional. Liderei um projeto que gerou economia anual de EUR 120k com impacto direto na area.',
+      language_level_detail: 'Alemao B2 em contexto profissional tecnico.',
+      reference_opportunity: 'Vaga de Operations Manager em empresa industrial na Alemanha ja mapeada.',
       availability_for_execution: 'media',
       urgency_window: '3-6 meses',
       target_role_hypotheses: ['Operations Manager', 'Project Manager'],
@@ -37,16 +39,9 @@ function makeBaseInput(overrides = {}) {
 {
   const out = decideDossier(makeBaseInput({ materials: { cv: false } }));
   assertDecisionContract(out);
-  assert.equal(out.decision.status, 'Recusa');
-  assert.equal(out.decision.payment_eligibility, 'blocked');
-  assert.ok(out.lists.blocking.some(item => item.code === 'missing_cv'));
-}
-
-{
-  const out = decideDossier(makeBaseInput({ score: 48, band: 'Em Rota' }));
-  assertDecisionContract(out);
-  assert.equal(out.decision.status, 'Recusa');
-  assert.ok(out.lists.blocking.some(item => item.code === 'below_internal_cutoff'));
+  assert.equal(out.decision.status, 'Faltam dados');
+  assert.equal(out.decision.payment_eligibility, 'pending_complement');
+  assert.ok(out.lists.required.some(item => item.code === 'missing_cv'));
 }
 
 {
@@ -68,6 +63,8 @@ function makeBaseInput(overrides = {}) {
       goal_for_next_12_months: 'Quero corrigir a legibilidade do meu perfil e atacar o mercado certo.',
       target_market_logic: 'Existe aderencia entre meu historico e a demanda do mercado alvo.',
       evidence_of_results: 'Tenho alguns resultados e experiencia relevante, mas ainda sem muitos numeros organizados.',
+      language_level_detail: 'Alemao B1 em progresso.',
+      reference_opportunity: 'Ainda nao mapeei uma vaga especifica.',
       availability_for_execution: 'media',
       urgency_window: '3-6 meses',
       target_role_hypotheses: ['Operations Manager'],
@@ -86,6 +83,8 @@ function makeBaseInput(overrides = {}) {
       goal_for_next_12_months: 'Quero corrigir a legibilidade do meu perfil e atacar o mercado certo.',
       target_market_logic: 'Existe aderencia entre meu historico e a demanda do mercado alvo.',
       evidence_of_results: 'Tenho alguns resultados e experiencia relevante.',
+      language_level_detail: 'Alemao B1 em progresso.',
+      reference_opportunity: 'Ainda nao mapeei uma vaga especifica.',
       availability_for_execution: 'media',
       urgency_window: '3-6 meses',
       target_role_hypotheses: ['Operations Manager'],

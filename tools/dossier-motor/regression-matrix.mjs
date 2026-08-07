@@ -22,6 +22,8 @@ function makeBaseInput(overrides = {}) {
       goal_for_next_12_months: 'Quero me reposicionar para o mercado alemao com candidatura mais legivel e foco em vaga alvo.',
       target_market_logic: 'A Alemanha faz sentido pela aderencia da minha experiencia e pelo tipo de industria que quero atacar.',
       evidence_of_results: 'Aumentei a produtividade da operacao em 14% em uma frente critica. Liderei um redesenho que cortou EUR 90k em desperdicio anual.',
+      language_level_detail: 'Alemao B2 em contexto profissional.',
+      reference_opportunity: 'Vaga de Operations Manager em empresa industrial na Alemanha ja mapeada.',
       availability_for_execution: 'media',
       urgency_window: '3-6 meses',
       target_role_hypotheses: ['Operations Manager', 'Project Manager'],
@@ -39,9 +41,9 @@ const cases = [
     id: 'recusa_missing_cv',
     input: makeBaseInput({ materials: { cv: false, linkedin: true, portfolio: false, github: false } }),
     expect: {
-      status: 'Recusa',
-      payment: 'blocked',
-      blocking: ['missing_cv']
+      status: 'Faltam dados',
+      payment: 'pending_complement',
+      required: ['missing_cv']
     }
   },
   {
@@ -94,6 +96,8 @@ const cases = [
         goal_for_next_12_months: 'Quero corrigir a legibilidade do meu perfil e atacar o mercado certo.',
         target_market_logic: 'Existe aderencia entre meu historico e a demanda do mercado alvo.',
         evidence_of_results: 'Tenho alguns resultados e experiencia relevante, mas ainda sem muitos numeros organizados.',
+        language_level_detail: 'Alemao B1 em progresso.',
+        reference_opportunity: 'Ainda nao mapeei uma vaga especifica.',
         availability_for_execution: 'media',
         urgency_window: '3-6 meses',
         target_role_hypotheses: ['Operations Manager'],
@@ -129,9 +133,9 @@ const cases = [
       }
     }),
     expect: {
-      status: 'Lite',
+      status: 'Completo',
       payment: 'allowed',
-      offer: 'Lite'
+      offer: 'Completo'
     }
   }
 ];

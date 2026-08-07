@@ -9,6 +9,8 @@
     "goal_for_next_12_months",
     "target_market_logic",
     "evidence_of_results",
+    "language_level_detail",
+    "reference_opportunity",
     "availability_for_execution",
     "urgency_window",
     "target_role_hypotheses",
@@ -31,6 +33,16 @@
     "evidence_of_results": {
       "type": "string",
       "minLength": 12,
+      "maxLength": 600
+    },
+    "language_level_detail": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 240
+    },
+    "reference_opportunity": {
+      "type": "string",
+      "minLength": 6,
       "maxLength": 600
     },
     "availability_for_execution": {

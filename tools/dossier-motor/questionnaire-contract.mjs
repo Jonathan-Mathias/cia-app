@@ -8,7 +8,9 @@ export const STRATEGIC_QUESTIONNAIRE_SCHEMA = JSON.parse(
 const STRING_FIELDS = [
   'goal_for_next_12_months',
   'target_market_logic',
-  'evidence_of_results'
+  'evidence_of_results',
+  'language_level_detail',
+  'reference_opportunity'
 ];
 
 const BOOLEAN_FIELDS = [
