@@ -352,7 +352,7 @@ const RUNTIME_PARAMS = (()=>{try{return new URLSearchParams(window.location.sear
 const QA_MODE = ['1','true','yes'].includes(String(RUNTIME_PARAMS.get('qa')||'').toLowerCase());
 const APP_CONFIG = Object.freeze({
   env: 'production',
-  version: '2.8-home-map-background',
+  version: '2.8.1-market-subtitles-removed',
   integrations: {
     // Google Apps Script continua como proxy seguro para Sheets/Brevo.
     // Não colocar chaves Brevo ou service_role do Supabase no frontend.
@@ -2727,7 +2727,6 @@ function renderMarketChoice(){
   <rect x="0" y="37" width="56" height="19" fill="#D4AF37" clip-path="url(#cde)"/>
 </svg></div>
           <div class="trilha-nome">Alemanha</div>
-          <div class="trilha-btn-sub">rota principal EML</div>
         </button></div>
         <div class="trilha-btn-wrap au"><button class="trilha-btn" id="btn-au">
           <div class="trilha-flag"><svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
@@ -2753,7 +2752,6 @@ function renderMarketChoice(){
   </g>
 </svg></div>
           <div class="trilha-nome">Austrália</div>
-          <div class="trilha-btn-sub">segunda rota</div>
         </button></div>
       </div>
       <button class="market-back" id="btn-market-back" type="button">Voltar</button>
