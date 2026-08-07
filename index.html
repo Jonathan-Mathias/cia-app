@@ -44,14 +44,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .cia-brand-name{font-family:'DM Serif Display',serif;font-size:28px;line-height:1;color:#F7F3EA}
 .cia-brand-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:#C9A46A;margin-top:7px}
 .cia-menu{width:36px;height:36px;border:1px solid rgba(201,164,106,.28);border-radius:8px;background:transparent;color:#C9A46A;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1}
-.cia-hero{position:relative;padding:44px 4px 22px;overflow:hidden}
-.cia-map{position:absolute;right:-72px;top:26px;width:280px;max-width:72%;opacity:.64;color:#C9A46A;pointer-events:none}
-.cia-coords{position:absolute;right:112px;top:74px;font-family:'DM Mono',monospace;font-size:9px;line-height:1.7;color:#C9A46A;letter-spacing:.8px;opacity:.78}
+.cia-hero{position:relative;padding:44px 4px 26px;overflow:hidden;text-align:center;display:grid;justify-items:center}
+.cia-map{position:absolute;left:50%;top:18px;transform:translateX(-50%);width:320px;max-width:86%;opacity:.38;color:#C9A46A;pointer-events:none}
+.cia-coords{position:relative;right:auto;top:auto;font-family:'DM Mono',monospace;font-size:9px;line-height:1.7;color:#C9A46A;letter-spacing:.8px;opacity:.78;margin-bottom:18px}
 .trilha-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;font-weight:600}
-.trilha-h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,9.4vw,56px);line-height:1.08;color:#F7F3EA;margin-bottom:24px;letter-spacing:0;max-width:390px;text-align:left;text-wrap:balance}
-.cia-rule{width:54px;height:2px;background:#C9A46A;margin:0 0 26px}
-.trilha-sub{font-size:16px;color:rgba(247,243,234,.76);margin-bottom:0;line-height:1.68;max-width:330px;text-align:left}
-.trilha-context{display:flex;flex-direction:column;gap:0;margin:18px 0 24px;border:1px solid rgba(201,164,106,.28);border-radius:8px;padding:0 18px;background:rgba(5,8,7,.58)}
+.trilha-h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,9.4vw,56px);line-height:1.08;color:#F7F3EA;margin-bottom:24px;letter-spacing:0;max-width:460px;text-align:center;text-wrap:balance}
+.cia-rule{width:54px;height:2px;background:#C9A46A;margin:0 auto 26px}
+.trilha-sub{font-size:16px;color:rgba(247,243,234,.76);margin-bottom:0;line-height:1.68;max-width:430px;text-align:center}
+.trilha-context{display:flex;flex-direction:column;gap:0;margin:18px auto 24px;border:1px solid rgba(201,164,106,.28);border-radius:8px;padding:0 18px;background:rgba(5,8,7,.58);max-width:470px}
 .trilha-context-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C9A46A;background:#070908;padding:0 8px;margin:-7px 0 0;width:max-content}
 .trilha-proof{display:grid;grid-template-columns:62px 1fr 46px;align-items:center;gap:12px;padding:15px 0;background:transparent;border:none;border-bottom:1px solid rgba(201,164,106,.16);border-radius:0;backdrop-filter:none}
 .trilha-proof:last-child{border-bottom:none}
@@ -69,10 +69,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .cia-foot-center{height:34px;border-left:1px solid rgba(201,164,106,.22);border-right:1px solid rgba(201,164,106,.22);display:flex;align-items:center;justify-content:center;color:#C9A46A}
 .cia-foot-right{text-align:right;color:rgba(201,164,106,.62)}
 .market-wrap{min-height:calc(100vh - 100px);padding:10px 0 20px}
-.market-question{padding:42px 4px 24px}
+.market-question{padding:42px 4px 24px;text-align:center;display:grid;justify-items:center}
 .market-kicker{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#C9A46A;margin-bottom:16px}
-.market-title{font-family:'DM Serif Display',serif;font-size:clamp(36px,9vw,52px);line-height:1.08;color:#F7F3EA;text-wrap:balance;margin-bottom:18px}
-.market-sub{font-size:15px;color:rgba(247,243,234,.64);line-height:1.7;max-width:360px}
+.market-title{font-family:'DM Serif Display',serif;font-size:clamp(36px,9vw,52px);line-height:1.08;color:#F7F3EA;text-wrap:balance;margin-bottom:18px;max-width:430px}
+.market-sub{font-size:15px;color:rgba(247,243,234,.64);line-height:1.7;max-width:390px;text-align:center}
 .trilha-divider{display:flex;align-items:center;gap:12px;margin:0 auto 18px;max-width:440px}
 .trilha-divider::before,.trilha-divider::after{content:'';flex:1;height:1px;background:rgba(201,164,106,.18)}
 .trilha-divider-txt{font-family:'DM Mono',monospace;font-size:10px;color:rgba(247,243,234,.42);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;padding:0 4px}
@@ -331,8 +331,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   .app{padding-left:14px;padding-right:14px}
   .cia-brand-name{font-size:25px}
   .trilha-h1{font-size:37px}
-  .cia-map{right:-92px;max-width:78%}
-  .cia-coords{display:none}
+  .cia-map{top:24px;width:240px;max-width:92%;opacity:.3}
+  .cia-coords{display:block;margin-bottom:12px;font-size:8px}
   .trilha-proof{grid-template-columns:54px 1fr 34px}
   .trilha-proof-title{font-size:18px}
   .trilha-btn{min-height:154px}
@@ -354,7 +354,7 @@ const RUNTIME_PARAMS = (()=>{try{return new URLSearchParams(window.location.sear
 const QA_MODE = ['1','true','yes'].includes(String(RUNTIME_PARAMS.get('qa')||'').toLowerCase());
 const APP_CONFIG = Object.freeze({
   env: 'production',
-  version: '2.5-dossier-motor-foundation',
+  version: '2.6-home-market-dossier-reset',
   integrations: {
     // Google Apps Script continua como proxy seguro para Sheets/Brevo.
     // Não colocar chaves Brevo ou service_role do Supabase no frontend.
@@ -571,6 +571,36 @@ function clearDossierFlowState(){
   clearDossierInterview();
   clearMotorInput();
   clearMotorDecision();
+}
+
+function clearLegacyDossierStorage(){
+  const keys=[
+    'ciaDossierDecision',
+    'ciaDossierInput',
+    'ciaDossierInput_adaptiveInterview',
+    'ciaDossierInput_fulfillment',
+    'ciaDossierMotorDecision',
+    'ciaDossierMotorInput',
+    'ciaDossierInterview',
+    'ciaDossierFulfillment'
+  ];
+  keys.forEach((key)=>{
+    try{sessionStorage.removeItem(key);}catch(e){}
+    try{localStorage.removeItem(key);}catch(e){}
+  });
+}
+
+function syncAppVersionState(){
+  const key='ciaAppVersion';
+  try{
+    const current=APP_CONFIG.version;
+    const previous=localStorage.getItem(key);
+    if(previous!==current){
+      clearLegacyDossierStorage();
+      clearDossierFlowState();
+      localStorage.setItem(key,current);
+    }
+  }catch(e){}
 }
 
 function getMotorDecisionSummary(decision){
@@ -1131,7 +1161,13 @@ async function requestMotorDecision(result,band){
   }catch(e){
     if(timeoutId) clearTimeout(timeoutId);
     logEvent('dossier_decision_error',{motor_source:'fallback_after_error',error:e&&e.message?e.message:String(e)});
-    return {decision:getStoredMotorDecision(),source:'fallback_after_error',error:e&&e.message?e.message:String(e)};
+    const decision=requestBody?decideDossierInBrowser(requestBody):getStoredMotorDecision();
+    if(decision&&requestBody){
+      storeMotorDecision(decision);
+      const decisionRecord=buildDossierDecisionRecord(requestBody,decision,'browser_fallback_after_error');
+      if(decisionRecord) supabaseInsert('dossierDecisions', decisionRecord);
+    }
+    return {decision,source:'fallback_after_error',error:e&&e.message?e.message:String(e)};
   }
 }
 
@@ -2737,6 +2773,7 @@ function renderMarketChoice(){
 
 function startTrilha(t){
   T=t;QS=getQuestions(t);step=0;ANS={};CTR={adultos:0,criancas:0,jovens:0};
+  clearDossierFlowState();
   logEvent('route_selected',{trilha:t});
   // LEAD data preserved for refazer flow — only reset GEO if starting fresh
   renderCadastro();
@@ -4248,6 +4285,7 @@ function routeSwitchInline(){
   return `<div class="route-switch-wrap"><button class="route-switch-btn" onclick="switchRoute()">Escolher outro destino</button></div>`;
 }
 
+syncAppVersionState();
 if(window.location.hash==='#market') renderMarketChoice();
 else renderTrilha();
 logEvent('app_loaded');
