@@ -1,0 +1,47 @@
+{
+  "id": "sAEjv5XYhYIqf20M7EiNT",
+  "candidateId": "gJ9p1qkz5wILAMUmnohJf",
+  "projectId": "0UlBFfHse3G48NjZpkjDO",
+  "targetCountry": "DE",
+  "projectType": "general",
+  "documentLanguage": "en",
+  "cvMarkdown": "# Carlos Mendes\n\n## Header\n- Curitiba, Brazil\n- Brazilian | Sponsorship required\n- carlos@example.com\n- +55 41 99999-9999\n- linkedin.com/in/carlosmendes\n\n## Target\n- DE\n- Operations Manager\n- Manager / emerging senior manager\n- Document language: en\n\n## Summary\nOperations Manager profile with 5+ years of experience across manufacturing operations, production planning and process discipline. Strongest fit in structured environments that value operational discipline, execution consistency, clear ownership and a coherent trajectory.\n\n## Core Skills\n- Manufacturing operations\n- Production planning\n- Cross-functional coordination\n- Delivery reliability support\n- Operational discipline\n\n## Professional Experience\n### MetalForm Industrial | Operations Coordinator | 2020-03 to 2024-02\n- Coordinated daily execution routines across 3 production lines, aligning Production, Maintenance, Planning and Sales around recurring bottlenecks.\n- Helped reduce recurring delivery delays Estimated 18% delay reduction in 12 months\n- Improved escalation discipline Improved routine visibility across teams\n- Strengthened follow-up routines between frontline and support teams Supported an operation involving approximately 22 direct and indirect team members\n\n### MetalForm Industrial | Production Analyst | 2016-01 to 2020-02\n- Supported KPI monitoring, weekly production visibility and planning routines for supervisors and planners.\n- Improved weekly reporting structure Better operational visibility for supervisors\n- Helped track recurring bottlenecks more consistently Improved planning follow-up consistency\n\n## Education\n- Bachelor in Production Engineering | PUC-PR | 2015\n\n## Certifications\n- Lean Six Sigma Green Belt\n\n## Languages\n- English — Advanced\n- German — Intermediate\n",
+  "diagnosticMarkdown": "# CV Diagnostic — Carlos Mendes\n\n## Readiness State\n- Applicable with warnings\n\n## Project\n- Carlos Mendes - DE CV project\n- general\n- DE\n\n## Total Score\n- 70/100\n\n## Score by Dimension\n- Clareza de objetivo: 16/20\n- Evidência de impacto: 16/25\n- Coerência da trajetória / Roter Faden: 16/20\n- Fit com mercado-alvo: 10/15\n- Comunicação e idioma: 7/10\n- Status migratório / empregabilidade prática: 5/10\n\n## Strengths\n- The profile already has a readable target direction.\n- There is enough raw material to build a market-facing version without inflating seniority.\n- The experience base can be positioned with stronger evidence over time.\n\n## Priority Alerts\n- Work authorization remains a practical employability constraint.\n\n## Recommended Next Moves\n- Recover 2 or 3 stronger metrics from the main roles.\n- Tighten the central positioning thesis.\n- Keep only what the candidate can defend in interview.\n",
+  "score": {
+    "total": 70,
+    "readinessState": "Applicable with warnings",
+    "scoreByDimension": [
+      [
+        "Clareza de objetivo",
+        20,
+        16
+      ],
+      [
+        "Evidência de impacto",
+        25,
+        16
+      ],
+      [
+        "Coerência da trajetória / Roter Faden",
+        20,
+        16
+      ],
+      [
+        "Fit com mercado-alvo",
+        15,
+        10
+      ],
+      [
+        "Comunicação e idioma",
+        10,
+        7
+      ],
+      [
+        "Status migratório / empregabilidade prática",
+        10,
+        5
+      ]
+    ]
+  },
+  "createdAt": "2026-05-12T20:28:03.442Z"
+}

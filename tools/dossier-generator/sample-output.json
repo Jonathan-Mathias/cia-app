@@ -1,0 +1,117 @@
+{
+  "cliente": {
+    "nome": "Camila Santos",
+    "area": "Operacoes Industriais",
+    "paises_alvo": ["Alemanha"]
+  },
+  "secao_01_diagnostico": {
+    "citacao_abertura": "Voce nao e uma gestora tentando parecer internacional. Voce ja carrega repertorio operacional real, mas ainda nao o traduz com a precisao que o mercado alemao exige.",
+    "paragrafos": [
+      "Seu perfil combina experiencia de operacao, coordenacao entre areas e capacidade de sustentar rotina com disciplina. Isso ja te coloca acima de um curriculo de execucao generica.",
+      "O ponto fraco hoje nao e falta de substancia. E falta de legibilidade internacional. O mercado pode te ler como mais uma profissional competente, quando na pratica ha densidade maior de ownership e coordenacao.",
+      "Quando um perfil como o seu nao converte, o problema costuma estar menos em capacidade e mais em narrativa, foco de mercado e prova do impacto entregue."
+    ],
+    "diferenciais": [
+      "Experiencia combinando rotina operacional e interface com times multifuncionais",
+      "Capacidade de segurar execucao com disciplina em contexto industrial",
+      "Base suficiente para tese de lideranca operacional em mercado estruturado"
+    ]
+  },
+  "secao_02_ponto_cego": {
+    "tem_contradicao": true,
+    "contradicoes": [
+      {
+        "titulo": "Tese de cargo ainda oscilando",
+        "texto": "Hoje voce se declara como Operations Manager, mas nos ultimos meses tambem usou Project Manager. Isso dilui a tese central do perfil e enfraquece a leitura de senioridade especifica."
+      },
+      {
+        "titulo": "Mercado escolhido pede foco mais duro",
+        "texto": "Seu comportamento recente ja aponta para a Alemanha, o que e coerente. O risco agora nao e contradicao de pais. E manter uma tese de candidatura ampla demais para um mercado que valoriza recorte claro."
+      }
+    ],
+    "texto_se_sem_contradicao": ""
+  },
+  "secao_03_identidade_valor": {
+    "proposta_central": "Seu valor nao esta em conhecer ferramentas. Esta em fazer operacoes rodarem com consistencia, coordernacao e previsibilidade em ambientes que cobram disciplina real.",
+    "eixos": [
+      {
+        "nome": "Execucao com cadencia",
+        "texto": "Voce sustenta rotina operacional sem depender de heroismo, o que aumenta previsibilidade e reduz ruido entre times."
+      },
+      {
+        "nome": "Coordenacao entre funcoes",
+        "texto": "Seu perfil conecta operacao, planejamento e alinhamento entre areas, o que evita gargalos invisiveis para liderancas menos integradoras."
+      },
+      {
+        "nome": "Leitura de melhoria pratica",
+        "texto": "Voce nao atua so em manutencao do status quo. Ha base para construir narrativa de melhoria operacional com criterio e consistencia."
+      }
+    ]
+  },
+  "secao_04_posicionamento_mercado": {
+    "trilhas": [
+      {
+        "nome": "Operacoes industriais em empresas medias e grandes",
+        "prioridade": "Alta",
+        "texto": "E a trilha mais coerente com sua base atual porque preserva o eixo industrial e reduz a necessidade de reinvencao completa de narrativa."
+      },
+      {
+        "nome": "Coordenacao de projetos operacionais",
+        "prioridade": "Media",
+        "texto": "Pode funcionar como segunda trilha se a narrativa principal continuar muito difusa para vagas de operacoes mais puras."
+      }
+    ],
+    "tabela_salarial": [
+      {
+        "posicao": "Operacoes",
+        "junior": "EUR 42k-50k",
+        "pleno_senior": "EUR 58k-78k",
+        "lideranca": "EUR 78k-100k+"
+      },
+      {
+        "posicao": "Projetos industriais",
+        "junior": "EUR 45k-55k",
+        "pleno_senior": "EUR 60k-82k",
+        "lideranca": "EUR 82k-105k+"
+      }
+    ],
+    "fonte_salarial": "Estimativas compiladas a partir de Glassdoor e Stepstone. Recomendo confirmar com fonte primaria e vagas reais da sua cidade-alvo."
+  },
+  "secao_05_rota_visto": {
+    "caminhos": [
+      {
+        "titulo": "Oferta direta com patrocinio",
+        "texto": "Segue sendo a rota mais clara se sua tese de candidatura ganhar precisao e prova. E o caminho com maior alinhamento entre mercado e documento."
+      },
+      {
+        "titulo": "Chancenkarte ou rota semelhante de entrada",
+        "texto": "Pode fazer sentido se a combinacao entre idioma, reserva financeira e perfil profissional sustentar uma entrada estrategica sem depender de oferta imediata."
+      }
+    ],
+    "aviso_legal": "Esta secao e leitura estrategica de entrada. Nao substitui assessoria juridica de imigracao."
+  },
+  "secao_06_arquitetura_candidatura": {
+    "passos": [
+      {
+        "numero": 1,
+        "texto": "Fixar uma tese unica de cargo para os proximos 90 dias e remover a oscilacao entre operacoes e projetos."
+      },
+      {
+        "numero": 2,
+        "texto": "Reescrever CV e LinkedIn com foco em ownership operacional, interface entre areas e impacto legivel."
+      },
+      {
+        "numero": 3,
+        "texto": "Selecionar 20 vagas-referencia na Alemanha para calibrar linguagem, senioridade e exigencias repetidas."
+      },
+      {
+        "numero": 4,
+        "texto": "Fechar um pacote minimo de provas publicas e bullets de resultado defendiveis em entrevista."
+      },
+      {
+        "numero": 5,
+        "texto": "Executar candidatura em lotes curtos, medindo resposta por tipo de vaga e ajustando a tese antes de escalar volume."
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Elite Migration - Dossie Intake",
+  "type": "object",
+  "required": [
+    "titulo_declarado_hoje",
+    "pais_prioridade_1",
+    "motivo_prioridade_1",
+    "onde_investe_tempo_dinheiro_4_semanas",
+    "reserva_financeira_meses",
+    "meta_salarial_minima",
+    "meta_salarial_alvo",
+    "moeda",
+    "flexibilidade_cidade"
+  ],
+  "properties": {
+    "cv_file_url": { "type": "string", "description": "URL do CV no Supabase Storage" },
+    "titulo_declarado_hoje": { "type": "string" },
+    "titulo_usado_ultimos_6_meses": { "type": ["string", "null"] },
+    "pais_prioridade_1": { "type": "string" },
+    "motivo_prioridade_1": { "type": "string" },
+    "onde_investe_tempo_dinheiro_4_semanas": { "type": "string" },
+    "prova_publica_existente": { "type": ["string", "null"] },
+    "vaga_referencia_real": { "type": ["string", "null"] },
+    "reserva_financeira_meses": { "type": "number" },
+    "tem_familia_dependentes": { "type": "boolean" },
+    "contexto_familia": { "type": ["string", "null"] },
+    "outras_cidadanias_ascendencia": { "type": ["string", "null"] },
+    "situacao_visto_atual": { "type": ["string", "null"] },
+    "flexibilidade_cidade": { "type": "string", "enum": ["aberto", "fechado_em_uma_cidade"] },
+    "cidade_especifica": { "type": ["string", "null"] },
+    "meta_salarial_minima": { "type": "number" },
+    "meta_salarial_alvo": { "type": "number" },
+    "moeda": { "type": "string", "enum": ["EUR", "AUD", "GBP", "USD", "BRL"] }
+  }
+}
